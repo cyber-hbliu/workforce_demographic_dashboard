@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>U.S. Workforce Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Spline+Sans+Mono:wght@300..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div>
+    <p class="eyebrow">Bureau of Labor Statistics · LAUS + CES</p>
+    <h1 class="wordmark">The <em>Workforce</em> Monitor</h1>
+  </div>
+  <p class="updated mono" id="updated"></p>
+</header>
+
+<main class="frame">
+
+  <aside class="rail">
+    <div class="level-toggle" role="tablist" aria-label="Geography level">
+      <button class="level-btn is-active" data-level="nation" role="tab">Nation</button>
+      <button class="level-btn" data-level="state" role="tab">States</button>
+      <button class="level-btn" data-level="metro" role="tab">Metros</button>
+    </div>
+    <input class="search mono" id="search" type="search" placeholder="Filter areas" aria-label="Filter areas">
+    <ol class="area-list" id="area-list"></ol>
+  </aside>
+
+  <section class="stage">
+    <div class="hero">
+      <p class="eyebrow" id="hero-eyebrow"></p>
+      <h2 class="hero-name" id="hero-name"></h2>
+      <div class="hero-row">
+        <span class="hero-number mono" id="hero-rate"></span>
+        <span class="hero-unit">% unemployment</span>
+        <span class="hero-delta mono" id="hero-delta"></span>
+      </div>
+      <dl class="stats" id="stats"></dl>
+    </div>
+
+    <figure class="panel">
+      <figcaption class="panel-title">Unemployment rate by state<span class="panel-sub" id="map-month"></span></figcaption>
+      <div id="map"></div>
+      <div class="ramp mono" id="ramp"></div>
+    </figure>
+
+    <figure class="panel">
+      <figcaption class="panel-title">Ten-year trend<span class="panel-sub">selection vs national</span></figcaption>
+      <div id="trend"></div>
+    </figure>
+  </section>
+
+  <aside class="rose-dock">
+    <figure class="panel panel-rose">
+      <figcaption class="panel-title">Industry structure<span class="panel-sub">location quotient vs U.S. = 1.0</span></figcaption>
+      <div id="rose"></div>
+      <figcaption class="rose-legend mono">
+        <span>outside the dashed ring · industry share above the U.S.</span>
+        <span>inside the dashed ring · below the U.S.</span>
+      </figcaption>
+    </figure>
+  </aside>
+
+</main>
+
+<footer class="colophon">
+  <p>Data: BLS Local Area Unemployment Statistics and Current Employment Statistics, not seasonally adjusted where noted. Refreshed the day after each scheduled release.</p>
+</footer>
+
+<div class="tip mono" id="tip" hidden></div>
+
+<script src="lib/d3.v7.min.js"></script>
+<script src="lib/topojson-client.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
