@@ -1,15 +1,23 @@
 """Fetch BLS workforce data and write static JSON for the dashboard.
 
 Sources (BLS API v2, key required via env BLS_API_KEY):
-  LAUS  state:  unemployment rate / unemployment / employment / labor force
-  LAUS  metro:  unemployment rate / labor force
-  CES-SM state & metro: employment by supersector (NSA), for location quotients
-  CES   national: supersector employment (NSA) + national unemployment rate
+  LAUS  state (seasonally adjusted, LAS): unemployment rate / unemployed / employed / labor force
+  LAUS  metro & micro (not seasonally adjusted, LAU): unemployment rate / labor force
+  CES-SM state & metro (NSA): total nonfarm + employment by supersector, for shares
+        and location quotients
+  CES   national (NSA): total nonfarm + supersector employment
+  CPS   national unemployment rate (LNS14000000, SA)
+
+Series ids are built from the BLS area codes resolved by scripts/build_areas.py
+(config/areas.json: laus_area, state_fips, ces) so nothing is hand-padded.
+  state LAUS  = "LAS" + "ST" + fips + 11 zeros + measure   e.g. LASST060000000000003
+  metro LAUS  = "LAU" + laus_area (15 chars)   + measure   e.g. LAUMT063108000000003
+  CES         = "SMU" + state_fips + area5 + industry8 + "01"  e.g. SMU06310800000000001
 
 Outputs to docs/data/:
   national.json  states.json  metros.json  rose.json  meta.json
 
-Budget: ~27 API requests per full run (limit is 500/day with a key).
+Budget: ~45 API requests per full run (limit is 500/day with a key).
 """
 import json
 import os
@@ -32,21 +40,20 @@ STATES = AREAS["states"]
 METROS = AREAS["metros"]
 SUPERSECTORS = AREAS["supersectors"]
 
+LAUS_MEASURES = {"03": "unemp_rate", "04": "unemployed", "05": "employed", "06": "labor_force"}
+
 # ---------------------------------------------------------------- series ids
 
 def laus_state(fips: str, measure: str) -> str:
-    # LAU + ST + fips + 13 zeros -> 15-char area code, + 2-char measure
-    return f"LAUST{fips}{'0' * 13}{measure}"
+    return f"LASST{fips}{'0' * 11}{measure}"
 
-def laus_metro(fips: str, cbsa: str, measure: str) -> str:
-    return f"LAUMT{fips}{cbsa}{'0' * 8}{measure}"
+def laus_metro(laus_area: str, measure: str) -> str:
+    return f"LAU{laus_area}{measure}"
 
-def sm(fips: str, area: str, industry: str) -> str:
-    # SMU = not seasonally adjusted, datatype 01 = all employees (thousands)
-    return f"SMU{fips}{area}{industry}01"
+def ces(state_fips: str, area5: str, industry: str) -> str:
+    return f"SMU{state_fips}{area5}{industry}01"
 
-def national_supersector(industry: str) -> str:
-    # CEU = national CES, not seasonally adjusted
+def ces_national(industry: str) -> str:
     return f"CEU{industry}01"
 
 
@@ -54,25 +61,25 @@ def build_catalog() -> dict[str, dict]:
     """series_id -> {kind, area, field}"""
     cat: dict[str, dict] = {}
     for fips in STATES:
-        for m, field in (("03", "unemp_rate"), ("04", "unemployed"),
-                         ("05", "employed"), ("06", "labor_force")):
+        for m, field in LAUS_MEASURES.items():
             cat[laus_state(fips, m)] = {"kind": "state_laus", "area": fips, "field": field}
-        cat[sm(fips, "00000", "00000000")] = {"kind": "state_ces", "area": fips, "field": "total"}
+        cat[ces(fips, "00000", "00000000")] = {"kind": "state_ces", "area": fips, "field": "total"}
         for ind in SUPERSECTORS:
-            cat[sm(fips, "00000", ind)] = {"kind": "state_ces", "area": fips, "field": ind}
+            cat[ces(fips, "00000", ind)] = {"kind": "state_ces", "area": fips, "field": ind}
     for m in METROS:
-        for meas, field in (("03", "unemp_rate"), ("06", "labor_force")):
-            cat[laus_metro(m["state_fips"], m["cbsa"], meas)] = {
-                "kind": "metro_laus", "area": m["cbsa"], "field": field}
-        cat[sm(m["state_fips"], m["cbsa"], "00000000")] = {
-            "kind": "metro_ces", "area": m["cbsa"], "field": "total"}
-        for ind in SUPERSECTORS:
-            cat[sm(m["state_fips"], m["cbsa"], ind)] = {
-                "kind": "metro_ces", "area": m["cbsa"], "field": ind}
+        for meas in ("03", "06"):
+            cat[laus_metro(m["laus_area"], meas)] = {
+                "kind": "metro_laus", "area": m["cbsa"], "field": LAUS_MEASURES[meas]}
+        if m["ces"]:
+            cat[ces(m["state_fips"], m["cbsa"], "00000000")] = {
+                "kind": "metro_ces", "area": m["cbsa"], "field": "total"}
+            for ind in SUPERSECTORS:
+                cat[ces(m["state_fips"], m["cbsa"], ind)] = {
+                    "kind": "metro_ces", "area": m["cbsa"], "field": ind}
     cat["LNS14000000"] = {"kind": "national", "area": "US", "field": "unemp_rate"}
-    cat[national_supersector("00000000")] = {"kind": "national_ces", "area": "US", "field": "total"}
+    cat[ces_national("00000000")] = {"kind": "national_ces", "area": "US", "field": "total"}
     for ind in SUPERSECTORS:
-        cat[national_supersector(ind)] = {"kind": "national_ces", "area": "US", "field": ind}
+        cat[ces_national(ind)] = {"kind": "national_ces", "area": "US", "field": ind}
     return cat
 
 # ----------------------------------------------------------------- fetching
@@ -84,15 +91,18 @@ def fetch(series_ids: list[str]) -> list[dict]:
         payload = {"seriesid": chunk, "startyear": START_YEAR,
                    "endyear": END_YEAR, "registrationkey": KEY}
         for attempt in range(3):
-            r = requests.post(API, json=payload, timeout=60)
+            r = requests.post(API, json=payload, timeout=90)
             body = r.json()
             if r.ok and body.get("status") == "REQUEST_SUCCEEDED":
+                for msg in body.get("message", []):
+                    print(f"  note: {msg}", file=sys.stderr)
                 out.extend(body["Results"]["series"])
                 break
             print(f"retry {attempt + 1}: {body.get('message')}", file=sys.stderr)
             time.sleep(5 * (attempt + 1))
         else:
             raise RuntimeError(f"chunk starting {chunk[0]} failed")
+        print(f"  {min(i + 50, len(series_ids))}/{len(series_ids)} series")
         time.sleep(0.5)
     return out
 
@@ -113,28 +123,37 @@ def tidy(series: dict) -> list[dict]:
 
 # ------------------------------------------------------------------ shaping
 
-def latest(rows: list[dict]):
+def latest(rows):
     return rows[-1] if rows else None
 
 
-def location_quotients(area_ces: dict, us_ces: dict) -> list[dict]:
-    """LQ per supersector at the latest common month."""
-    if "total" not in area_ces or "total" not in us_ces:
-        return []
-    a_tot, u_tot = latest(area_ces["total"]), latest(us_ces["total"])
-    if not a_tot or not u_tot:
-        return []
+def at(rows, month):
+    for r in reversed(rows or []):
+        if r["date"] == month:
+            return r
+    return None
+
+
+def industry_profile(area_ces: dict, us_ces: dict) -> tuple[list[dict], str | None]:
+    """Per-supersector jobs (thousands), share of local nonfarm jobs and location
+    quotient vs the U.S., all at the latest month the area's total is published."""
+    a_tot = latest(area_ces.get("total", []))
+    if not a_tot:
+        return [], None
+    month = a_tot["date"]
+    u_tot = at(us_ces.get("total"), month) or latest(us_ces.get("total", []))
     out = []
     for ind, label in SUPERSECTORS.items():
-        a, u = area_ces.get(ind), us_ces.get(ind)
-        av, uv = latest(a or []), latest(u or [])
-        if not av or not uv or uv["value"] == 0 or u_tot["value"] == 0:
+        av = at(area_ces.get(ind), month)
+        uv = at(us_ces.get(ind), month) if u_tot else None
+        if not av:
             continue
         share = av["value"] / a_tot["value"]
-        us_share = uv["value"] / u_tot["value"]
-        out.append({"industry": label, "share": round(share, 4),
-                    "lq": round(share / us_share, 3)})
-    return out
+        row = {"code": ind, "industry": label, "jobs": av["value"], "share": round(share, 4)}
+        if uv and u_tot and uv["value"]:
+            row["lq"] = round(share / (uv["value"] / u_tot["value"]), 3)
+        out.append(row)
+    return out, month
 
 
 def main() -> None:
@@ -145,32 +164,53 @@ def main() -> None:
     raw = fetch(list(catalog))
 
     buckets: dict[str, dict[str, dict[str, list]]] = {}
+    empty: dict[str, int] = {}
     for s in raw:
         info = catalog.get(s["seriesID"])
         if not info:
             continue
-        buckets.setdefault(info["kind"], {}).setdefault(info["area"], {})[info["field"]] = tidy(s)
+        rows = tidy(s)
+        if not rows:
+            empty[info["kind"]] = empty.get(info["kind"], 0) + 1
+        buckets.setdefault(info["kind"], {}).setdefault(info["area"], {})[info["field"]] = rows
+    for kind, n in sorted(empty.items()):
+        print(f"  {n} empty series in {kind}", file=sys.stderr)
+
+    # refuse to overwrite good data with a broken pull
+    state_rates = sum(bool(buckets.get("state_laus", {}).get(f, {}).get("unemp_rate")) for f in STATES)
+    if state_rates < len(STATES) - 2:
+        sys.exit(f"only {state_rates}/{len(STATES)} states returned unemployment data; not writing")
 
     us_ces = buckets.get("national_ces", {}).get("US", {})
+    us_profile, us_month = industry_profile(us_ces, us_ces)
 
     states_out = {}
     for fips, name in STATES.items():
         laus = buckets.get("state_laus", {}).get(fips, {})
-        states_out[fips] = {"name": name, "series": laus}
+        payrolls = buckets.get("state_ces", {}).get(fips, {}).get("total", [])
+        states_out[fips] = {"name": name, "series": {**laus, "payrolls": payrolls}}
+
     metros_out = {}
     for m in METROS:
         laus = buckets.get("metro_laus", {}).get(m["cbsa"], {})
-        metros_out[m["cbsa"]] = {**{k: m[k] for k in ("name", "short", "lon", "lat")},
-                                 "series": laus}
-    rose_out = {
-        "states": {fips: location_quotients(buckets.get("state_ces", {}).get(fips, {}), us_ces)
-                   for fips in STATES},
-        "metros": {m["cbsa"]: location_quotients(buckets.get("metro_ces", {}).get(m["cbsa"], {}), us_ces)
-                   for m in METROS},
-    }
+        payrolls = buckets.get("metro_ces", {}).get(m["cbsa"], {}).get("total", [])
+        metros_out[m["cbsa"]] = {
+            **{k: m[k] for k in ("name", "short", "kind", "states", "capital_of")},
+            "series": {**laus, "payrolls": payrolls},
+        }
+
+    rose_out = {"month": us_month, "states": {}, "metros": {}}
+    for fips in STATES:
+        prof, _ = industry_profile(buckets.get("state_ces", {}).get(fips, {}), us_ces)
+        rose_out["states"][fips] = prof
+    for m in METROS:
+        prof, _ = industry_profile(buckets.get("metro_ces", {}).get(m["cbsa"], {}), us_ces)
+        rose_out["metros"][m["cbsa"]] = prof
+
     national_out = {
         "unemp_rate": buckets.get("national", {}).get("US", {}).get("unemp_rate", []),
         "payrolls": us_ces.get("total", []),
+        "industries": us_profile,
     }
 
     DATA_OUT.mkdir(parents=True, exist_ok=True)
@@ -186,9 +226,12 @@ def main() -> None:
         "updated": date.today().isoformat(),
         "latest_state_month": latest_state,
         "latest_metro_month": latest_metro,
+        "latest_ces_month": us_month,
         "source": "bls_api",
+        "series_requested": len(catalog),
+        "series_empty": sum(empty.values()),
     }))
-    print(f"done: state data through {latest_state}, metro through {latest_metro}")
+    print(f"done: state data through {latest_state}, metro through {latest_metro}, CES through {us_month}")
 
 
 if __name__ == "__main__":

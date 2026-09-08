@@ -3,76 +3,65 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>U.S. Workforce Monitor</title>
+<title>Workforce Monitor</title>
+<meta name="description" content="A full-screen atlas of the U.S. labor market: unemployment by state and metro, and the industry make-up of every state capital and major metropolitan area, from BLS LAUS and CES data.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Spline+Sans+Mono:wght@300..600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="masthead">
-  <div>
-    <p class="eyebrow">Bureau of Labor Statistics · LAUS + CES</p>
-    <h1 class="wordmark">The <em>Workforce</em> Monitor</h1>
+<!-- the map is the page -->
+<div class="stage" id="stage" aria-label="Map of the United States showing metropolitan areas">
+  <svg id="map" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet" role="img"></svg>
+</div>
+
+<!-- masthead + controls -->
+<header class="hud hud-masthead" id="masthead">
+  <p class="eyebrow">BLS · LAUS + CES</p>
+  <h1 class="wordmark">Workforce <span>Monitor</span></h1>
+  <p class="release"><span class="release-label">Latest data</span><span class="release-month" id="release-month">–</span></p>
+  <p class="dek">The newest BLS figures for every state capital and major metro, each drawn as a burst of its industries. Tap one to open its profile.</p>
+
+  <div class="filters" role="group" aria-label="Map lens">
+    <button class="lens-btn is-active" data-lens="industry" aria-pressed="true">Industry structure</button>
+    <button class="lens-btn" data-lens="unemployment" aria-pressed="false">Unemployment</button>
   </div>
-  <p class="updated mono" id="updated"></p>
+
+  <div class="search-wrap">
+    <input class="search" id="search" type="search" placeholder="Find a metro, capital or state" aria-label="Find a metro, capital or state" autocomplete="off">
+    <ol class="search-results" id="search-results" hidden></ol>
+  </div>
+
+  <button class="nation-stat" id="nation-stat" type="button" aria-label="Open the United States profile">
+    <span class="nation-label">United States</span>
+    <span class="nation-value" id="nation-value">–</span>
+    <span class="nation-delta" id="nation-delta"></span>
+  </button>
+
+  <p class="updated" id="updated"></p>
 </header>
 
-<main class="frame">
+<!-- legend -->
+<aside class="hud hud-legend" id="legend" aria-label="Legend"></aside>
 
-  <aside class="rail">
-    <div class="level-toggle" role="tablist" aria-label="Geography level">
-      <button class="level-btn is-active" data-level="nation" role="tab">Nation</button>
-      <button class="level-btn" data-level="state" role="tab">States</button>
-      <button class="level-btn" data-level="metro" role="tab">Metros</button>
-    </div>
-    <input class="search mono" id="search" type="search" placeholder="Filter areas" aria-label="Filter areas">
-    <ol class="area-list" id="area-list"></ol>
-  </aside>
+<!-- map controls -->
+<div class="hud hud-zoom" role="group" aria-label="Zoom">
+  <button class="zoom-btn" id="zoom-in" aria-label="Zoom in">+</button>
+  <button class="zoom-btn" id="zoom-out" aria-label="Zoom out">−</button>
+  <button class="zoom-btn zoom-reset" id="zoom-reset" aria-label="Reset view">⌂</button>
+</div>
 
-  <section class="stage">
-    <div class="hero">
-      <p class="eyebrow" id="hero-eyebrow"></p>
-      <h2 class="hero-name" id="hero-name"></h2>
-      <div class="hero-row">
-        <span class="hero-number mono" id="hero-rate"></span>
-        <span class="hero-unit">% unemployment</span>
-        <span class="hero-delta mono" id="hero-delta"></span>
-      </div>
-      <dl class="stats" id="stats"></dl>
-    </div>
+<!-- pop-out profile -->
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Area profile">
+  <button class="drawer-close" id="drawer-close" aria-label="Close profile">×</button>
+  <div class="drawer-scroll" id="drawer-body"></div>
+</aside>
 
-    <figure class="panel">
-      <figcaption class="panel-title">Unemployment rate by state<span class="panel-sub" id="map-month"></span></figcaption>
-      <div id="map"></div>
-      <div class="ramp mono" id="ramp"></div>
-    </figure>
+<div class="tip" id="tip" role="tooltip" hidden></div>
 
-    <figure class="panel">
-      <figcaption class="panel-title">Ten-year trend<span class="panel-sub">selection vs national</span></figcaption>
-      <div id="trend"></div>
-    </figure>
-  </section>
-
-  <aside class="rose-dock">
-    <figure class="panel panel-rose">
-      <figcaption class="panel-title">Industry structure<span class="panel-sub">location quotient vs U.S. = 1.0</span></figcaption>
-      <div id="rose"></div>
-      <figcaption class="rose-legend mono">
-        <span>outside the dashed ring · industry share above the U.S.</span>
-        <span>inside the dashed ring · below the U.S.</span>
-      </figcaption>
-    </figure>
-  </aside>
-
-</main>
-
-<footer class="colophon">
-  <p>Data: BLS Local Area Unemployment Statistics and Current Employment Statistics, not seasonally adjusted where noted. Refreshed the day after each scheduled release.</p>
-</footer>
-
-<div class="tip mono" id="tip" hidden></div>
+<p class="boot" id="boot">Loading BLS data…</p>
 
 <script src="lib/d3.v7.min.js"></script>
 <script src="lib/topojson-client.min.js"></script>
