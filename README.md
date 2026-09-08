@@ -1,4 +1,4 @@
-# The Workforce Monitor
+# Workforce Monitor
 
 A full-screen, self-updating atlas of the U.S. labor market built on Bureau of Labor Statistics data. Every state capital and major metropolitan area is drawn on the map as a *burst* of its industries; click one and its profile pops out: unemployment, labor force, nonfarm jobs, an industry rose, and a ten-year trend against the nation. A second lens shades states and metros by unemployment rate.
 
@@ -6,9 +6,9 @@ Hosted entirely on GitHub Pages, refreshed by a scheduled Action the day after e
 
 ## How to read the map
 
-- **Burst** = one metro or micropolitan area (114 in total: the 30 largest metros, every state capital's metro, and other regional centres). Each of the ten spokes is a CES supersector in a fixed order; spoke length is that industry's share of local nonfarm jobs, the dot at the tip is coloured by how that share compares with the U.S. mix (blue below, red above), and the burst's overall size is total nonfarm jobs. A diamond core marks a state capital.
+- **Burst** = one metro or micropolitan area (114 in total: the 30 largest metros, every state capital's metro, and other regional centres). Each of the ten spokes is a CES supersector in a fixed order; spoke length is that industry's percentage of local nonfarm jobs, the dot at the tip is coloured by how that percentage compares with the U.S. mix (blue below, red above), and the burst's overall size is total nonfarm jobs. A diamond core marks a state capital.
 - **Footprint** = the area's real boundary, merged from its member counties in the Census delineation file, not an approximate dot.
-- **Rose** (in the pop-out) = the same ten industries as petals whose area is proportional to employment share, with a thin outline showing what each petal would be if the area matched the national mix. A table view lists jobs, share and location quotient.
+- **Rose** (in the pop-out) = the same ten industries as petals whose area is proportional to the percentage of jobs, with a thin outline showing what each petal would be if the area matched the national mix. A table view lists jobs, percentage of jobs and the ratio to the U.S. percentage (location quotient).
 
 ## Data
 

@@ -1,6 +1,6 @@
 /* The Workforce Monitor — app.js
    A full-screen atlas. Each metro is a "burst": ten spokes in a fixed order
-   (one per CES supersector), spoke length = share of local nonfarm jobs,
+   (one per CES supersector), spoke length = percentage of local nonfarm jobs,
    tip colour = location quotient vs the U.S. (blue below, red above),
    burst size = total nonfarm jobs. Click a burst or a state to open its profile.
    Data: docs/data/*.json (scripts/fetch_bls.py). Geometry: us-atlas albers
@@ -95,6 +95,8 @@
   document.getElementById("nation-value").innerHTML = usNow ? `${usNow.value.toFixed(1)}<small>%</small>` : "–";
   document.getElementById("nation-delta").textContent = usNow && usPrev
     ? `${fmtMonth(usNow.date)} · ${usNow.value >= usPrev.value ? "+" : "−"}${Math.abs(usNow.value - usPrev.value).toFixed(1)} pt vs a year ago` : "";
+  const latestMonth = [meta.latest_state_month, meta.latest_metro_month, meta.latest_ces_month].filter(Boolean).sort().pop();
+  document.getElementById("release-month").textContent = latestMonth ? new Date(+latestMonth.slice(0, 4), +latestMonth.slice(5, 7) - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" }) : "–";
   const updated = document.getElementById("updated");
   if (meta.source === "sample") {
     updated.textContent = "Sample data — run the Update BLS data workflow to load real figures.";
@@ -282,11 +284,11 @@
     s += `<circle cx="${cx}" cy="${cy}" r="1.6" fill="#0b0b0b"/></svg>`;
     return `<p class="legend-title">How to read a burst</p>
       <div class="legend-key">${s}</div>
-      <p class="legend-note"><b>Spoke length</b> = share of the area's nonfarm jobs in that industry ·
-      <b>tip colour</b> = that share against the U.S. mix · <b>burst size</b> = total nonfarm jobs ·
+      <p class="legend-note"><b>Spoke length</b> = percentage of the area's nonfarm jobs in that industry ·
+      <b>tip colour</b> = that percentage against the U.S. mix · <b>burst size</b> = total nonfarm jobs ·
       <span class="legend-cap"></span>state capital · <span class="legend-ring"></span>unemployment only</p>
       <div class="legend-ramp" style="background:linear-gradient(to right,${BLUE},${NEUTRAL},${RED})"></div>
-      <div class="legend-ramp-labels"><span>½× the U.S. share</span><span>same</span><span>2× or more</span></div>`;
+      <div class="legend-ramp-labels"><span>½× the U.S. %</span><span>same</span><span>2× or more</span></div>`;
   }
   function unemploymentLegend() {
     const [lo, hi] = rateExtent;
@@ -367,8 +369,11 @@
     const name = level === "nation" ? "United States" : level === "state" ? sel.name : sel.short;
     const eyebrow = level === "nation" ? "Nation · CPS + CES" : level === "state" ? "State · LAUS + CES" :
       `${sel.kind === "micro" ? "Micropolitan" : "Metropolitan"} statistical area · LAUS${prof.length ? " + CES" : ""}`;
-    const sub = level === "metro" ? [sel.name, capitalText(sel)].filter(Boolean).join(" · ") :
+    const msa = level === "metro" ? sel.name : "";
+    const sub = level === "metro" ? capitalText(sel) :
       level === "state" ? `Capital: ${(metroList.find((m) => (m.capital_of || []).some((c) => c.state === id))?.capital_of.find((c) => c.state === id)?.city) || "–"}` : "";
+    const monthTag = now ? now.date : rose.month;
+    document.title = `${name} · Workforce Monitor · ${fmtMonth(monthTag)}`;
     const kpis = [];
     const lf = last(series.labor_force), em = last(series.employed), un = last(series.unemployed), pj = last(series.payrolls);
     if (lf) kpis.push(["Labor force", fmtNum(lf.value), ""]);
@@ -379,7 +384,9 @@
 
     body.innerHTML = `
       <p class="d-eyebrow">${esc(eyebrow)}</p>
+      ${monthTag ? `<span class="d-tag">${esc(new Date(+monthTag.slice(0, 4), +monthTag.slice(5, 7) - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" }))} release</span>` : ""}
       <h2 class="d-name">${esc(name)}</h2>
+      ${msa && msa !== name ? `<p class="d-msa">${esc(msa)}</p>` : ""}
       ${sub ? `<p class="d-sub">${esc(sub)}</p>` : ""}
       <div class="d-hero">
         <div class="d-hero-value">${now ? now.value.toFixed(1) + "<small>%</small>" : "–"}</div>
@@ -388,7 +395,7 @@
       </div>
       ${kpis.length ? `<dl class="kpis">${kpis.map(([k, v, u]) => `<div class="kpi"><dt>${k}</dt><dd>${v}<small>${u}</small></dd></div>`).join("")}</dl>` : ""}
       <section class="d-section">
-        <div class="d-section-head"><div><div class="d-section-title">Industry structure</div><div class="d-section-sub">${prof.length ? `share of nonfarm jobs · ${esc(fmtMonth(rose.month))}` : ""}</div></div>
+        <div class="d-section-head"><div><div class="d-section-title">Industry structure</div><div class="d-section-sub">${prof.length ? `% of nonfarm jobs · ${esc(fmtMonth(rose.month))}` : ""}</div></div>
           ${prof.length ? `<div class="view-toggle" id="rose-toggle"><button data-v="chart" class="${app.roseView === "chart" ? "is-active" : ""}">Rose</button><button data-v="table" class="${app.roseView === "table" ? "is-active" : ""}">Table</button></div>` : ""}</div>
         <div id="rose-host"></div>
       </section>
@@ -397,7 +404,7 @@
         <div class="trend-wrap" id="trend-host"></div>
       </section>
       ${level === "state" ? stateMetroChips(id) : ""}
-      <p class="d-foot">${level === "metro" ? "Metro unemployment is not seasonally adjusted; state and national rates are. " : ""}Industry shares are from the Current Employment Statistics (not seasonally adjusted); the location quotient compares an industry's local share of jobs with its national share.${level === "metro" && sel.kind === "micro" ? " BLS does not publish industry series for micropolitan areas." : ""}</p>`;
+      <p class="d-foot">${level === "metro" ? "Metro unemployment is not seasonally adjusted; state and national rates are. " : ""}Industry percentages are from the Current Employment Statistics (not seasonally adjusted); "vs U.S." divides an industry's local percentage of jobs by its national percentage.${level === "metro" && sel.kind === "micro" ? " BLS does not publish industry series for micropolitan areas." : ""}</p>`;
 
     if (prof.length) {
       const toggle = document.getElementById("rose-toggle");
@@ -471,17 +478,17 @@
     });
 
     host.append("div").attr("class", "rose-legend").html(
-      `<span><i></i>the U.S. mix</span><span>petal colour: <span style="color:${BLUE}">■</span> under · <span style="color:${RED}">■</span> over the U.S. share</span>`);
+      `<span><i></i>the U.S. mix</span><span>petal colour: <span style="color:${BLUE}">■</span> below · <span style="color:${RED}">■</span> above the U.S. percentage</span>`);
   }
   function petalTip(d) {
     return `<b>${esc(d.industry)}</b>
       <div class="row"><span class="muted">Jobs</span><span>${fmtNum(Math.round(d.jobs))}k</span></div>
-      <div class="row"><span class="muted">Share of nonfarm jobs</span><span>${fmtPct(d.share)}</span></div>
-      ${d.lq != null ? `<div class="row"><span class="muted">vs U.S. share</span><span>${d.lq.toFixed(2)}× (U.S. ${fmtPct(US_SHARE.get(d.code) || 0)})</span></div>` : ""}`;
+      <div class="row"><span class="muted">% of nonfarm jobs</span><span>${fmtPct(d.share)}</span></div>
+      ${d.lq != null ? `<div class="row"><span class="muted">vs U.S. %</span><span>${d.lq.toFixed(2)}× (U.S. ${fmtPct(US_SHARE.get(d.code) || 0)})</span></div>` : ""}`;
   }
   function renderTable(prof, total) {
     const rows = SECTORS.map(([code]) => prof.find((d) => d.code === code)).filter(Boolean);
-    document.getElementById("rose-host").innerHTML = `<table class="ind-table"><thead><tr><th>Industry</th><th>Jobs (k)</th><th>Share</th><th>vs U.S.</th></tr></thead>
+    document.getElementById("rose-host").innerHTML = `<table class="ind-table"><thead><tr><th>Industry</th><th>Jobs (k)</th><th>% of jobs</th><th>vs U.S. %</th></tr></thead>
       <tbody>${rows.map((d) => `<tr><td><span class="sw" style="background:${lqColor(d.lq)}"></span>${esc(d.industry)}</td><td>${fmtNum(Math.round(d.jobs))}</td><td>${fmtPct(d.share)}</td><td>${d.lq != null ? d.lq.toFixed(2) + "×" : "–"}</td></tr>`).join("")}</tbody>
       <tfoot><tr><td>Total nonfarm</td><td>${fmtNum(Math.round(total))}</td><td></td><td></td></tr></tfoot></table>`;
   }
