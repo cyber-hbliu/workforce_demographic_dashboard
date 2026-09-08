@@ -1,1 +1,1 @@
-{"updated": "sample", "latest_state_month": "2026-07", "latest_metro_month": "2026-06", "latest_ces_month": "2026-07", "source": "sample"}
+{"updated": "2026-09-08", "latest_state_month": "2026-07", "latest_metro_month": "2026-07", "latest_ces_month": "2026-08", "source": "bls_api", "series_requested": 2193, "series_empty": 87}
