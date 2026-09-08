@@ -80,7 +80,10 @@ for m in AREAS["metros"]:
     lf = random.randint(40_000, 9_500_000) if m["kind"] == "metro" else random.randint(15_000, 60_000)
     if m["cbsa"] == "35620":
         lf = 9_900_000
-    series = {"unemp_rate": unemp_series(random.uniform(2.8, 5.5)), "labor_force": level_series(lf)}
+    ur, lfs = unemp_series(random.uniform(2.8, 5.5)), level_series(lf)
+    series = {"unemp_rate": ur, "labor_force": lfs,
+              "employed": [{"date": r["date"], "value": round(l["value"] * (1 - r["value"] / 100))} for r, l in zip(ur, lfs)],
+              "unemployed": [{"date": r["date"], "value": round(l["value"] * r["value"] / 100)} for r, l in zip(ur, lfs)]}
     if m["ces"]:
         series["payrolls"] = level_series(lf / 1000 * 0.95, 1)
         rose["metros"][m["cbsa"]] = profile(m["cbsa"], lf / 1000 * 0.95)
@@ -90,9 +93,14 @@ for m in AREAS["metros"]:
     metros[m["cbsa"]] = {**{k: m[k] for k in ("name", "short", "kind", "states", "capital_of")},
                          "series": series}
 
-national = {"unemp_rate": unemp_series(3.9),
+us_ur, us_lf = unemp_series(3.9), level_series(160_000, 0)
+national = {"unemp_rate": us_ur, "labor_force": us_lf,
+            "employed": [{"date": r["date"], "value": round(l["value"] * (1 - r["value"] / 100))} for r, l in zip(us_ur, us_lf)],
+            "unemployed": [{"date": r["date"], "value": round(l["value"] * r["value"] / 100)} for r, l in zip(us_ur, us_lf)],
             "payrolls": [{"date": d, "value": round(151_000 + 90 * i + random.uniform(-150, 150))}
                          for i, d in enumerate(MONTHS)],
+            "payrolls_sa": [{"date": d, "value": round(151_200 + 90 * i + random.uniform(-40, 40))}
+                            for i, d in enumerate(MONTHS)],
             "industries": [{"code": ind, "industry": label, "jobs": round(158_600 * US_SHARE[ind], 1),
                             "share": US_SHARE[ind], "lq": 1.0} for ind, label in SUPERSECTORS.items()]}
 

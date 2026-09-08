@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Workforce Monitor</title>
-<meta name="description" content="A full-screen atlas of the U.S. labor market: unemployment by state and metro, and the industry make-up of every state capital and major metropolitan area, from BLS LAUS and CES data.">
+<meta name="description" content="A full-screen atlas of the U.S. labor market: the latest BLS unemployment and industry employment figures for every state, state capital and major metropolitan statistical area.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,35 +13,37 @@
 <body>
 
 <!-- the map is the page -->
-<div class="stage" id="stage" aria-label="Map of the United States showing metropolitan areas">
+<div class="stage" id="stage" aria-label="Map of the United States showing metropolitan statistical areas">
   <svg id="map" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet" role="img"></svg>
 </div>
 
-<!-- masthead + controls -->
+<!-- masthead: title, latest release, national figures -->
 <header class="hud hud-masthead" id="masthead">
-  <p class="eyebrow">BLS · LAUS + CES</p>
   <h1 class="wordmark">Workforce <span>Monitor</span></h1>
   <p class="release"><span class="release-label">Latest data</span><span class="release-month" id="release-month">–</span></p>
-  <p class="dek">The newest BLS figures for every state capital and major metro, each drawn as a burst of its industries. Tap one to open its profile.</p>
+  <p class="dek">Data source: U.S. Bureau of Labor Statistics — Local Area Unemployment Statistics (LAUS) and Current Employment Statistics (CES).</p>
 
+  <button class="nation-stat" id="nation-stat" type="button" aria-label="Open the United States profile">
+    <span class="nation-label">United States</span>
+    <span class="nation-delta" id="nation-delta"></span>
+    <span class="nation-value" id="nation-value">–</span>
+  </button>
+  <dl class="kpis kpis-us" id="us-kpis"></dl>
+
+  <p class="updated" id="updated"></p>
+</header>
+
+<!-- map toolbar: lens + search, floating over the map -->
+<div class="hud hud-toolbar" id="toolbar">
   <div class="filters" role="group" aria-label="Map lens">
     <button class="lens-btn is-active" data-lens="industry" aria-pressed="true">Industry structure</button>
     <button class="lens-btn" data-lens="unemployment" aria-pressed="false">Unemployment</button>
   </div>
-
   <div class="search-wrap">
-    <input class="search" id="search" type="search" placeholder="Find a metro, capital or state" aria-label="Find a metro, capital or state" autocomplete="off">
+    <input class="search" id="search" type="search" placeholder="Find an MSA, capital or state" aria-label="Find a metropolitan area, capital or state" autocomplete="off">
     <ol class="search-results" id="search-results" hidden></ol>
   </div>
-
-  <button class="nation-stat" id="nation-stat" type="button" aria-label="Open the United States profile">
-    <span class="nation-label">United States</span>
-    <span class="nation-value" id="nation-value">–</span>
-    <span class="nation-delta" id="nation-delta"></span>
-  </button>
-
-  <p class="updated" id="updated"></p>
-</header>
+</div>
 
 <!-- legend -->
 <aside class="hud hud-legend" id="legend" aria-label="Legend"></aside>

@@ -2,11 +2,12 @@
 
 Sources (BLS API v2, key required via env BLS_API_KEY):
   LAUS  state (seasonally adjusted, LAS): unemployment rate / unemployed / employed / labor force
-  LAUS  metro & micro (not seasonally adjusted, LAU): unemployment rate / labor force
+  LAUS  metro & micro (not seasonally adjusted, LAU): unemployment rate / unemployed / employed / labor force
   CES-SM state & metro (NSA): total nonfarm + employment by supersector, for shares
         and location quotients
   CES   national (NSA): total nonfarm + supersector employment
-  CPS   national unemployment rate (LNS14000000, SA)
+  CPS   national unemployment rate and labor force / employment / unemployment levels (SA)
+  CES   national total nonfarm, seasonally adjusted headline (CES0000000001)
 
 Series ids are built from the BLS area codes resolved by scripts/build_areas.py
 (config/areas.json: laus_area, state_fips, ces) so nothing is hand-padded.
@@ -17,7 +18,7 @@ Series ids are built from the BLS area codes resolved by scripts/build_areas.py
 Outputs to docs/data/:
   national.json  states.json  metros.json  rose.json  meta.json
 
-Budget: ~45 API requests per full run (limit is 500/day with a key).
+Budget: ~50 API requests per full run (limit is 500/day with a key).
 """
 import json
 import os
@@ -67,16 +68,18 @@ def build_catalog() -> dict[str, dict]:
         for ind in SUPERSECTORS:
             cat[ces(fips, "00000", ind)] = {"kind": "state_ces", "area": fips, "field": ind}
     for m in METROS:
-        for meas in ("03", "06"):
-            cat[laus_metro(m["laus_area"], meas)] = {
-                "kind": "metro_laus", "area": m["cbsa"], "field": LAUS_MEASURES[meas]}
+        for meas, field in LAUS_MEASURES.items():
+            cat[laus_metro(m["laus_area"], meas)] = {"kind": "metro_laus", "area": m["cbsa"], "field": field}
         if m["ces"]:
             cat[ces(m["state_fips"], m["cbsa"], "00000000")] = {
                 "kind": "metro_ces", "area": m["cbsa"], "field": "total"}
             for ind in SUPERSECTORS:
                 cat[ces(m["state_fips"], m["cbsa"], ind)] = {
                     "kind": "metro_ces", "area": m["cbsa"], "field": ind}
-    cat["LNS14000000"] = {"kind": "national", "area": "US", "field": "unemp_rate"}
+    for sid, field in (("LNS14000000", "unemp_rate"), ("LNS11000000", "labor_force"),
+                       ("LNS12000000", "employed"), ("LNS13000000", "unemployed")):
+        cat[sid] = {"kind": "national", "area": "US", "field": field}  # CPS, SA, levels in thousands
+    cat["CES0000000001"] = {"kind": "national", "area": "US", "field": "payrolls_sa"}
     cat[ces_national("00000000")] = {"kind": "national_ces", "area": "US", "field": "total"}
     for ind in SUPERSECTORS:
         cat[ces_national(ind)] = {"kind": "national_ces", "area": "US", "field": ind}
@@ -207,9 +210,14 @@ def main() -> None:
         prof, _ = industry_profile(buckets.get("metro_ces", {}).get(m["cbsa"], {}), us_ces)
         rose_out["metros"][m["cbsa"]] = prof
 
+    nat = buckets.get("national", {}).get("US", {})
     national_out = {
-        "unemp_rate": buckets.get("national", {}).get("US", {}).get("unemp_rate", []),
-        "payrolls": us_ces.get("total", []),
+        "unemp_rate": nat.get("unemp_rate", []),
+        "labor_force": nat.get("labor_force", []),   # thousands of persons (CPS)
+        "employed": nat.get("employed", []),
+        "unemployed": nat.get("unemployed", []),
+        "payrolls": us_ces.get("total", []),          # thousands of jobs (CES, NSA)
+        "payrolls_sa": nat.get("payrolls_sa", []),    # thousands of jobs (CES, SA headline)
         "industries": us_profile,
     }
 

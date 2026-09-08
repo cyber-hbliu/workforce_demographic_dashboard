@@ -1,7 +1,7 @@
 // Merge Census counties into metro-area footprints on the pre-projected
 // us-atlas Albers grid the state map already uses, and derive a map anchor
 // for each metro. Output: docs/lib/metros-albers.json
-//   { "<cbsa>": { "a": [x, y], "g": GeoJSON geometry } }
+//   { "<cbsa>": { "a": [x, y], "c": [county names], "g": GeoJSON geometry } }
 // Run after scripts/build_areas.py:  node scripts/build_geo.js
 const fs = require("fs");
 const path = require("path");
@@ -38,7 +38,8 @@ for (const m of areas.metros) {
     anchor = planar.centroid(topojson.merge(topo, central));
   }
   if (!anchor || anchor.some((v) => !isFinite(v))) { console.warn(`bad anchor for ${m.cbsa}`); continue; }
-  out[m.cbsa] = { a: anchor.map(round), g: roundGeom(merged) };
+  const counties = geoms.map((g) => (g.properties && g.properties.name) || g.id).sort();
+  out[m.cbsa] = { a: anchor.map(round), c: counties, g: roundGeom(merged) };
 }
 const json = JSON.stringify(out);
 bytes = Buffer.byteLength(json);
