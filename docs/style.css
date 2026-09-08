@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: light;
-  --page: #f3f2ec;
+  --page: #aaa298;   /* medium brown-grey outside the U.S. */
   --paper: #fcfcfb;
   --land: #fbfaf6;
   --ink: #0b0b0b;
@@ -42,27 +42,26 @@ button { font: inherit; color: inherit; }
 
 /* ---------- stage ---------- */
 .stage { position: fixed; inset: 0; left: 372px; }
+.zoom-layer { will-change: transform; }
 #map { width: 100%; height: 100%; display: block; cursor: grab; }
 #map:active { cursor: grabbing; }
 
-.state { fill: var(--land); stroke: var(--rule); stroke-width: 0.75; vector-effect: non-scaling-stroke; transition: fill 0.35s; }
+.state { fill: var(--land); stroke: #b9b3a8; stroke-width: 0.75; vector-effect: non-scaling-stroke; transition: fill 0.35s; }
 .state:hover { fill: #f1efe6; }
 .state.is-selected { stroke: var(--ink); stroke-width: 1.4; fill: #efede3; }
-.nation-outline { fill: none; stroke: var(--ink); stroke-width: 0.6; vector-effect: non-scaling-stroke; opacity: 0.55; pointer-events: none; }
+.nation-outline { fill: none; stroke: var(--ink); stroke-width: 0.8; vector-effect: non-scaling-stroke; opacity: 0.6; pointer-events: none; }
 
 .footprint { fill: rgba(11, 11, 11, 0.045); stroke: rgba(11, 11, 11, 0.32); stroke-width: 0.6; vector-effect: non-scaling-stroke; pointer-events: none; transition: fill 0.3s, stroke 0.3s; }
 .footprint.is-selected { fill: var(--pink-soft); stroke: var(--pink-deep); stroke-width: 1.2; }
 .footprint.is-dim { fill: rgba(11, 11, 11, 0.02); stroke: rgba(11, 11, 11, 0.15); }
 
 .glyph { cursor: pointer; outline: none; }
-.glyph .spoke { stroke: var(--ink); stroke-width: 0.7; stroke-linecap: round; opacity: 0.5; }
-.glyph .tip-dot { stroke: var(--paper); stroke-width: 0.9; }
-.glyph .core { fill: var(--ink); }
+.glyph .core { fill: var(--ink); stroke: var(--paper); stroke-width: 1.2; }
 .glyph .halo { fill: none; stroke: var(--ink); stroke-width: 0.9; opacity: 0; }
 .glyph .hit { fill: transparent; }
 .glyph.is-selected .halo, .glyph:focus-visible .halo, .glyph:hover .halo { opacity: 0.85; }
 .glyph.is-dim { opacity: 0.22; }
-.glyph.no-industry .ring { fill: var(--paper); stroke: var(--ink); stroke-width: 1; }
+.glyph.no-industry .ring { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
 .glyph-label { font-family: var(--sans); font-size: 8.5px; font-weight: 500; fill: var(--ink-2); text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: var(--land); stroke-width: 2.5px; stroke-linejoin: round; }
 
 .udot { stroke: var(--paper); stroke-width: 1.2; cursor: pointer; }
@@ -103,8 +102,8 @@ button { font: inherit; color: inherit; }
 .kpi .kpi-sub { font-size: 10.5px; color: var(--muted); margin-top: 3px; }
 .kpi .kpi-delta { display: block; font-size: 11px; margin-top: 4px; color: var(--ink-2); }
 .kpi .kpi-delta b { font-weight: 600; color: var(--ink); }
-.kpi .kpi-delta b.up { color: var(--pink-deep); }
-.kpi .kpi-delta b.down { color: var(--green-deep); }
+.kpi .kpi-delta b.up { color: var(--green-deep); }   /* positive change: green */
+.kpi .kpi-delta b.down { color: var(--pink-deep); }   /* negative change: pink */
 .updated { margin-top: 12px; font-size: 11px; color: var(--muted); line-height: 1.5; }
 .updated b { font-weight: 600; color: var(--ink-2); }
 .updated.is-sample { color: var(--pink-deep); font-weight: 600; }
@@ -222,7 +221,7 @@ button { font: inherit; color: inherit; }
 .tip .row { display: flex; justify-content: space-between; gap: 14px; }
 .tip .muted { color: rgba(255, 255, 255, 0.65); }
 .tip i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
-.boot { position: fixed; inset: 0; display: grid; place-items: center; font-size: 13px; color: var(--muted); z-index: 3; pointer-events: none; }
+.boot { position: fixed; inset: 0; display: grid; place-items: center; font-size: 13px; color: var(--ink); z-index: 3; pointer-events: none; }
 .boot.is-error { color: var(--pink-deep); pointer-events: auto; padding: 40px; text-align: center; }
 
 @media (prefers-reduced-motion: reduce) {

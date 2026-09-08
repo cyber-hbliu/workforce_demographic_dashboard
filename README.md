@@ -2,17 +2,17 @@
 
 A map of the U.S. labor market that updates itself from Bureau of Labor Statistics data. It runs as a static site on GitHub Pages. A scheduled GitHub Action fetches new figures the day after each BLS release and commits them to the repository.
 
-The map shows 114 metropolitan and micropolitan statistical areas: the 30 largest metros, the metro of every state capital, and a set of other regional centres. Each one is drawn as a burst of ten spokes, one per industry supersector. Clicking a burst, or a state, opens a profile with the area's labor force, employment, unemployment rate, industry mix and its most concentrated industry. A second view shades states and metros by unemployment rate.
+The map shows 114 metropolitan and micropolitan statistical areas: the 30 largest metros, the metro of every state capital, and a set of other regional centres. Clicking a marker, or a state, opens a profile with the area's labor force, employment, unemployment rate, industry mix and its most concentrated industry. A second view shades states and metros by unemployment rate.
 
 ## Reading the map
 
-Every burst is one statistical area, and every figure in a profile covers that whole area. An MSA is a group of counties defined by the Office of Management and Budget, so the numbers for "Urban Honolulu, HI" describe Honolulu County, not the city of Honolulu. The profile lists the counties involved.
+Every marker is one statistical area, and every figure in a profile covers that whole area. An MSA is a group of counties defined by the Office of Management and Budget, so the numbers for "Urban Honolulu, HI" describe Honolulu County, not the city of Honolulu. The profile lists the counties involved.
 
-The ten spokes always appear in the same order, starting with construction at the top and running clockwise to government. The length of a spoke is the industry's percentage of the area's nonfarm jobs. The dot at the end is coloured by how that percentage compares with the national percentage: green where the area has proportionally fewer jobs than the U.S. in that industry, pink where it has more, grey where they match. The size of the whole burst follows total nonfarm jobs. A diamond at the centre means the area contains a state capital. A hollow ring instead of a burst means BLS publishes unemployment figures for the area but no industry series; this applies to the six micropolitan capitals (Juneau, Pierre, Frankfort, Concord, Augusta in Maine, and Barre, which contains Montpelier).
+Each marker is sized by the area's total nonfarm jobs. A diamond means the area holds a state capital. A hollow ring means BLS publishes unemployment figures for the area but no industry series; this applies to the six micropolitan capitals (Juneau, Pierre, Frankfort, Concord, Augusta in Maine, and Barre, which contains Montpelier).
 
-The grey shape under each burst is the area's actual boundary, built by merging its member counties from the Census Bureau's delineation file.
+The grey shape under each marker is the area's actual boundary, built by merging its member counties from the Census Bureau's delineation file.
 
-In the profile, the rose chart shows the same ten industries as petals. Petal area is proportional to the industry's percentage of jobs, the petal colour uses the same green-to-pink scale, and a black outline on each petal shows where it would sit if the area matched the national mix. Below the rose, a card names the industry with the highest ratio to the national percentage (the location quotient) and the area's largest employer. A table view gives the jobs, percentage and ratio for every industry.
+In the profile, the rose chart shows ten industry supersectors as petals in a fixed order, starting with construction at the top and running clockwise to government. Petal area is proportional to the industry's percentage of jobs. Petal colour compares that percentage with the national one: green where the area has proportionally fewer jobs than the U.S. in that industry, pink where it has more, grey where they match, and a black outline on each petal shows where it would sit if the area matched the national mix. Below the rose, a card names the industry with the highest ratio to the national percentage (the location quotient) and the area's largest employer. A table view gives the jobs, percentage and ratio for every industry.
 
 ## Data
 
