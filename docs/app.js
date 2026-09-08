@@ -11,12 +11,13 @@
 (async function () {
   const boot = document.getElementById("boot");
   const load = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: ${r.status}`); return r.json(); });
-  let meta, national, states, metros, rose, topo, geo;
+  let meta, national, states, metros, rose, topo, geo, releases;
   try {
-    [meta, national, states, metros, rose, topo, geo] = await Promise.all([
+    [meta, national, states, metros, rose, topo, geo, releases] = await Promise.all([
       "data/meta.json", "data/national.json", "data/states.json", "data/metros.json",
       "data/rose.json", "lib/states-albers-10m.json", "lib/metros-albers.json",
-    ].map(load));
+      "data/release_dates.json",
+    ].map((u, i) => (i === 7 ? load(u).catch(() => null) : load(u))));
   } catch (e) {
     boot.textContent = `Could not load the data files (${e.message}). If this is a fresh deploy, run the "Update BLS data" workflow once.`;
     boot.classList.add("is-error");
@@ -108,24 +109,25 @@
   /* ------------------------------------------------------------ masthead */
   const latestMonth = [meta.latest_state_month, meta.latest_metro_month, meta.latest_ces_month].filter(Boolean).sort().pop();
   document.getElementById("release-month").textContent = latestMonth ? fmtMonthLong(latestMonth) : "–";
-  const usNow = last(national.unemp_rate), usPrev = back(national.unemp_rate, 12);
-  document.getElementById("nation-value").innerHTML = usNow ? `${usNow.value.toFixed(1)}<small>%</small>` : "–";
-  document.getElementById("nation-delta").textContent = usNow
-    ? `unemployment rate, ${fmtMonth(usNow.date)}${usPrev ? ` · ${signed(usNow.value - usPrev.value)} vs a year ago` : ""}` : "";
-  const usKpis = [];
-  const usLf = last(national.labor_force), usEm = last(national.employed), usUn = last(national.unemployed);
-  const usPj = last(national.payrolls_sa) || last(national.payrolls);
-  if (usLf) usKpis.push(["Labor force", fmtBig(usLf.value * 1000), fmtMonth(usLf.date)]);
-  if (usEm) usKpis.push(["Employment", fmtBig(usEm.value * 1000), fmtMonth(usEm.date)]);
-  if (usUn) usKpis.push(["Unemployment", fmtBig(usUn.value * 1000), fmtMonth(usUn.date)]);
-  if (usPj) usKpis.push(["Nonfarm employment", fmtBig(usPj.value * 1000), `jobs · ${fmtMonth(usPj.date)}`]);
-  document.getElementById("us-kpis").innerHTML = usKpis.map(([k, v, s]) => `<div class="kpi"><dt>${k}</dt><dd>${v}</dd><div class="kpi-sub">${esc(s)}</div></div>`).join("");
+  // United States: nonfarm employment (left) and unemployment rate (right)
+  const usNow = last(national.unemp_rate), usM1 = back(national.unemp_rate, 1), usY1 = back(national.unemp_rate, 12);
+  const usPj = last(national.payrolls_sa) || last(national.payrolls), usPjM1 = back(national.payrolls_sa, 1);
+  document.getElementById("us-kpis").innerHTML =
+    `<div class="kpi"><dt>Nonfarm employment</dt><dd>${usPj ? fmtBig(usPj.value * 1000) : "–"}</dd><div class="kpi-sub">${usPj ? `jobs · ${esc(fmtMonth(usPj.date))}` : ""}</div>
+      ${usPj && usPjM1 ? `<span class="kpi-delta"><b>${usPj.value - usPjM1.value >= 0 ? "+" : "−"}${fmtNum(Math.abs(Math.round(usPj.value - usPjM1.value)))}k</b> vs ${esc(fmtMonth(usPjM1.date))}</span>` : ""}</div>
+     <div class="kpi"><dt>Unemployment rate</dt><dd>${usNow ? `${usNow.value.toFixed(1)}<small>%</small>` : "–"}</dd><div class="kpi-sub">${usNow ? esc(fmtMonth(usNow.date)) : ""}</div>
+      ${usM1 ? `<span class="kpi-delta">${deltaHtml(usNow, usM1, "vs " + fmtMonth(usM1.date))}</span>` : ""}
+      ${usY1 ? `<span class="kpi-delta">${deltaHtml(usNow, usY1, "vs " + fmtMonth(usY1.date))}</span>` : ""}</div>`;
+  // status line: when the data was pulled and when BLS publishes next
   const updated = document.getElementById("updated");
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = releases ? ["state", "metro"].flatMap((k) => (releases[k] || []).map((d) => [d, k])).filter(([d]) => d >= today).sort() : [];
+  const next = upcoming[0];
   if (meta.source === "sample") {
     updated.textContent = "Sample data — run the Update BLS data workflow to load real figures.";
     updated.classList.add("is-sample");
   } else {
-    updated.textContent = `Updated ${meta.updated} · states through ${fmtMonth(meta.latest_state_month)} · metros through ${fmtMonth(meta.latest_metro_month)}`;
+    updated.innerHTML = `Data pulled <b>${esc(meta.updated)}</b>${next ? ` · next BLS release <b>${esc(next[0])}</b> (${next[1]} figures)` : ""}`;
   }
   document.getElementById("nation-stat").onclick = () => select("nation", null);
 
