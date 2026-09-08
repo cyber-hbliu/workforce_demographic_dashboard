@@ -155,8 +155,8 @@
     .attr("class", "footprint").attr("d", (m) => path(geo[m.id].g));
 
   // bursts
-  const rGlyph = d3.scaleSqrt().domain([0, 10000]).range([0, 32]).clamp(true);
-  const glyphR = (m) => Math.max(6, rGlyph(jobsOf("metro", m.id)));
+  const rGlyph = d3.scaleSqrt().domain([0, 8000]).range([0, 30]).clamp(true);
+  const glyphR = (m) => Math.max(7.5, rGlyph(jobsOf("metro", m.id)));
   const spokeLen = (R, share) => R * Math.min(1.15, Math.sqrt(share / 0.22));
   const glyphsG = zoomLayer.append("g").attr("class", "glyph-layer");
   const glyphData = metroList.filter((m) => geo[m.id]).sort((a, b) => glyphR(b) - glyphR(a)); // big first so small draw on top

@@ -83,8 +83,8 @@ button { font: inherit; color: inherit; }
 .wordmark { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
 .wordmark span { font-weight: 400; }
 .release { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; padding: 8px 12px; background: var(--ink); color: #fff; border-radius: 10px; }
-.release-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7; font-weight: 600; }
-.release-month { font-size: 20px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1; }
+.release-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7; font-weight: 600; white-space: nowrap; }
+.release-month { font-size: 18px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1; white-space: nowrap; }
 .dek { font-size: 11.5px; color: var(--ink-2); margin-top: 10px; line-height: 1.4; }
 
 .nation-stat { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "label value" "delta value"; align-items: center; column-gap: 12px; width: 100%; margin-top: 14px; padding: 10px 12px; background: rgba(255, 255, 255, 0.6); border: 1px solid var(--glass-border); border-radius: 12px; cursor: pointer; text-align: left; transition: background 0.2s; }
