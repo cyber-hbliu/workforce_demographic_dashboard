@@ -17,31 +17,32 @@
   <svg id="map" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet" role="img"></svg>
 </div>
 
-<!-- masthead: title, latest release, national figures -->
-<header class="hud hud-masthead" id="masthead">
-  <h1 class="wordmark">Workforce <span>Monitor</span></h1>
-  <p class="release"><span class="release-label">Latest data</span><span class="release-month" id="release-month">–</span></p>
-  <p class="dek">Data source: U.S. Bureau of Labor Statistics — Local Area Unemployment Statistics (LAUS) and Current Employment Statistics (CES).</p>
+<div class="left-stack">
+  <!-- masthead: title, latest release, national figures -->
+  <header class="hud hud-masthead" id="masthead">
+    <h1 class="wordmark">Workforce <span>Monitor</span></h1>
+    <p class="release"><span class="release-label">Latest data</span><span class="release-month" id="release-month">–</span></p>
+    <p class="dek">Data source: U.S. Bureau of Labor Statistics — Local Area Unemployment Statistics (LAUS) and Current Employment Statistics (CES).</p>
 
-  <button class="nation-stat" id="nation-stat" type="button" aria-label="Open the United States profile">
-    <span class="nation-label">United States</span>
-    <span class="nation-delta" id="nation-delta"></span>
-    <span class="nation-value" id="nation-value">–</span>
-  </button>
-  <dl class="kpis kpis-us" id="us-kpis"></dl>
+    <button class="nation-stat" id="nation-stat" type="button" aria-label="Open the United States profile">
+      <span class="nation-label">United States</span>
+      <span class="nation-open">open profile →</span>
+    </button>
+    <dl class="kpis kpis-us" id="us-kpis"></dl>
 
-  <p class="updated" id="updated"></p>
-</header>
+    <p class="updated" id="updated"></p>
+  </header>
 
-<!-- map toolbar: lens + search, floating over the map -->
-<div class="hud hud-toolbar" id="toolbar">
-  <div class="filters" role="group" aria-label="Map lens">
-    <button class="lens-btn is-active" data-lens="industry" aria-pressed="true">Industry structure</button>
-    <button class="lens-btn" data-lens="unemployment" aria-pressed="false">Unemployment</button>
-  </div>
-  <div class="search-wrap">
-    <input class="search" id="search" type="search" placeholder="Find an MSA, capital or state" aria-label="Find a metropolitan area, capital or state" autocomplete="off">
-    <ol class="search-results" id="search-results" hidden></ol>
+  <!-- map controls under the masthead: lens buttons + search -->
+  <div class="hud hud-toolbar" id="toolbar">
+    <div class="filters" role="group" aria-label="Map lens">
+      <button class="lens-btn is-active" data-lens="industry" aria-pressed="true">Industry structure</button>
+      <button class="lens-btn" data-lens="unemployment" aria-pressed="false">Unemployment</button>
+    </div>
+    <div class="search-wrap">
+      <input class="search" id="search" type="search" placeholder="Find an MSA, capital or state" aria-label="Find a metropolitan area, capital or state" autocomplete="off">
+      <ol class="search-results" id="search-results" hidden></ol>
+    </div>
   </div>
 </div>
 

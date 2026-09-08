@@ -9,7 +9,7 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-CONFIG = Path(__file__).parent.parent / "config" / "release_dates.json"
+CONFIG = Path(__file__).parent.parent / "docs" / "data" / "release_dates.json"
 
 
 def main() -> int:

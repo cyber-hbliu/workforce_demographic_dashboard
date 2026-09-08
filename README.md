@@ -29,7 +29,7 @@ BLS does not publish seasonally adjusted unemployment rates for metropolitan are
 
 Push the repository to GitHub. Get a free API key at data.bls.gov/registrationEngine and store it as a repository secret named `BLS_API_KEY`. Under Settings, Pages, choose deploy from branch with the `/docs` folder. Then open the Actions tab and run the "Update BLS data" workflow once by hand; this replaces the bundled sample data with real figures.
 
-After that the workflow runs on its own. It starts every day at 12:00 UTC, checks `config/release_dates.json`, and only calls the API on the day after a scheduled state or metro release. On other days it commits a small heartbeat file, which stops GitHub from disabling the schedule after 60 days without activity. The release calendar has to be refreshed each December from bls.gov/schedule/news_release/laus.htm and metro.htm.
+After that the workflow runs on its own. It starts every day at 12:00 UTC, checks `docs/data/release_dates.json`, and only calls the API on the day after a scheduled state or metro release. On other days it commits a small heartbeat file, which stops GitHub from disabling the schedule after 60 days without activity. The release calendar has to be refreshed each December from bls.gov/schedule/news_release/laus.htm and metro.htm.
 
 ## Changing the metro list
 
@@ -47,7 +47,7 @@ Each metro costs four LAUS series plus eleven CES series where they exist. A ful
 
     config/metro_selection.json  hand-edited list of metros and capitals
     config/areas.json            generated: states, supersectors, resolved metros
-    config/release_dates.json    BLS release calendar
+    docs/data/release_dates.json BLS release calendar (also read by the page for the next-release line)
     scripts/build_areas.py       metro_selection.json -> areas.json
     scripts/build_geo.js         county topology -> metro outlines and map anchors
     scripts/check_release.py     exits 0 only on the day after a release
