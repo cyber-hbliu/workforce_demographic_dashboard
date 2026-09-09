@@ -242,6 +242,13 @@ button { font: inherit; color: inherit; }
 .rank-strip { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px; background: linear-gradient(to right, var(--green), var(--neutral), var(--pink)); }
 .rank-strip i { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; background: var(--ink); border-radius: 2px; }
 .rank-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); }
+.burst-spoke { stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
+.burst-spoke-faint { stroke: var(--hairline); stroke-width: 1; }
+.burst-tip { stroke: var(--paper); stroke-width: 1.5; cursor: pointer; }
+.burst-us { stroke: var(--ink); stroke-width: 1.6; }
+.burst-avg { fill: none; stroke: var(--ink); stroke-width: 1; stroke-opacity: 0.7; }
+.burst-avg-label { fill: var(--ink-2); }
+.rose-legend b { font-weight: 600; color: var(--ink-2); }
 .bars { display: grid; grid-template-columns: 150px 1fr 54px 52px; gap: 6px 8px; align-items: center; font-size: 11.5px; }
 .bars .name { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bars .name.is-total { color: var(--ink); font-weight: 600; }

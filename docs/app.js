@@ -462,7 +462,7 @@
       <p class="d-geo">${geoLine}</p>
       ${sub ? `<p class="d-sub">${esc(sub)}</p>` : ""}
       ${level === "state" ? stateMetroChips(id) : ""}
-      <dl class="kpis kpis-3">${tiles.map(([k, v, s, extra]) => `<div class="kpi"><dt>${k}</dt><dd>${v}</dd><div class="kpi-sub">${esc(s)}</div>${extra}</div>`).join("")}</dl>
+      ${lens === "earnings" ? "" : `<dl class="kpis kpis-3">${tiles.map(([k, v, s, extra]) => `<div class="kpi"><dt>${k}</dt><dd>${v}</dd><div class="kpi-sub">${esc(s)}</div>${extra}</div>`).join("")}</dl>`}
       <div id="lens-host"></div>
       <p class="d-foot">${level === "metro" ? `${esc(geoShort(sel))} unemployment is not seasonally adjusted; state and national rates are. ` : ""}${
         lens === "earnings" ? "Average hourly earnings are for all employees of private employers (Current Employment Statistics, not seasonally adjusted). Prices are the CPI-U for the area's census region, all items, not seasonally adjusted; real growth is the difference between the two year-on-year changes."
@@ -667,12 +667,8 @@
     const regionName = REGION_NAME[e.region] || e.region;
     const inds = e.industries.filter((d) => d.code !== "05000000").sort((a, b) => b.ahe - a.ahe);
     const total = e.industries.find((d) => d.code === "05000000");
-    const maxAhe = d3.max(e.industries, (d) => d.ahe) || 1;
-    const bar = (d, isTotal) => `<span class="name${isTotal ? " is-total" : ""}" title="${esc(d.industry)}">${esc(d.industry)}</span>
-      <span class="track"><span class="bar${isTotal ? " is-total" : ""}" style="width:${(d.ahe / maxAhe) * 100}%"></span></span>
-      <span class="val">${fmtUsd(d.ahe)}</span><span class="chg${d.yoy == null ? "" : d.yoy >= 0 ? " up" : " down"}">${fmtSignedPct(d.yoy)}</span>`;
     host.innerHTML = `
-      <dl class="kpis kpis-3" style="margin-top:8px">
+      <dl class="kpis kpis-3" style="margin-top:14px">
         <div class="kpi"><dt>Hourly earnings</dt><dd>${fmtUsd(now.value)}</dd><div class="kpi-sub">private employers · ${esc(fmtMonth(now.date))}</div>
           ${wageYoy != null ? `<span class="kpi-delta"><b class="${wageYoy >= 0 ? "up" : "down"}">${fmtSignedPct(wageYoy)}</b> vs a year ago</span>` : ""}</div>
         <div class="kpi"><dt>Prices (CPI, ${esc(regionName)})</dt><dd>${cpiYoy != null ? fmtSignedPct(cpiYoy) : "–"}</dd><div class="kpi-sub">year on year · ${esc(fmtMonth(cpiMonth))}</div></div>
@@ -680,14 +676,15 @@
           ${real != null ? `<span class="kpi-delta"><b class="${real >= 0 ? "up" : "down"}">${real >= 0 ? "ahead of" : "trailing"} inflation</b></span>` : ""}</div>
       </dl>
       <section class="d-section">
-        <div class="d-section-head"><div><div class="d-section-title">Earnings by industry</div><div class="d-section-sub">average hourly earnings · ${esc(fmtMonth(now.date))} · change vs a year ago</div></div></div>
-        <div class="bars">${total ? bar(total, true) : ""}${inds.map((d) => bar(d, false)).join("")}</div>
+        <div class="d-section-head"><div><div class="d-section-title">Earnings by industry</div><div class="d-section-sub">average hourly earnings · ${esc(fmtMonth(now.date))}</div></div></div>
+        <div id="burst-host"></div>
         ${inds.length < 5 ? `<p class="rose-note">BLS publishes hourly earnings for only some industries in this area.</p>` : ""}
       </section>
       <section class="d-section">
         <div class="d-section-head"><div class="d-section-title">Earnings vs prices</div><div class="d-section-sub">indexed to 100 at ${esc(fmtMonth(e.total[0].date))}</div></div>
         <div class="trend-wrap" id="index-host"></div>
       </section>`;
+    renderEarningsBurst(inds, total, cpiYoy, level === "nation" ? null : earn.national?.industries || []);
     const cpi = cpiOf(e.region);
     const start = e.total[0].date;
     const base = (rows) => rows.find((r) => r.date >= start);
@@ -696,6 +693,62 @@
     const all = wRows.concat(cRows);
     lineChart(d3.select("#index-host"), [{ key: "Earnings", rows: wRows, cls: "trend-sel" }, { key: `CPI ${regionName}`, rows: cRows, cls: "trend-nat" }],
       (v) => v.toFixed(1), (v) => v, [Math.floor(d3.min(all, (d) => d.v) / 10) * 10, Math.ceil(d3.max(all, (d) => d.v) / 10) * 10]);
+  }
+
+  // burst: one spoke per private supersector, length = hourly earnings, tip colour =
+  // year-on-year change minus regional inflation, ring = area's private average,
+  // tick = U.S. average for that industry
+  function renderEarningsBurst(inds, total, cpiYoy, usInds) {
+    const host = d3.select("#burst-host").html("");
+    const order = SECTORS.filter(([code]) => code !== "90000000");
+    const byCode = new Map(inds.map((d) => [d.code, d]));
+    const usBy = new Map((usInds || []).map((d) => [d.code, d.ahe]));
+    const SW = 560, SH = 470, R = 140, cx = SW / 2, cy = SH / 2 + 6, n = order.length;
+    const ang = (i) => (i / n) * 2 * Math.PI - Math.PI / 2;
+    const maxAhe = Math.max(d3.max(inds, (d) => d.ahe) || 0, total ? total.ahe : 0, d3.max([...usBy.values()]) || 0) * 1.05;
+    const rs = d3.scaleLinear().domain([0, maxAhe]).range([0, R]);
+    const svgB = host.append("div").attr("class", "rose-wrap").append("svg").attr("viewBox", `0 0 ${SW} ${SH}`);
+    const g = svgB.append("g").attr("transform", `translate(${cx},${cy})`);
+    const step = 10 * Math.ceil(maxAhe / 40);
+    for (let v = step; v < maxAhe; v += step) {
+      g.append("circle").attr("class", "rose-ring").attr("r", rs(v));
+      g.append("text").attr("class", "rose-ring-label").attr("x", 3).attr("y", -rs(v) - 3).text("$" + v);
+    }
+    if (total) {
+      g.append("circle").attr("class", "burst-avg").attr("r", rs(total.ahe));
+      g.append("text").attr("class", "rose-ring-label burst-avg-label").attr("x", -3).attr("y", rs(total.ahe) + 11).attr("text-anchor", "end").text(`avg ${fmtUsd(total.ahe)}`);
+    }
+    order.forEach(([code, , , lines], i) => {
+      const d = byCode.get(code), a = ang(i);
+      const ux = Math.cos(a), uy = Math.sin(a);
+      g.append("line").attr("class", "burst-spoke-faint").attr("x2", (R + 4) * ux).attr("y2", (R + 4) * uy);
+      const us = usBy.get(code);
+      if (us && d) {
+        const t = rs(us);
+        g.append("line").attr("class", "burst-us").attr("x1", t * ux - 6 * uy).attr("y1", t * uy + 6 * ux).attr("x2", t * ux + 6 * uy).attr("y2", t * uy - 6 * ux);
+      }
+      if (!d) return;
+      const L = rs(d.ahe), real = d.yoy != null && cpiYoy != null ? (d.yoy - cpiYoy) * 100 : null;
+      g.append("line").attr("class", "burst-spoke").attr("x2", L * ux).attr("y2", L * uy);
+      g.append("circle").attr("class", "burst-tip").attr("cx", L * ux).attr("cy", L * uy).attr("r", 6.5).attr("fill", realColor(real))
+        .on("mousemove", (ev) => showTip(`<b>${esc(d.industry)}</b>
+          <div class="row"><span class="muted">Hourly earnings</span><span>${fmtUsd(d.ahe)}</span></div>
+          <div class="row"><span class="muted">vs a year ago</span><span>${fmtSignedPct(d.yoy)}</span></div>
+          ${cpiYoy != null ? `<div class="row"><span class="muted">Regional prices</span><span>${fmtSignedPct(cpiYoy)}</span></div>
+          <div class="row"><span class="muted">Real change</span><span>${real != null ? signed(real) : "–"}</span></div>` : ""}
+          ${us ? `<div class="row"><span class="muted">U.S. average</span><span>${fmtUsd(us)}</span></div>` : ""}`, ev))
+        .on("mouseleave", hideTip);
+      const lr = R + 14, x = lr * ux, y = lr * uy;
+      const anchor = Math.abs(ux) < 0.25 ? "middle" : ux > 0 ? "start" : "end";
+      const lh = 13, total_l = lines.length + 1;
+      const y0 = y - ((total_l - 1) * lh) / 2 + 4 + (Math.abs(ux) < 0.25 ? (uy < 0 ? -8 : 8) : 0);
+      const t = g.append("text").attr("class", "rose-label").attr("text-anchor", anchor);
+      lines.forEach((ln, j) => t.append("tspan").attr("x", x).attr("y", y0 + j * lh).text(ln));
+      t.append("tspan").attr("class", "rose-value").attr("x", x).attr("y", y0 + lines.length * lh).text(`${fmtUsd(d.ahe)} · ${fmtSignedPct(d.yoy)} y/y`);
+    });
+    g.append("circle").attr("r", 3).attr("fill", "#0b0b0b");
+    host.append("div").attr("class", "rose-legend").html(
+      `<span><b>spoke</b> = hourly earnings</span><span><span style="color:${GREEN}">●</span> rising faster than prices</span><span><span style="color:${PINK}">●</span> trailing prices</span><span><i></i>area private average</span><span>┼ U.S. average for that industry</span>`);
   }
 
   /* ------------------------------------------------------------------- go */
