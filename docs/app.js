@@ -417,7 +417,7 @@
     } else {
       drawer.classList.remove("is-open"); drawer.setAttribute("aria-hidden", "true");
       document.body.classList.remove("drawer-open");
-      document.title = "Workforce Snapshot · Urban Spatial Lab";
+      document.title = "USA Workforce Snapshot · Urban Spatial Lab";
       history.replaceState(null, "", location.pathname);
     }
   }
@@ -431,7 +431,7 @@
     const name = level === "nation" ? "United States" : sel.name;
     const geoTag = level === "nation" ? "Nation" : level === "state" ? "State" : geoType(sel);
     const monthTag = now ? now.date : rose.month;
-    document.title = `${name} · Workforce Snapshot · ${fmtMonth(monthTag)}`;
+    document.title = `${name} · USA Workforce Snapshot · ${fmtMonth(monthTag)}`;
 
     let geoLine = "";
     if (level === "metro") {
