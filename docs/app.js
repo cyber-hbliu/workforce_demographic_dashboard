@@ -664,15 +664,10 @@
     }
     const { e, now, wageYoy, cpiYoy, cpiMonth, real } = es;
     const regionName = REGION_NAME[e.region] || e.region;
-    let inds = e.industries.filter((d) => d.code !== "05000000").sort((a, b) => b.ahe - a.ahe);
+    const inds = e.industries.filter((d) => d.code !== "05000000").sort((a, b) => b.ahe - a.ahe);
     const total = e.industries.find((d) => d.code === "05000000");
-    // BLS publishes metro hourly earnings for total private only; borrow the
-    // industry breakdown from the metro's primary state and say so
-    let borrowed = null;
-    if (level === "metro" && !inds.length) {
-      const sf = (metros[id].states || [])[0], se = earn?.states?.[sf];
-      if (se && se.industries.length) { inds = se.industries.filter((d) => d.code !== "05000000"); borrowed = STATE_NAME(sf); }
-    }
+    // the industry section appears only where BLS publishes industry earnings for this area
+    // (states and the nation; metros get total private only)
     host.innerHTML = `
       <dl class="kpis kpis-3" style="margin-top:14px">
         <div class="kpi"><dt>Hourly earnings</dt><dd>${fmtUsd(now.value)}</dd><div class="kpi-sub">private employers · ${esc(fmtMonth(now.date))}</div>
@@ -681,17 +676,16 @@
         <div class="kpi"><dt>Real earnings growth</dt><dd>${real != null ? signed(real) : "–"}</dd><div class="kpi-sub">earnings minus prices</div>
           ${real != null ? `<span class="kpi-delta"><b class="${real >= 0 ? "up" : "down"}">${real >= 0 ? "ahead of" : "trailing"} inflation</b></span>` : ""}</div>
       </dl>
-      <section class="d-section">
-        <div class="d-section-head"><div><div class="d-section-title">Earnings by industry</div><div class="d-section-sub">average hourly earnings · ${esc(fmtMonth(now.date))}${borrowed ? ` · industries statewide (${esc(borrowed)})` : ""}</div></div></div>
+      ${inds.length ? `<section class="d-section">
+        <div class="d-section-head"><div><div class="d-section-title">Earnings by industry</div><div class="d-section-sub">average hourly earnings · ${esc(fmtMonth(now.date))}</div></div></div>
         <div id="burst-host"></div>
-        ${borrowed ? `<p class="rose-note">BLS publishes metro hourly earnings for private employers as a whole only, so the spokes show <b>${esc(borrowed)}</b> statewide by industry; the ring is this MSA's own average of ${fmtUsd(total ? total.ahe : now.value)}.</p>`
-          : inds.length < 5 ? `<p class="rose-note">BLS publishes hourly earnings for only some industries in this area.</p>` : ""}
-      </section>
+        ${inds.length < 5 ? `<p class="rose-note">BLS publishes hourly earnings for only some industries in this area.</p>` : ""}
+      </section>` : ""}
       <section class="d-section">
         <div class="d-section-head"><div class="d-section-title">Earnings vs prices</div><div class="d-section-sub">indexed to 100 at ${esc(fmtMonth(e.total[0].date))}</div></div>
         <div class="trend-wrap" id="index-host"></div>
       </section>`;
-    renderEarningsBurst(inds, total, cpiYoy, level === "nation" ? null : earn.national?.industries || []);
+    if (inds.length) renderEarningsBurst(inds, total, cpiYoy, level === "nation" ? null : earn.national?.industries || []);
     const cpi = cpiOf(e.region);
     const start = e.total[0].date;
     const base = (rows) => rows.find((r) => r.date >= start);
