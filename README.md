@@ -4,13 +4,11 @@ An interactive map of the U.S. labor market for people who work on it: workforce
 
 Live site: https://cyber-hbliu.github.io/workforce_demographic_dashboard/
 
-USA Workforce Snapshot is the first program of Urban Spatial Lab. The code and data pipeline are open source under this repository so that any organisation can run its own copy.
+USA Workforce Snapshot is the first program of Urban Spatial Lab. The code and data pipeline are open source under this repository so that any organization can run its own copy.
 
 ## The problem
 
-The Bureau of Labor Statistics publishes the best labor-market data in the country, every month, for free. Almost nobody outside a statistics office reads it. The numbers sit in dozens of tables with names like LAUMT063108000000003, split across four programs (LAUS, CES, CPS and CPI) that use different geographies, different seasonal adjustments and different release dates. A workforce board that wants to know how its metro compares with the state, or whether wages in its region have beaten inflation this year, has to pull five series from two APIs, align the months, compute the comparison, and repeat the exercise next month.
-
-The result is that decisions about training programs, job fairs and grant applications are made from last year's report or from a national headline that may not describe the local economy at all.
+The Bureau of Labor Statistics publishes the official labor-market data for every state and metropolitan area, every month, for free. In its published form it is hard to use. The numbers sit in thousands of series with names like LAUMT063108000000003, spread across four programs (LAUS, CES, CPS and CPI) that use different geographies, different seasonal adjustments and different release dates. A workforce board that wants to know how its metro compares with the state, or whether wages in its region have beaten inflation this year, has to pull several series from the API, align the months, compute the comparison, and repeat the exercise after the next release.
 
 ## The questions
 
@@ -26,9 +24,9 @@ The map should be the interface. Labor-market data is spatial; the first thing a
 
 One page, three lenses. Employment structure, unemployment and earnings are three views of the same places, so they should be three buttons on one map rather than three separate pages, and clicking a place should open a profile that changes with the lens.
 
-Compare, don't just report. A 4.2% unemployment rate means little on its own. It means something next to the national rate, the state's other metros, and the same month a year earlier. Every figure on the page is shown with at least one comparison.
+Show every number with a comparison. A 4.2% unemployment rate means little on its own. It means something next to the national rate, the state's other metros, and the same month a year earlier.
 
-Be honest about geography. Most published metro statistics describe a metropolitan statistical area (MSA), a group of counties defined by the federal Office of Management and Budget, not a city. "Urban Honolulu, HI" is Honolulu County. The dashboard says this on every profile and lists the counties, because conflating the two is the most common misreading of this data.
+Be honest about geography. Most published metro statistics describe a metropolitan statistical area (MSA), a group of counties defined by the federal Office of Management and Budget, not a city. "Urban Honolulu, HI" is Honolulu County. The dashboard says this on every profile and lists the counties, because the two are easy to confuse.
 
 ## Methods
 
@@ -41,11 +39,11 @@ Data comes directly from the BLS public API, from four programs.
 | Current Population Survey (CPS) | national labor force, employment, unemployment | nation |
 | Consumer Price Index (CPI-U) | all-items price index | nation and the four census regions |
 
-The dashboard covers 114 metropolitan and micropolitan areas: the 30 largest metros, the metro of every state capital, and a set of other regional centres, plus all 50 states, the District of Columbia and the nation.
+The dashboard covers 114 metropolitan and micropolitan areas (the 30 largest metros, the metro of every state capital, and other regional centers), all 50 states, the District of Columbia and the nation.
 
 Three derived measures do most of the work. An industry's percentage of local nonfarm jobs is compared with the same percentage nationally, and the ratio between the two (the location quotient) shows which industries the area has more or less of than the country. The largest sector is simply the industry with the most jobs. Real earnings growth is the year-on-year change in average hourly earnings for private employers minus the year-on-year change in the CPI for the area's census region; a positive figure means pay rose faster than prices.
 
-Two limits of the source data are carried through rather than hidden. BLS does not seasonally adjust metro unemployment rates, so metro rates are labelled as such and are not directly comparable with state and national rates. BLS publishes hourly earnings by industry for states but only a private-sector total for metros, so the industry earnings chart appears for states and the nation only.
+Two limits of the source data are carried through rather than hidden. BLS does not seasonally adjust metro unemployment rates, so metro rates are labeled as such and are not directly comparable with state and national rates. BLS publishes hourly earnings by industry for states but only a private-sector total for metros, so the industry earnings chart appears for states and the nation only.
 
 Geography is built from reference files, not typed by hand. A script resolves each metro's code against the BLS area list, reads its member counties from the Census Bureau's delineation file, and merges those counties into the area's real outline on the map. If a code has been retired or mistyped, the script stops rather than sending a bad request.
 
@@ -55,25 +53,25 @@ A scheduled job checks the BLS release calendar every day and, on the day after 
 
 The page is one full-screen map with a small set of floating panels, so the data never scrolls away from the geography it describes.
 
-Top left: the title, the month of the latest data, and two national figures, nonfarm employment and the unemployment rate with its monthly and annual change. Under it, the three lens buttons and a search box that finds any metro, capital or state.
+The panel at the top left carries the title, the month of the latest data, and two national figures: nonfarm employment and the unemployment rate with its monthly and annual change. Under it are the three lens buttons and a search box that finds any metro, capital or state.
 
-The map: every metro is a marker sized by its nonfarm jobs, drawn over the area's real county footprint. A diamond marks a state capital; a hollow ring marks an area for which BLS publishes unemployment but no industry data. The unemployment and earnings lenses shade states and metros by their value, on a single blue ramp for unemployment and a green-to-pink scale for real earnings growth, with green meaning pay is ahead of prices.
+On the map, every metro is a marker sized by its nonfarm jobs, drawn over the area's real county footprint. A diamond marks a state capital. A hollow ring marks an area for which BLS publishes unemployment but no industry data. The unemployment and earnings lenses shade states and metros by their value, on a single blue ramp for unemployment and a green-to-pink scale for real earnings growth, where green means pay is ahead of prices.
 
-Hover: a card with the area's official name, its unemployment rate, hourly-earnings growth, its largest sector and its specialty.
+Hovering over a place shows a card with its official name, its unemployment rate, hourly-earnings growth, its largest sector and its specialty.
 
-The profile: clicking a place slides out a panel whose content depends on the lens. The industry lens shows labor force, employment and the unemployment rate with monthly and annual change, then a rose chart in which each of ten industries is a petal sized by its percentage of jobs, coloured green where the area has proportionally fewer of those jobs than the nation and pink where it has more, with a black outline showing the national mix. Two cards below name the largest sector and the specialty, the industry most concentrated relative to the U.S. among those with a meaningful share of local jobs. The unemployment lens shows a ten-year trend against the nation and where the area ranks among its peers. The earnings lens shows hourly earnings, regional price change and real growth, a burst chart of earnings by industry against the U.S. average for each, and an index chart of earnings against prices since 2016. A state profile also lists the metros inside it.
+Clicking a place slides out a profile whose content depends on the lens. The industry lens shows labor force, employment and the unemployment rate with monthly and annual change, then a rose chart in which each of ten industries is a petal sized by its percentage of jobs, colored green where the area has proportionally fewer of those jobs than the nation and pink where it has more, with a black outline showing the national mix. Two cards below name the largest sector and the specialty, the industry most concentrated relative to the U.S. among those with a meaningful share of local jobs. The unemployment lens shows a ten-year trend against the nation and where the area ranks among its peers. The earnings lens shows hourly earnings, regional price change and real growth, a burst chart of earnings by industry against the U.S. average for each, and an index chart of earnings against prices since 2016. A state profile also lists the metros inside it.
 
-Typography and colour were chosen for reading numbers: a monospaced face so figures align, black text on light panels, and a dark surround so the country reads as the subject. Every colour scale has a legend on screen.
+The typeface is monospaced so figures align, the panels are light with black text, and the surround is dark so the country reads as the subject. Every color scale has a legend on screen.
 
 ## Results
 
-The result is a page that a program officer can open on the morning after a BLS release and, in under a minute, see the latest month for their metro, how it compares with the state and the nation, which industries carry the local economy, and whether local pay is beating inflation. No spreadsheet, no API key, no waiting for a quarterly report.
+A program officer can open the page on the morning after a BLS release and see the latest month for their metro, how it compares with the state and the nation, which industries carry the local economy, and whether local pay is beating inflation. There is no spreadsheet to build and no API key to manage.
 
-Because the pipeline is automatic, the page is never more than one day behind the official release, and every number on it can be traced to a named BLS series. Because the code is open, another lab or agency can change the list of metros, add its own areas, or re-skin the page and run it under its own domain.
+Because the pipeline is automatic, the page is never more than one day behind the official release, and every number on it can be traced to a named BLS series. Because the code is open, another lab or agency can change the list of metros, add its own areas, or restyle the page and run it under its own domain.
 
 ## Testing and verification
 
-Series identifiers are validated against the BLS area lists before any request is made, and the fetch refuses to overwrite good data if a run returns empty results for most states. The figures shown on the site were checked against the BLS data tables for several areas (Philadelphia employment, Texas unemployment, Colorado hourly earnings among them) and against the seasonally adjusted national figures in the monthly Employment Situation release. The page was rendered in a headless browser across desktop and mobile sizes at each stage of development, and every chart has a hover readout so a reader can verify any value by pointing at it.
+Series identifiers are validated against the BLS area lists before any request is made, and the fetch refuses to overwrite good data if a run returns empty results for most states. During development the figures shown for several areas (Philadelphia employment, Texas unemployment and Colorado hourly earnings among them) and the national CPS figures were compared with the values returned by the BLS API for the same series and months. The page was rendered in a headless browser across desktop and mobile sizes at each stage of development, and every chart has a hover readout so a reader can verify any value by pointing at it.
 
 Known limits are stated on the page itself: metro rates are not seasonally adjusted; the six micropolitan capitals have no industry series; metro earnings are published only as a private-sector total; regional CPI is used for metros because BLS publishes metro CPIs for fewer than 25 areas.
 
