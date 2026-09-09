@@ -104,9 +104,46 @@ national = {"unemp_rate": us_ur, "labor_force": us_lf,
             "industries": [{"code": ind, "industry": label, "jobs": round(158_600 * US_SHARE[ind], 1),
                             "share": US_SHARE[ind], "lq": 1.0} for ind, label in SUPERSECTORS.items()]}
 
+# earnings: hourly earnings by industry with a regional CPI to compare against
+EARN = {"05000000": "Total private", **{k: v for k, v in SUPERSECTORS.items() if k != "90000000"}}
+BASE_AHE = {"05000000": 34.0, "20000000": 37.5, "30000000": 33.0, "40000000": 29.0, "50000000": 52.0,
+            "55000000": 45.0, "60000000": 41.0, "65000000": 33.5, "70000000": 22.0, "80000000": 31.0}
+REGION = {}
+for r, fips_list in (("0100", ["09", "23", "25", "33", "44", "50", "34", "36", "42"]),
+                     ("0200", ["17", "18", "26", "39", "55", "19", "20", "27", "29", "31", "38", "46"]),
+                     ("0400", ["04", "08", "16", "30", "32", "35", "49", "56", "02", "06", "15", "41", "53"])):
+    for f in fips_list:
+        REGION[f] = r
+
+
+def cpi_series(base, drift):
+    return [{"date": d, "value": round(base * (1 + drift) ** (i / 12) * (1 + random.uniform(-0.002, 0.002)), 3)}
+            for i, d in enumerate(MONTHS)]
+
+
+def earn_profile(scale, region):
+    inds, total = [], None
+    for code, label in EARN.items():
+        rows = [{"date": d, "value": round(BASE_AHE[code] * scale * (1 + 0.035) ** (i / 12) * (1 + random.uniform(-0.004, 0.004)), 2)}
+                for i, d in enumerate(MONTHS)]
+        now, prev = rows[-1], rows[-13]
+        inds.append({"code": code, "industry": label, "ahe": now["value"], "month": now["date"],
+                     "yoy": round((now["value"] - prev["value"]) / prev["value"], 4)})
+        if code == "05000000":
+            total = rows
+    return {"region": region, "total": total, "industries": inds}
+
+
+earnings = {"cpi": {"US": cpi_series(300, 0.03), "0100": cpi_series(310, 0.028), "0200": cpi_series(290, 0.029),
+                    "0300": cpi_series(295, 0.032), "0400": cpi_series(320, 0.034)},
+            "national": earn_profile(1.0, "US"),
+            "states": {f: earn_profile(random.uniform(0.85, 1.2), REGION.get(f, "0300")) for f in AREAS["states"]},
+            "metros": {m["cbsa"]: earn_profile(random.uniform(0.85, 1.3), REGION.get(m["state_fips"], "0300"))
+                       for m in AREAS["metros"] if m["ces"]}}
+
 OUT.mkdir(parents=True, exist_ok=True)
 for name, obj in (("states.json", states), ("metros.json", metros),
-                  ("rose.json", rose), ("national.json", national)):
+                  ("rose.json", rose), ("national.json", national), ("earnings.json", earnings)):
     (OUT / name).write_text(json.dumps(obj, separators=(",", ":")))
 (OUT / "meta.json").write_text(json.dumps({
     "updated": "sample", "latest_state_month": MONTHS[-1], "latest_metro_month": MONTHS[-2],

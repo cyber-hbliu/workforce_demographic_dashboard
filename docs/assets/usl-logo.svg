@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Urban Spatial Lab">
+  <!-- placeholder mark: replace this file with the real USL logo (same filename) -->
+  <rect x="10" y="10" width="100" height="100" rx="8" fill="none" stroke="#ffffff" stroke-width="4"/>
+  <rect x="26" y="26" width="30" height="30" fill="#ffffff"/>
+  <rect x="64" y="26" width="30" height="30" fill="none" stroke="#ffffff" stroke-width="4"/>
+  <rect x="26" y="64" width="30" height="30" fill="none" stroke="#ffffff" stroke-width="4"/>
+  <rect x="64" y="64" width="30" height="30" fill="#ffffff"/>
+</svg>

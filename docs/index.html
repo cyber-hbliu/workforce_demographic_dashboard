@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Workforce Monitor</title>
+<title>Workforce Snapshot · Urban Spatial Lab</title>
 <meta name="description" content="A full-screen atlas of the U.S. labor market: the latest BLS unemployment and industry employment figures for every state, state capital and major metropolitan statistical area.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,9 +20,11 @@
 <div class="left-stack">
   <!-- masthead: title, latest release, national figures -->
   <header class="hud hud-masthead" id="masthead">
-    <h1 class="wordmark">Workforce <span>Monitor</span></h1>
+    <div class="mast-row">
+      <h1 class="wordmark">Workforce<br>Snapshot</h1>
+      <a class="logo-chip" href="https://github.com/cyber-hbliu/workforce_demographic_dashboard" aria-label="Urban Spatial Lab"><img src="assets/usl-logo.svg" alt="Urban Spatial Lab"></a>
+    </div>
     <p class="release"><span class="release-label">Latest data</span><span class="release-month" id="release-month">–</span></p>
-    <p class="dek">Data source: U.S. Bureau of Labor Statistics — Local Area Unemployment Statistics (LAUS) and Current Employment Statistics (CES).</p>
 
     <button class="nation-stat" id="nation-stat" type="button" aria-label="Open the United States profile">
       <span class="nation-label">United States</span>
@@ -36,8 +38,9 @@
   <!-- map controls under the masthead: lens buttons + search -->
   <div class="hud hud-toolbar" id="toolbar">
     <div class="filters" role="group" aria-label="Map lens">
-      <button class="lens-btn is-active" data-lens="industry" aria-pressed="true">Industry structure</button>
+      <button class="lens-btn is-active" data-lens="industry" aria-pressed="true">Industry</button>
       <button class="lens-btn" data-lens="unemployment" aria-pressed="false">Unemployment</button>
+      <button class="lens-btn" data-lens="earnings" aria-pressed="false">Earnings</button>
     </div>
     <div class="search-wrap">
       <input class="search" id="search" type="search" placeholder="Find an MSA, capital or state" aria-label="Find a metropolitan area, capital or state" autocomplete="off">
@@ -61,6 +64,8 @@
   <button class="drawer-close" id="drawer-close" aria-label="Close profile">×</button>
   <div class="drawer-scroll" id="drawer-body"></div>
 </aside>
+
+<footer class="foot" id="foot">Data: U.S. Bureau of Labor Statistics (LAUS · CES · CPI) &nbsp;·&nbsp; Workforce Snapshot is a program of Urban Spatial Lab</footer>
 
 <div class="tip" id="tip" role="tooltip" hidden></div>
 
