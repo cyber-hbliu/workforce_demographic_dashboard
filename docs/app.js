@@ -99,6 +99,13 @@
     const tot = last(seriesOf(level, id)?.payrolls);
     return tot ? tot.value : d3.sum(p, (d) => d.jobs);
   };
+  // largest = highest share of jobs; specialty = highest location quotient among
+  // sectors with at least 5% of local jobs and an LQ above 1.05 (else none)
+  function sectorSummary(prof) {
+    const largest = [...prof].sort((a, b) => b.share - a.share)[0] || null;
+    const specialty = prof.filter((d) => d.lq != null && d.share >= 0.05 && d.lq >= 1.05).sort((a, b) => b.lq - a.lq)[0] || null;
+    return { largest, specialty };
+  }
   const geoType = (m) => (m.kind === "micro" ? "Micropolitan Statistical Area" : "Metropolitan Statistical Area");
   const geoShort = (m) => (m.kind === "micro" ? "µSA" : "MSA");
   const capitalText = (m) => (m.capital_of || []).map((c) => `${c.city}, capital of ${c.state === "11" ? "the United States" : STATE_NAME(c.state)}`).join(" · ");
@@ -229,11 +236,12 @@
   function bigFigures(level, id) {
     const r = level === "metro" ? rateOfMetro(id) : rateOfState(id);
     const prof = profileOf(level, id), es = earningsSummary(level, id);
-    const top = prof.filter((d) => d.lq != null).sort((a, b) => b.lq - a.lq)[0];
+    const { largest, specialty } = sectorSummary(prof);
     return `<div class="tip-figs">
       <div><span class="fig">${r != null ? r.toFixed(1) + "<small>%</small>" : "–"}</span><span class="lab">unemployment rate</span></div>
-      <div><span class="fig ${es && es.wageYoy != null ? (es.wageYoy >= 0 ? "up" : "down") : ""}">${es ? fmtSignedPct(es.wageYoy) : "–"}</span><span class="lab">hourly earnings, y/y${es ? ` · ${fmtUsd(es.now.value)}` : ""}</span></div>
-      <div><span class="fig fig-text" style="color:${top ? lqColor(top.lq) : "#fff"}">${top ? esc(top.industry) : "–"}</span><span class="lab">regional specialty${top ? ` · ${top.lq.toFixed(2)}× the U.S.` : " · no industry series"}</span></div>
+      <div><span class="fig ${es && es.wageYoy != null ? (es.wageYoy >= 0 ? "up" : "down") : ""}">${es ? fmtSignedPct(es.wageYoy) : "–"}</span><span class="lab">hourly earnings, y/y</span></div>
+      ${prof.length ? `<div><span class="fig fig-text">${largest ? esc(largest.industry) : "–"}</span><span class="lab">largest sector${largest ? ` · ${fmtPct(largest.share)} of jobs` : ""}</span></div>
+      <div><span class="fig fig-text" style="color:${specialty ? lqColor(specialty.lq) : "rgba(255,255,255,0.5)"}">${specialty ? esc(specialty.industry) : "none"}</span><span class="lab">specialty${specialty ? ` · ${specialty.lq.toFixed(2)}× the U.S.` : " · no sector over-represented"}</span></div>` : ""}
     </div>`;
   }
   function stateTip(fips) {
@@ -507,7 +515,7 @@
     const rs = d3.scaleSqrt().domain([0, SHARE_MAX]).range([0, R]);
     const byCode = new Map(prof.map((d) => [d.code, d]));
     const step = (2 * Math.PI) / N;
-    const lead = prof.filter((d) => d.lq != null && d.lq > 1.05).sort((a, b) => b.lq - a.lq)[0];
+    const lead = sectorSummary(prof).specialty;
     for (const s of [0.05, 0.1, 0.2, 0.3]) g.append("circle").attr("class", "rose-ring").attr("r", rs(s));
     SECTORS.forEach((_, i) => {
       const a = angleOf(i) - step / 2;
@@ -556,27 +564,32 @@
   }
   function renderDominant(prof, level) {
     const host = document.getElementById("dominant-host");
-    const largest = [...prof].sort((a, b) => b.share - a.share)[0];
-    const withLq = prof.filter((d) => d.lq != null);
-    const lead = [...withLq].sort((a, b) => b.lq - a.lq)[0];
-    if (level === "nation" || !lead) {
-      host.innerHTML = `<div class="dominant"><p class="dom-label">Largest sector</p><p class="dom-name">${esc(largest.industry)}</p>
-        <p class="dom-stat"><b>${fmtPct(largest.share)}</b> of nonfarm jobs · <b>${fmtNum(Math.round(largest.jobs))}k</b> jobs. The national mix is the reference every area is compared with.</p></div>`;
-      return;
+    const { largest, specialty } = sectorSummary(prof);
+    if (!largest) { host.innerHTML = ""; return; }
+    const usL = US_SHARE.get(largest.code) || 0;
+    let specialtyHtml;
+    if (level === "nation") {
+      specialtyHtml = `<p class="dom-stat">The national mix is the reference every area is compared with.</p>`;
+    } else if (!specialty) {
+      specialtyHtml = `<p class="dom-name dom-none">None</p><p class="dom-stat">No sector with at least 5% of jobs is markedly over-represented compared with the U.S.</p>`;
+    } else {
+      const us = US_SHARE.get(specialty.code) || 0, maxPct = Math.max(specialty.share, us) || 1;
+      specialtyHtml = `<p class="dom-name">${esc(specialty.industry)}</p>
+        <p class="dom-stat"><b>${fmtPct(specialty.share)}</b> of nonfarm jobs (<b>${fmtNum(Math.round(specialty.jobs))}k</b>), <b>${specialty.lq.toFixed(2)}×</b> the U.S. percentage of ${fmtPct(us)}.</p>
+        <div class="dom-bars">
+          <span>Here</span><div class="bar" style="width:${(specialty.share / maxPct) * 100}%"></div><span class="val">${fmtPct(specialty.share)}</span>
+          <span>U.S.</span><div class="bar us" style="width:${(us / maxPct) * 100}%"></div><span class="val">${fmtPct(us)}</span>
+        </div>`;
     }
-    const us = US_SHARE.get(lead.code) || 0, maxPct = Math.max(lead.share, us) || 1;
-    const runnersUp = withLq.filter((d) => d !== lead && d !== largest && d.lq >= 1.15).sort((a, b) => b.lq - a.lq).slice(0, 2);
-    host.innerHTML = `<div class="dominant">
-      <p class="dom-label">Regional specialty · most concentrated vs the U.S.</p>
-      <p class="dom-name">${esc(lead.industry)}</p>
-      <p class="dom-stat"><b>${fmtPct(lead.share)}</b> of nonfarm jobs (<b>${fmtNum(Math.round(lead.jobs))}k</b>), <b>${lead.lq.toFixed(2)}×</b> the U.S. percentage of ${fmtPct(us)}.</p>
-      <div class="dom-bars">
-        <span>Here</span><div class="bar" style="width:${(lead.share / maxPct) * 100}%"></div><span class="val">${fmtPct(lead.share)}</span>
-        <span>U.S.</span><div class="bar us" style="width:${(us / maxPct) * 100}%"></div><span class="val">${fmtPct(us)}</span>
+    host.innerHTML = `<div class="dominant dominant-largest">
+        <p class="dom-label">Largest sector · most jobs</p>
+        <p class="dom-name">${esc(largest.industry)}</p>
+        <p class="dom-stat"><b>${fmtPct(largest.share)}</b> of nonfarm jobs (<b>${fmtNum(Math.round(largest.jobs))}k</b>)${level !== "nation" && largest.lq != null ? `, ${largest.lq.toFixed(2)}× the U.S. percentage of ${fmtPct(usL)}` : ""}.</p>
       </div>
-      <p class="dom-second">${largest.code === lead.code ? `It is also the <b>largest employer</b> in the area.`
-        : `Largest employer: <b>${esc(largest.industry)}</b>, ${fmtPct(largest.share)} of jobs (${largest.lq != null ? largest.lq.toFixed(2) + "× the U.S." : "–"}).`}
-        ${runnersUp.length ? ` Also concentrated: ${runnersUp.map((d) => `<b>${esc(d.industry)}</b> ${d.lq.toFixed(2)}×`).join(", ")}.` : ""}</p></div>`;
+      <div class="dominant">
+        <p class="dom-label">Specialty · most concentrated vs the U.S.</p>
+        ${specialtyHtml}
+      </div>`;
   }
 
   /* -------------------------------------------------- unemployment lens */
