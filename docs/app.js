@@ -290,7 +290,7 @@
     let s = `<svg width="290" height="46" viewBox="0 0 290 46">`;
     let x = 14;
     for (const [j, r] of sizes) {
-      s += `<circle cx="${x + r}" cy="23" r="${r}" fill="#0b0b0b"/><text x="${x + r}" y="43" text-anchor="middle">${j >= 1000 ? j / 1000 + "M" : j + "k"}</text>`;
+      s += `<circle cx="${x + r}" cy="23" r="${r}" fill="#4a3aa7"/><text x="${x + r}" y="43" text-anchor="middle">${j >= 1000 ? j / 1000 + "M" : j + "k"}</text>`;
       x += r * 2 + 26;
     }
     s += `<path d="M${x + 8},13 L${x + 18},23 L${x + 8},33 L${x - 2},23 Z" fill="#0b0b0b"/><text x="${x + 8}" y="43" text-anchor="middle">capital</text>`;

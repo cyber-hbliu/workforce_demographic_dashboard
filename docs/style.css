@@ -4,7 +4,8 @@
 
 :root {
   color-scheme: light;
-  --page: #aaa298;   /* medium brown-grey outside the U.S. */
+  --page: #8b8377;   /* dark brown-grey outside the U.S. */
+  --marker: #4a3aa7; /* round MSA markers */
   --paper: #fcfcfb;
   --land: #fbfaf6;
   --ink: #0b0b0b;
@@ -57,6 +58,7 @@ button { font: inherit; color: inherit; }
 
 .glyph { cursor: pointer; outline: none; }
 .glyph .core { fill: var(--ink); stroke: var(--paper); stroke-width: 1.2; }
+.glyph circle.core { fill: var(--marker); }
 .glyph .halo { fill: none; stroke: var(--ink); stroke-width: 0.9; opacity: 0; }
 .glyph .hit { fill: transparent; }
 .glyph.is-selected .halo, .glyph:focus-visible .halo, .glyph:hover .halo { opacity: 0.85; }
