@@ -461,6 +461,7 @@
       <h2 class="d-name">${esc(name)}</h2>
       <p class="d-geo">${geoLine}</p>
       ${sub ? `<p class="d-sub">${esc(sub)}</p>` : ""}
+      ${level === "state" ? stateMetroChips(id) : ""}
       <dl class="kpis kpis-3">${tiles.map(([k, v, s, extra]) => `<div class="kpi"><dt>${k}</dt><dd>${v}</dd><div class="kpi-sub">${esc(s)}</div>${extra}</div>`).join("")}</dl>
       <div id="lens-host"></div>
       <p class="d-foot">${level === "metro" ? `${esc(geoShort(sel))} unemployment is not seasonally adjusted; state and national rates are. ` : ""}${
@@ -484,8 +485,7 @@
     host.innerHTML = `<section class="d-section">
         <div class="d-section-head"><div><div class="d-section-title">Industry structure</div><div class="d-section-sub">${prof.length ? `% of nonfarm jobs${jobsRow ? ` · ${fmtNum(Math.round(jobs))}k jobs` : ""} · ${esc(fmtMonth(jobsRow ? jobsRow.date : rose.month))}` : ""}</div></div>
           ${prof.length ? `<div class="view-toggle" id="rose-toggle"><button data-v="chart" class="${app.roseView === "chart" ? "is-active" : ""}">Rose</button><button data-v="table" class="${app.roseView === "table" ? "is-active" : ""}">Table</button></div>` : ""}</div>
-        <div id="rose-host"></div><div id="dominant-host"></div></section>
-      ${level === "state" ? stateMetroChips(id) : ""}`;
+        <div id="rose-host"></div><div id="dominant-host"></div></section>`;
     if (!prof.length) {
       document.getElementById("rose-host").innerHTML = `<p class="rose-note">BLS publishes no industry employment series for this area, so only the unemployment picture is shown.</p>`;
       return;
@@ -497,8 +497,8 @@
   function stateMetroChips(fips) {
     const list = metroList.filter((m) => (m.states || []).includes(fips)).sort((a, b) => jobsOf("metro", b.id) - jobsOf("metro", a.id));
     if (!list.length) return "";
-    return `<section class="d-section"><div class="d-section-head"><div class="d-section-title">Metropolitan areas in ${esc(STATE_NAME(fips))}</div><div class="d-section-sub">on this map</div></div>
-      <div class="chips">${list.map((m) => `<button class="chip" data-select-metro="${m.id}"><b>${esc(m.short)}</b> ${esc(geoShort(m))}${(m.capital_of || []).some((c) => c.state === fips) ? `<span class="cap">capital</span>` : ""}</button>`).join("")}</div></section>`;
+    return `<div class="chips-inline"><span class="chips-label">Metropolitan areas in ${esc(STATE_NAME(fips))} on this map</span>
+      <div class="chips">${list.map((m) => `<button class="chip" data-select-metro="${m.id}"><b>${esc(m.short)}</b> ${esc(geoShort(m))}${(m.capital_of || []).some((c) => c.state === fips) ? `<span class="cap">capital</span>` : ""}</button>`).join("")}</div></div>`;
   }
   function renderRose(prof) {
     const host = d3.select("#rose-host").html("");

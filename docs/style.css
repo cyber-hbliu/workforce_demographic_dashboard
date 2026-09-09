@@ -215,6 +215,8 @@ button { font: inherit; color: inherit; }
 .dom-second b { color: var(--ink); font-weight: 600; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips-inline { margin-top: 12px; }
+.chips-label { display: block; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
 .chip { border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.7); border-radius: 99px; padding: 5px 11px; font-size: 12px; cursor: pointer; }
 .chip:hover { border-color: var(--ink); }
 .chip b { font-weight: 600; }
