@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: light;
-  --page: #8b8377;   /* dark brown-grey outside the U.S. */
+  --page: #1f1e1e;   /* near-black outside the U.S. */
   --marker: #4a3aa7; /* round MSA markers */
   --paper: #fcfcfb;
   --land: #fbfaf6;
@@ -23,7 +23,7 @@
   --pink-soft: rgba(212, 65, 127, 0.1);
   --neutral: #b5b3ab;
   --blue: #2a78d6;
-  --sans: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: "Source Code Pro", "Source Code Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --radius: 16px;
 }
 
@@ -83,11 +83,11 @@ button { font: inherit; color: inherit; }
 .left-stack { position: fixed; z-index: 6; top: 22px; left: 22px; width: 330px; display: flex; flex-direction: column; gap: 12px; }
 .left-stack .hud { position: static; }
 .hud-masthead { padding: 20px 22px 16px; }
-.wordmark { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.wordmark { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
 .wordmark span { font-weight: 400; }
 .release { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; padding: 8px 12px; background: var(--ink); color: #fff; border-radius: 10px; }
 .release-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7; font-weight: 600; white-space: nowrap; }
-.release-month { font-size: 18px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1; white-space: nowrap; }
+.release-month { font-size: 17px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; white-space: nowrap; }
 .dek { font-size: 11.5px; color: var(--ink-2); margin-top: 10px; line-height: 1.4; }
 
 .nation-stat { display: flex; justify-content: space-between; align-items: baseline; width: 100%; margin-top: 14px; padding: 0 2px; background: none; border: 0; cursor: pointer; text-align: left; }
@@ -137,7 +137,7 @@ button { font: inherit; color: inherit; }
 .legend-ring { display: inline-block; width: 9px; height: 9px; border: 1.2px solid var(--ink); border-radius: 50%; vertical-align: -1px; margin-right: 4px; background: var(--paper); }
 .legend-cap { display: inline-block; width: 8px; height: 8px; background: var(--ink); vertical-align: -1px; margin: 0 5px 0 2px; transform: rotate(45deg); }
 
-.hud-zoom { right: 22px; bottom: 22px; display: flex; flex-direction: column; padding: 4px; }
+.hud-zoom { right: 22px; bottom: 22px; display: flex; flex-direction: column; padding: 4px; background: rgba(255, 255, 255, 0.9); }
 .zoom-btn { width: 36px; height: 36px; border: 0; background: transparent; border-radius: 10px; font-size: 18px; cursor: pointer; color: var(--ink); }
 .zoom-btn:hover { background: rgba(11, 11, 11, 0.07); }
 .zoom-reset { font-size: 15px; }
@@ -160,7 +160,7 @@ button { font: inherit; color: inherit; }
 .d-tags { display: flex; flex-wrap: wrap; gap: 6px; padding-right: 40px; }
 .d-tag { display: inline-block; padding: 5px 10px; background: var(--ink); color: #fff; border-radius: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .d-tag-geo { background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
-.d-name { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08; margin-top: 12px; padding-right: 36px; }
+.d-name { font-size: 23px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.12; margin-top: 12px; padding-right: 36px; }
 .d-geo { font-size: 12.5px; color: var(--ink-2); margin-top: 8px; line-height: 1.45; }
 .d-geo b { color: var(--ink); font-weight: 600; }
 .d-sub { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; }
@@ -180,9 +180,9 @@ button { font: inherit; color: inherit; }
 .rose-spoke { stroke: var(--hairline); stroke-width: 1; }
 .rose-ring { fill: none; stroke: var(--hairline); stroke-width: 1; }
 .rose-ring-label { font-family: var(--sans); font-size: 10px; fill: var(--muted); }
-.rose-label { font-family: var(--sans); font-size: 12px; font-weight: 600; fill: var(--ink); }
+.rose-label { font-family: var(--sans); font-size: 11px; font-weight: 600; fill: var(--ink); }
 .rose-label.is-lead { fill: var(--pink-deep); }
-.rose-value { font-family: var(--sans); font-size: 11px; font-weight: 500; fill: var(--ink-2); }
+.rose-value { font-family: var(--sans); font-size: 10px; font-weight: 500; fill: var(--ink-2); }
 .rose-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 10.5px; color: var(--muted); margin-top: 4px; }
 .rose-legend i { display: inline-block; width: 22px; height: 0; border-top: 2px solid var(--ink); vertical-align: 3px; margin-right: 4px; }
 .rose-note { font-size: 12.5px; color: var(--ink-2); padding: 10px 0; }
