@@ -51,6 +51,7 @@ button { font: inherit; color: inherit; }
 .state { fill: var(--land); stroke: #b9b3a8; stroke-width: 0.75; vector-effect: non-scaling-stroke; transition: fill 0.35s; }
 .state:hover { fill: #f1efe6; }
 .state.is-selected { stroke: var(--ink); stroke-width: 1.4; fill: #efede3; }
+.state-label { font-family: var(--sans); font-size: 7.5px; font-weight: 600; letter-spacing: 0.14em; fill: #cfc7b6; text-anchor: middle; pointer-events: none; }
 .nation-outline { fill: none; stroke: var(--ink); stroke-width: 0.8; vector-effect: non-scaling-stroke; opacity: 0.6; pointer-events: none; }
 
 .footprint { fill: rgba(11, 11, 11, 0.045); stroke: rgba(11, 11, 11, 0.32); stroke-width: 0.6; vector-effect: non-scaling-stroke; pointer-events: none; transition: fill 0.3s, stroke 0.3s; }

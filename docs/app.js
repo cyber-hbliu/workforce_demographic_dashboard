@@ -151,6 +151,18 @@
   zoomLayer.append("path").attr("class", "nation-outline")
     .attr("d", path(topojson.mesh(topo, topo.objects.states, (a, b) => a === b)));
 
+  // state names, in light beige-grey; narrow states only appear once zoomed in
+  const LABEL_NUDGE = { "26": [22, 30], "12": [14, 8], "22": [-10, 0], "24": [6, -6], "51": [10, 6], "23": [-4, 6] };
+  const stateLabelsG = zoomLayer.append("g").attr("class", "state-labels");
+  const stateLabels = stateLabelsG.selectAll("text").data(stateFeatures).join("text")
+    .attr("class", "state-label")
+    .each(function (d) {
+      const [cx, cy] = path.centroid(d), [nx, ny] = LABEL_NUDGE[d.id] || [0, 0];
+      const [[x0], [x1]] = path.bounds(d);
+      d.labelX = cx + nx; d.labelY = cy + ny; d.labelW = x1 - x0;
+    })
+    .text((d) => states[d.id].name.toUpperCase());
+
   // MSA footprints (real boundaries merged from member counties)
   const footG = zoomLayer.append("g");
   const footPaths = footG.selectAll("path").data(metroList.filter((m) => geo[m.id])).join("path")
@@ -223,6 +235,9 @@
     const s = Math.pow(k, -0.62); // bursts grow slower than the map so they never swamp it
     glyphs.attr("transform", (m) => `translate(${geo[m.id].a}) scale(${s})`);
     udots.attr("transform", (m) => `translate(${geo[m.id].a}) scale(${s})`);
+    const ls = Math.pow(k, -0.5);
+    stateLabels.attr("transform", (d) => `translate(${d.labelX},${d.labelY}) scale(${ls})`)
+      .style("display", (d) => (d.labelW * Math.sqrt(k) >= states[d.id].name.length * 5.2 ? null : "none"));
     if (!labelFrame) labelFrame = requestAnimationFrame(() => { labelFrame = 0; layoutLabels(t, s); });
   }
   let labelFrame = 0;
