@@ -5,8 +5,8 @@
 :root {
   color-scheme: light;
   --page: #1f1e1e;   /* near-black outside the U.S. */
-  --marker: #bf86a0; /* round MSA markers */
-  --marker-edge: #b3708d;
+  --marker: #d6ce76; /* round MSA markers */
+  --marker-edge: #b3aa66;
   --paper: #fcfcfb;
   --land: #fbfaf6;
   --ink: #0b0b0b;
