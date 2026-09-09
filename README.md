@@ -1,8 +1,8 @@
-# Workforce Monitor
+# Workforce Snapshot
 
-A map of the U.S. labor market that updates itself from Bureau of Labor Statistics data. It runs as a static site on GitHub Pages. A scheduled GitHub Action fetches new figures the day after each BLS release and commits them to the repository.
+A map of the U.S. labor market that updates itself from Bureau of Labor Statistics data. It is a program of Urban Spatial Lab. It runs as a static site on GitHub Pages. A scheduled GitHub Action fetches new figures the day after each BLS release and commits them to the repository.
 
-The map shows 114 metropolitan and micropolitan statistical areas: the 30 largest metros, the metro of every state capital, and a set of other regional centres. Clicking a marker, or a state, opens a profile with the area's labor force, employment, unemployment rate, industry mix and its most concentrated industry. A second view shades states and metros by unemployment rate.
+The map shows 114 metropolitan and micropolitan statistical areas: the 30 largest metros, the metro of every state capital, and a set of other regional centres. The map has three lenses. Industry shows a marker per area sized by nonfarm jobs; its profile has the industry rose and the area's most concentrated industry. Unemployment shades states and metros by unemployment rate; its profile has the ten-year trend against the nation and where the area ranks among its peers. Earnings shades them by real earnings growth, the year-on-year change in average hourly earnings minus the change in the CPI for the area's census region; its profile has hourly earnings by industry and an index chart of earnings against prices. Every profile opens with labor force, employment and the unemployment rate with its monthly and annual change.
 
 ## Reading the map
 
@@ -22,6 +22,8 @@ In the profile, the rose chart shows ten industry supersectors as petals in a fi
 | LAUS | metros and micros | unemployment rate, unemployed, employed, labor force | not seasonally adjusted |
 | CES | states and metros | total nonfarm and ten supersectors | not seasonally adjusted |
 | CPS and CES | nation | unemployment rate, labor force, employment, unemployment, total nonfarm, ten supersectors | seasonally adjusted, except the supersectors |
+| CES | states, metros, nation | average hourly earnings, total private and nine private supersectors | not seasonally adjusted |
+| CPI-U | nation and four census regions | all items index | not seasonally adjusted |
 
 BLS does not publish seasonally adjusted unemployment rates for metropolitan areas, so metro rates are not directly comparable with state and national rates. Industry percentages for all geographies use the not seasonally adjusted CES series so that local and national figures are computed the same way.
 
@@ -41,7 +43,7 @@ The only hand-edited list of metros is `config/metro_selection.json`, which hold
 
 The first script downloads the BLS area lists and the Census delineation files into `build/` (which git ignores), looks up each CBSA code, and writes `config/areas.json` with the exact LAUS area code, official title, member counties, and whether CES industry data exists for it. It stops with an error if a code is not in the BLS list, which catches retired or mistyped codes before they reach the API. The second script merges each area's counties into one outline on the same Albers projection as the state map and writes `docs/lib/metros-albers.json`.
 
-Each metro costs four LAUS series plus eleven CES series where they exist. A full run is about 50 requests of 50 series each, against a daily limit of 500 requests.
+Each metro costs four LAUS series plus eleven CES employment series and ten earnings series where they exist. A full run is about 80 requests of 50 series each, against a daily limit of 500 requests.
 
 ## Files
 
@@ -55,3 +57,4 @@ Each metro costs four LAUS series plus eleven CES series where they exist. A ful
     scripts/make_sample_data.py  placeholder data so the page renders before the first fetch
     docs/                        the site (GitHub Pages root)
     docs/lib/                    d3, topojson-client, us-atlas states, metro outlines
+    docs/assets/usl-logo.svg     Urban Spatial Lab mark shown in the masthead (replace with the real file)

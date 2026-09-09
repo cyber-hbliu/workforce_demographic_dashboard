@@ -8,6 +8,9 @@ Sources (BLS API v2, key required via env BLS_API_KEY):
   CES   national (NSA): total nonfarm + supersector employment
   CPS   national unemployment rate and labor force / employment / unemployment levels (SA)
   CES   national total nonfarm, seasonally adjusted headline (CES0000000001)
+  CES   average hourly earnings (data type 03) for total private and the private
+        supersectors, state / metro / national
+  CPI-U all items (NSA) for the nation and the four census regions
 
 Series ids are built from the BLS area codes resolved by scripts/build_areas.py
 (config/areas.json: laus_area, state_fips, ces) so nothing is hand-padded.
@@ -16,9 +19,9 @@ Series ids are built from the BLS area codes resolved by scripts/build_areas.py
   CES         = "SMU" + state_fips + area5 + industry8 + "01"  e.g. SMU06310800000000001
 
 Outputs to docs/data/:
-  national.json  states.json  metros.json  rose.json  meta.json
+  national.json  states.json  metros.json  rose.json  earnings.json  meta.json
 
-Budget: ~50 API requests per full run (limit is 500/day with a key).
+Budget: ~85 API requests per full run (limit is 500/day with a key).
 """
 import json
 import os
@@ -43,6 +46,17 @@ SUPERSECTORS = AREAS["supersectors"]
 
 LAUS_MEASURES = {"03": "unemp_rate", "04": "unemployed", "05": "employed", "06": "labor_force"}
 
+# CES average hourly earnings (data type 03): total private plus the private supersectors
+EARN_INDUSTRIES = {"05000000": "Total private", **{k: v for k, v in SUPERSECTORS.items() if k != "90000000"}}
+# CPI-U all items, not seasonally adjusted, for the nation and the four census regions
+CPI_SERIES = {"US": "CUUR0000SA0", "0100": "CUUR0100SA0", "0200": "CUUR0200SA0", "0300": "CUUR0300SA0", "0400": "CUUR0400SA0"}
+REGION_OF_STATE = {
+    **dict.fromkeys(["09", "23", "25", "33", "44", "50", "34", "36", "42"], "0100"),
+    **dict.fromkeys(["17", "18", "26", "39", "55", "19", "20", "27", "29", "31", "38", "46"], "0200"),
+    **dict.fromkeys(["10", "11", "12", "13", "24", "37", "45", "51", "54", "01", "21", "28", "47", "05", "22", "40", "48"], "0300"),
+    **dict.fromkeys(["04", "08", "16", "30", "32", "35", "49", "56", "02", "06", "15", "41", "53"], "0400"),
+}
+
 # ---------------------------------------------------------------- series ids
 
 def laus_state(fips: str, measure: str) -> str:
@@ -57,6 +71,12 @@ def ces(state_fips: str, area5: str, industry: str) -> str:
 def ces_national(industry: str) -> str:
     return f"CEU{industry}01"
 
+def ahe(state_fips: str, area5: str, industry: str) -> str:
+    return f"SMU{state_fips}{area5}{industry}03"
+
+def ahe_national(industry: str) -> str:
+    return f"CEU{industry}03"
+
 
 def build_catalog() -> dict[str, dict]:
     """series_id -> {kind, area, field}"""
@@ -67,6 +87,8 @@ def build_catalog() -> dict[str, dict]:
         cat[ces(fips, "00000", "00000000")] = {"kind": "state_ces", "area": fips, "field": "total"}
         for ind in SUPERSECTORS:
             cat[ces(fips, "00000", ind)] = {"kind": "state_ces", "area": fips, "field": ind}
+        for ind in EARN_INDUSTRIES:
+            cat[ahe(fips, "00000", ind)] = {"kind": "state_ahe", "area": fips, "field": ind}
     for m in METROS:
         for meas, field in LAUS_MEASURES.items():
             cat[laus_metro(m["laus_area"], meas)] = {"kind": "metro_laus", "area": m["cbsa"], "field": field}
@@ -76,6 +98,12 @@ def build_catalog() -> dict[str, dict]:
             for ind in SUPERSECTORS:
                 cat[ces(m["state_fips"], m["cbsa"], ind)] = {
                     "kind": "metro_ces", "area": m["cbsa"], "field": ind}
+            for ind in EARN_INDUSTRIES:
+                cat[ahe(m["state_fips"], m["cbsa"], ind)] = {"kind": "metro_ahe", "area": m["cbsa"], "field": ind}
+    for ind in EARN_INDUSTRIES:
+        cat[ahe_national(ind)] = {"kind": "national_ahe", "area": "US", "field": ind}
+    for region, sid in CPI_SERIES.items():
+        cat[sid] = {"kind": "cpi", "area": region, "field": "cpi"}
     for sid, field in (("LNS14000000", "unemp_rate"), ("LNS11000000", "labor_force"),
                        ("LNS12000000", "employed"), ("LNS13000000", "unemployed")):
         cat[sid] = {"kind": "national", "area": "US", "field": field}  # CPS, SA, levels in thousands
@@ -159,6 +187,22 @@ def industry_profile(area_ces: dict, us_ces: dict) -> tuple[list[dict], str | No
     return out, month
 
 
+def earnings_profile(area_ahe: dict, region: str) -> dict:
+    """Total-private hourly earnings series plus the latest level and year-on-year
+    change for each industry that has a series."""
+    total = area_ahe.get("05000000", [])
+    inds = []
+    for ind, label in EARN_INDUSTRIES.items():
+        rows = area_ahe.get(ind, [])
+        now = latest(rows)
+        if not now:
+            continue
+        prev = at(rows, f"{int(now['date'][:4]) - 1}{now['date'][4:]}")
+        inds.append({"code": ind, "industry": label, "ahe": now["value"], "month": now["date"],
+                     "yoy": round((now["value"] - prev["value"]) / prev["value"], 4) if prev and prev["value"] else None})
+    return {"region": region, "total": total, "industries": inds}
+
+
 def main() -> None:
     if not KEY:
         sys.exit("BLS_API_KEY is not set")
@@ -221,9 +265,20 @@ def main() -> None:
         "industries": us_profile,
     }
 
+    earnings_out = {
+        "cpi": {region: buckets.get("cpi", {}).get(region, {}).get("cpi", []) for region in CPI_SERIES},
+        "national": earnings_profile(buckets.get("national_ahe", {}).get("US", {}), "US"),
+        "states": {fips: earnings_profile(buckets.get("state_ahe", {}).get(fips, {}), REGION_OF_STATE.get(fips, "US"))
+                   for fips in STATES},
+        "metros": {m["cbsa"]: earnings_profile(buckets.get("metro_ahe", {}).get(m["cbsa"], {}),
+                                               REGION_OF_STATE.get(m["state_fips"], "US"))
+                   for m in METROS if m["ces"]},
+    }
+
     DATA_OUT.mkdir(parents=True, exist_ok=True)
     for fname, obj in (("states.json", states_out), ("metros.json", metros_out),
-                       ("rose.json", rose_out), ("national.json", national_out)):
+                       ("rose.json", rose_out), ("national.json", national_out),
+                       ("earnings.json", earnings_out)):
         (DATA_OUT / fname).write_text(json.dumps(obj, separators=(",", ":")))
 
     latest_state = max((r["date"] for s in states_out.values()

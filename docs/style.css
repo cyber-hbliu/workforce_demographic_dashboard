@@ -85,12 +85,15 @@ button { font: inherit; color: inherit; }
 .left-stack { position: fixed; z-index: 6; top: 22px; left: 22px; width: 330px; display: flex; flex-direction: column; gap: 12px; }
 .left-stack .hud { position: static; }
 .hud-masthead { padding: 20px 22px 16px; }
-.wordmark { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.mast-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.wordmark { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+.logo-chip { flex: 0 0 auto; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 12px; background: var(--page); }
+.logo-chip img { width: 40px; height: 40px; display: block; }
 .wordmark span { font-weight: 400; }
 .release { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; padding: 8px 12px; background: var(--ink); color: #fff; border-radius: 10px; }
 .release-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7; font-weight: 600; white-space: nowrap; }
 .release-month { font-size: 17px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; white-space: nowrap; }
-.dek { font-size: 11.5px; color: var(--ink-2); margin-top: 10px; line-height: 1.4; }
+.foot { position: fixed; z-index: 4; left: 372px; right: 0; bottom: 0; padding: 8px 90px 8px 24px; font-size: 10.5px; line-height: 1.4; color: rgba(255, 255, 255, 0.55); text-align: center; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .nation-stat { display: flex; justify-content: space-between; align-items: baseline; width: 100%; margin-top: 14px; padding: 0 2px; background: none; border: 0; cursor: pointer; text-align: left; }
 .nation-stat:hover .nation-open { color: var(--ink); }
@@ -115,7 +118,7 @@ button { font: inherit; color: inherit; }
 /* toolbar floating over the map */
 .hud-toolbar { padding: 12px 14px; }
 .filters { display: flex; gap: 4px; padding: 3px; background: rgba(11, 11, 11, 0.06); border-radius: 99px; }
-.lens-btn { flex: 1; border: 0; background: transparent; border-radius: 99px; padding: 7px 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.01em; color: var(--ink-2); cursor: pointer; white-space: nowrap; transition: background 0.2s, color 0.2s; }
+.lens-btn { flex: 1; border: 0; background: transparent; border-radius: 99px; padding: 7px 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.01em; color: var(--ink-2); cursor: pointer; white-space: nowrap; transition: background 0.2s, color 0.2s; }
 .lens-btn:hover { color: var(--ink); }
 .lens-btn.is-active { background: var(--ink); color: #fff; }
 .search-wrap { position: relative; margin-top: 8px; }
@@ -219,6 +222,39 @@ button { font: inherit; color: inherit; }
 
 .d-foot { margin-top: 24px; font-size: 11px; color: var(--muted); line-height: 1.5; }
 
+/* unemployment + earnings pop-outs */
+.trend-wrap svg { display: block; width: 100%; height: auto; overflow: visible; }
+.axis text { font-family: var(--sans); font-size: 10px; fill: var(--muted); }
+.axis line { stroke: var(--hairline); }
+.axis path { display: none; }
+.trend-sel { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.trend-nat { fill: none; stroke: var(--neutral); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.trend-end { font-family: var(--sans); font-size: 10.5px; font-weight: 600; fill: var(--ink-2); }
+.trend-end.nat { fill: var(--muted); font-weight: 500; }
+.crosshair { stroke: var(--rule); stroke-width: 1; pointer-events: none; }
+.trend-hit { fill: transparent; cursor: crosshair; }
+.standing { margin-top: 14px; padding: 14px 16px; border-radius: 14px; background: rgba(11, 11, 11, 0.045); }
+.standing .dom-label { color: var(--ink-2); }
+.standing p { font-size: 12.5px; color: var(--ink-2); margin-top: 6px; }
+.standing p b { color: var(--ink); font-weight: 600; }
+.rank-strip { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px; background: linear-gradient(to right, var(--green), var(--neutral), var(--pink)); }
+.rank-strip i { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; background: var(--ink); border-radius: 2px; }
+.rank-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); }
+.bars { display: grid; grid-template-columns: 150px 1fr 54px 52px; gap: 6px 8px; align-items: center; font-size: 11.5px; }
+.bars .name { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bars .name.is-total { color: var(--ink); font-weight: 600; }
+.bars .track { position: relative; height: 10px; }
+.bars .bar { position: absolute; left: 0; top: 0; height: 10px; border-radius: 0 4px 4px 0; background: var(--marker); border: 1px solid var(--marker-edge); }
+.bars .bar.is-total { background: var(--ink); border-color: var(--ink); }
+.bars .val { text-align: right; font-variant-numeric: tabular-nums; }
+.bars .chg { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.bars .chg.up { color: var(--green-deep); }
+.bars .chg.down { color: var(--pink-deep); }
+.metro-rates { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 12px; }
+.metro-rates button { text-align: left; border: 0; background: none; padding: 3px 0; cursor: pointer; border-bottom: 1px solid var(--hairline); }
+.metro-rates button:hover { color: var(--pink-deep); }
+.metro-rates .v { font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--hairline); padding: 3px 0; }
+
 /* ---------- tooltip & boot ---------- */
 .tip { position: fixed; z-index: 9; pointer-events: none; background: var(--ink); color: #fff; font-size: 12px; line-height: 1.4; padding: 8px 11px; border-radius: 8px; max-width: 280px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
 .tip b { font-weight: 600; font-size: 13px; }
@@ -242,6 +278,7 @@ button { font: inherit; color: inherit; }
   .release { margin-top: 8px; padding: 6px 10px; }
   .release-month { font-size: 16px; }
   .hud-toolbar { padding: 8px 10px; }
+  .foot { left: 0; padding: 6px 70px 6px 16px; }
   .search-results { width: 100%; }
   .hud-legend { display: none; }
   .hud-zoom { right: 16px; bottom: 16px; }
