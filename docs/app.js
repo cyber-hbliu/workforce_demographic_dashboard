@@ -233,7 +233,7 @@
     return `<div class="tip-figs">
       <div><span class="fig">${r != null ? r.toFixed(1) + "<small>%</small>" : "–"}</span><span class="lab">unemployment rate</span></div>
       <div><span class="fig ${es && es.wageYoy != null ? (es.wageYoy >= 0 ? "up" : "down") : ""}">${es ? fmtSignedPct(es.wageYoy) : "–"}</span><span class="lab">hourly earnings, y/y${es ? ` · ${fmtUsd(es.now.value)}` : ""}</span></div>
-      <div><span class="fig" style="color:${top ? lqColor(top.lq) : "#fff"}">${top ? top.lq.toFixed(2) + "×" : "–"}</span><span class="lab">${top ? esc(top.industry) : "no industry series"}</span></div>
+      <div><span class="fig fig-text" style="color:${top ? lqColor(top.lq) : "#fff"}">${top ? esc(top.industry) : "–"}</span><span class="lab">regional specialty${top ? ` · ${top.lq.toFixed(2)}× the U.S.` : " · no industry series"}</span></div>
     </div>`;
   }
   function stateTip(fips) {
