@@ -1,4 +1,4 @@
-# Workforce Snapshot
+# USA Workforce Snapshot
 
 A map of the U.S. labor market that updates itself from Bureau of Labor Statistics data. It is a program of Urban Spatial Lab. It runs as a static site on GitHub Pages. A scheduled GitHub Action fetches new figures the day after each BLS release and commits them to the repository.
 

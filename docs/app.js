@@ -233,7 +233,7 @@
     return `<div class="tip-figs">
       <div><span class="fig">${r != null ? r.toFixed(1) + "<small>%</small>" : "–"}</span><span class="lab">unemployment rate</span></div>
       <div><span class="fig ${es && es.wageYoy != null ? (es.wageYoy >= 0 ? "up" : "down") : ""}">${es ? fmtSignedPct(es.wageYoy) : "–"}</span><span class="lab">hourly earnings, y/y${es ? ` · ${fmtUsd(es.now.value)}` : ""}</span></div>
-      <div><span class="fig" style="color:${top ? lqColor(top.lq) : "#fff"}">${top ? top.lq.toFixed(2) + "×" : "–"}</span><span class="lab">${top ? esc(top.industry) : "no industry series"}</span></div>
+      <div><span class="fig fig-text" style="color:${top ? lqColor(top.lq) : "#fff"}">${top ? esc(top.industry) : "–"}</span><span class="lab">regional specialty${top ? ` · ${top.lq.toFixed(2)}× the U.S.` : " · no industry series"}</span></div>
     </div>`;
   }
   function stateTip(fips) {
@@ -417,7 +417,7 @@
     } else {
       drawer.classList.remove("is-open"); drawer.setAttribute("aria-hidden", "true");
       document.body.classList.remove("drawer-open");
-      document.title = "Workforce Snapshot · Urban Spatial Lab";
+      document.title = "USA Workforce Snapshot · Urban Spatial Lab";
       history.replaceState(null, "", location.pathname);
     }
   }
@@ -431,7 +431,7 @@
     const name = level === "nation" ? "United States" : sel.name;
     const geoTag = level === "nation" ? "Nation" : level === "state" ? "State" : geoType(sel);
     const monthTag = now ? now.date : rose.month;
-    document.title = `${name} · Workforce Snapshot · ${fmtMonth(monthTag)}`;
+    document.title = `${name} · USA Workforce Snapshot · ${fmtMonth(monthTag)}`;
 
     let geoLine = "";
     if (level === "metro") {
@@ -664,8 +664,15 @@
     }
     const { e, now, wageYoy, cpiYoy, cpiMonth, real } = es;
     const regionName = REGION_NAME[e.region] || e.region;
-    const inds = e.industries.filter((d) => d.code !== "05000000").sort((a, b) => b.ahe - a.ahe);
+    let inds = e.industries.filter((d) => d.code !== "05000000").sort((a, b) => b.ahe - a.ahe);
     const total = e.industries.find((d) => d.code === "05000000");
+    // BLS publishes metro hourly earnings for total private only; borrow the
+    // industry breakdown from the metro's primary state and say so
+    let borrowed = null;
+    if (level === "metro" && !inds.length) {
+      const sf = (metros[id].states || [])[0], se = earn?.states?.[sf];
+      if (se && se.industries.length) { inds = se.industries.filter((d) => d.code !== "05000000"); borrowed = STATE_NAME(sf); }
+    }
     host.innerHTML = `
       <dl class="kpis kpis-3" style="margin-top:14px">
         <div class="kpi"><dt>Hourly earnings</dt><dd>${fmtUsd(now.value)}</dd><div class="kpi-sub">private employers · ${esc(fmtMonth(now.date))}</div>
@@ -675,9 +682,10 @@
           ${real != null ? `<span class="kpi-delta"><b class="${real >= 0 ? "up" : "down"}">${real >= 0 ? "ahead of" : "trailing"} inflation</b></span>` : ""}</div>
       </dl>
       <section class="d-section">
-        <div class="d-section-head"><div><div class="d-section-title">Earnings by industry</div><div class="d-section-sub">average hourly earnings · ${esc(fmtMonth(now.date))}</div></div></div>
+        <div class="d-section-head"><div><div class="d-section-title">Earnings by industry</div><div class="d-section-sub">average hourly earnings · ${esc(fmtMonth(now.date))}${borrowed ? ` · industries statewide (${esc(borrowed)})` : ""}</div></div></div>
         <div id="burst-host"></div>
-        ${inds.length < 5 ? `<p class="rose-note">BLS publishes hourly earnings for only some industries in this area.</p>` : ""}
+        ${borrowed ? `<p class="rose-note">BLS publishes metro hourly earnings for private employers as a whole only, so the spokes show <b>${esc(borrowed)}</b> statewide by industry; the ring is this MSA's own average of ${fmtUsd(total ? total.ahe : now.value)}.</p>`
+          : inds.length < 5 ? `<p class="rose-note">BLS publishes hourly earnings for only some industries in this area.</p>` : ""}
       </section>
       <section class="d-section">
         <div class="d-section-head"><div class="d-section-title">Earnings vs prices</div><div class="d-section-sub">indexed to 100 at ${esc(fmtMonth(e.total[0].date))}</div></div>
