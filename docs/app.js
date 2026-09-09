@@ -1,9 +1,9 @@
 /* Workforce Monitor — app.js
-   A full-screen atlas. Each metropolitan statistical area (MSA) is a "burst":
-   ten spokes in a fixed order (one per CES supersector), spoke length =
-   percentage of local nonfarm jobs, tip colour = that percentage vs the U.S.
-   (green below, pink above), burst size = total nonfarm jobs. Click a burst
-   or a state to open its profile.
+   A full-screen atlas. Each metropolitan statistical area (MSA) is a marker
+   sized by total nonfarm jobs (a diamond where the area holds a state
+   capital, a hollow ring where BLS publishes no industry series). Click a
+   marker or a state to open its profile: the rose chart there shows the
+   ten CES supersectors, coloured green below / pink above the U.S. mix.
    Data: docs/data/*.json (scripts/fetch_bls.py). Geometry: us-atlas albers
    states + MSA footprints merged from Census county delineations
    (scripts/build_geo.js). */
@@ -156,10 +156,9 @@
   const footPaths = footG.selectAll("path").data(metroList.filter((m) => geo[m.id])).join("path")
     .attr("class", "footprint").attr("d", (m) => path(geo[m.id].g));
 
-  // bursts
-  const rGlyph = d3.scaleSqrt().domain([0, 8000]).range([0, 30]).clamp(true);
-  const glyphR = (m) => Math.max(7.5, rGlyph(jobsOf("metro", m.id)));
-  const spokeLen = (R, share) => R * Math.min(1.15, Math.sqrt(share / 0.22));
+  // markers sized by nonfarm jobs
+  const rGlyph = d3.scaleSqrt().domain([0, 8000]).range([0, 16]).clamp(true);
+  const glyphR = (m) => Math.max(3.5, rGlyph(jobsOf("metro", m.id)));
   const glyphsG = zoomLayer.append("g").attr("class", "glyph-layer");
   const glyphData = metroList.filter((m) => geo[m.id]).sort((a, b) => glyphR(b) - glyphR(a)); // big first so small draw on top
   const glyphs = glyphsG.selectAll("g.glyph").data(glyphData, (m) => m.id).join("g")
@@ -174,31 +173,18 @@
   glyphs.each(function (m) {
     const g = d3.select(this), R = glyphR(m), prof = profileOf("metro", m.id);
     const inner = g.append("g").attr("class", "burst");
-    if (prof.length) {
-      const byCode = new Map(prof.map((d) => [d.code, d]));
-      inner.append("circle").attr("class", "halo").attr("r", R * 1.15 + 3);
-      SECTORS.forEach(([code], i) => {
-        const d = byCode.get(code);
-        if (!d) return;
-        const a = angleOf(i), L = spokeLen(R, d.share);
-        inner.append("line").attr("class", "spoke").attr("x2", L * Math.cos(a)).attr("y2", L * Math.sin(a));
-        inner.append("circle").attr("class", "tip-dot").attr("r", Math.max(1.6, Math.min(2.6, R / 9)))
-          .attr("cx", L * Math.cos(a)).attr("cy", L * Math.sin(a)).attr("fill", lqColor(d.lq));
-      });
-      if (m.capital_of && m.capital_of.length) {
-        const s = Math.max(2.6, R / 6); // a diamond core = seat of government
-        inner.append("path").attr("class", "core").attr("d", `M0,${-s}L${s},0L0,${s}L${-s},0Z`);
-      } else {
-        inner.append("circle").attr("class", "core").attr("r", Math.max(1.3, R / 11));
-      }
+    const capital = m.capital_of && m.capital_of.length;
+    inner.append("circle").attr("class", "halo").attr("r", R + 4);
+    if (!prof.length) {
+      inner.append("circle").attr("class", "ring").attr("r", Math.max(3.2, R)); // unemployment only
+    } else if (capital) {
+      const s = R * 1.25; // diamond = seat of government
+      inner.append("path").attr("class", "core").attr("d", `M0,${-s}L${s},0L0,${s}L${-s},0Z`);
     } else {
-      inner.append("circle").attr("class", "halo").attr("r", 7);
-      inner.append("circle").attr("class", "ring").attr("r", 3.2);
-      if (m.capital_of && m.capital_of.length)
-        inner.append("path").attr("class", "core").attr("d", "M0,-1.6L1.6,0L0,1.6L-1.6,0Z");
+      inner.append("circle").attr("class", "core").attr("r", R);
     }
-    inner.append("circle").attr("class", "hit").attr("r", Math.max(R * 1.15 + 4, 10));
-    g.append("text").attr("class", "glyph-label").attr("y", R * 1.15 + 11).text(m.short);
+    inner.append("circle").attr("class", "hit").attr("r", Math.max(R + 5, 10));
+    g.append("text").attr("class", "glyph-label").attr("y", R * 1.25 + 11).text(m.short);
   });
 
   // unemployment lens: plain dots sized by labor force
@@ -224,7 +210,10 @@
   }
 
   /* ---------------------------------------------------------------- zoom */
-  const zoom = d3.zoom().scaleExtent([1, 14]).translateExtent([[-W * 0.8, -H * 0.8], [W * 1.8, H * 1.8]]).on("zoom", (ev) => applyZoom(ev.transform));
+  // gentler wheel steps and eased button zooms; label layout runs at most once per frame
+  const zoom = d3.zoom().scaleExtent([1, 14]).translateExtent([[-W * 0.8, -H * 0.8], [W * 1.8, H * 1.8]])
+    .wheelDelta((ev) => -ev.deltaY * (ev.deltaMode === 1 ? 0.05 : ev.deltaMode ? 1 : 0.0012))
+    .on("zoom", (ev) => applyZoom(ev.transform));
   svg.call(zoom).on("dblclick.zoom", null);
   svg.on("click", () => { if (app.level) select(null, null); });
   let k = 1;
@@ -234,16 +223,17 @@
     const s = Math.pow(k, -0.62); // bursts grow slower than the map so they never swamp it
     glyphs.attr("transform", (m) => `translate(${geo[m.id].a}) scale(${s})`);
     udots.attr("transform", (m) => `translate(${geo[m.id].a}) scale(${s})`);
-    layoutLabels(t, s);
+    if (!labelFrame) labelFrame = requestAnimationFrame(() => { labelFrame = 0; layoutLabels(t, s); });
   }
+  let labelFrame = 0;
   // greedy label placement: biggest metros first, later labels yield when they collide
   function layoutLabels(t, s) {
     const placed = [];
     glyphs.select(".glyph-label").style("display", (m) => {
       const R = glyphR(m);
-      if (R * Math.pow(k, 0.6) < 8.5) return "none";
+      if (R * Math.pow(k, 0.6) < 3) return "none";
       const [ax, ay] = geo[m.id].a;
-      const x = ax * k + t.x, y = (ay + (R * 1.15 + 11) * s) * k + t.y;
+      const x = ax * k + t.x, y = (ay + (R * 1.25 + 11) * s) * k + t.y;
       const w = m.short.length * 5.4 * s * k + 4, h = 11 * s * k;
       const box = [x - w / 2, y - h, x + w / 2, y + 2];
       if (placed.some((b) => !(box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]))) return "none";
@@ -272,9 +262,10 @@
     if (sy > innerHeight - drawerH - 20) dy = (innerHeight - drawerH) / 2 - sy;
     if (dx || dy) svg.transition().duration(600).call(zoom.translateBy, dx / scale / t.k, dy / scale / t.k);
   }
-  document.getElementById("zoom-in").onclick = () => svg.transition().duration(300).call(zoom.scaleBy, 1.6);
-  document.getElementById("zoom-out").onclick = () => svg.transition().duration(300).call(zoom.scaleBy, 1 / 1.6);
-  document.getElementById("zoom-reset").onclick = () => svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity);
+  const eased = () => svg.transition().duration(500).ease(d3.easeCubicOut);
+  document.getElementById("zoom-in").onclick = () => eased().call(zoom.scaleBy, 1.5);
+  document.getElementById("zoom-out").onclick = () => eased().call(zoom.scaleBy, 1 / 1.5);
+  document.getElementById("zoom-reset").onclick = () => svg.transition().duration(700).ease(d3.easeCubicInOut).call(zoom.transform, d3.zoomIdentity);
 
   /* ---------------------------------------------------------------- lens */
   const legend = document.getElementById("legend");
@@ -295,25 +286,24 @@
     legend.innerHTML = ind ? industryLegend() : unemploymentLegend();
   }
   function industryLegend() {
-    const R = 30, cx = 145, cy = 62;
-    let s = `<svg width="290" height="124" viewBox="0 0 290 124">`;
-    SECTORS.forEach(([, , short], i) => {
-      const a = angleOf(i), L = R * (0.55 + 0.45 * ((i * 7) % 5) / 4);
-      const x = cx + L * Math.cos(a), y = cy + L * Math.sin(a), lx = cx + (R + 9) * Math.cos(a), ly = cy + (R + 9) * Math.sin(a);
-      const c = i % 3 === 0 ? PINK : i % 3 === 1 ? NEUTRAL : GREEN;
-      const anchor = Math.abs(Math.cos(a)) < 0.2 ? "middle" : Math.cos(a) > 0 ? "start" : "end";
-      s += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#0b0b0b" stroke-opacity="0.5" stroke-width="0.8"/>`;
-      s += `<circle cx="${x}" cy="${y}" r="2.4" fill="${c}" stroke="#fcfcfb" stroke-width="0.8"/>`;
-      s += `<text x="${lx}" y="${ly + 3}" text-anchor="${anchor}">${esc(short)}</text>`;
-    });
-    s += `<circle cx="${cx}" cy="${cy}" r="1.6" fill="#0b0b0b"/></svg>`;
-    return `<p class="legend-title">How to read a burst · one per MSA</p>
+    const sizes = [100, 1000, 5000].map((j) => [j, rGlyph(j)]);
+    let s = `<svg width="290" height="46" viewBox="0 0 290 46">`;
+    let x = 14;
+    for (const [j, r] of sizes) {
+      s += `<circle cx="${x + r}" cy="23" r="${r}" fill="#4a3aa7"/><text x="${x + r}" y="43" text-anchor="middle">${j >= 1000 ? j / 1000 + "M" : j + "k"}</text>`;
+      x += r * 2 + 26;
+    }
+    s += `<path d="M${x + 8},13 L${x + 18},23 L${x + 8},33 L${x - 2},23 Z" fill="#0b0b0b"/><text x="${x + 8}" y="43" text-anchor="middle">capital</text>`;
+    x += 44;
+    s += `<circle cx="${x + 6}" cy="23" r="5" fill="#fcfcfb" stroke="#0b0b0b"/><text x="${x + 6}" y="43" text-anchor="middle">no CES</text>`;
+    s += `</svg>`;
+    return `<p class="legend-title">Map markers · one per MSA</p>
       <div class="legend-key">${s}</div>
-      <p class="legend-note"><b>Spoke length</b> = percentage of the MSA's nonfarm jobs in that industry ·
-      <b>tip colour</b> = that percentage against the U.S. mix · <b>burst size</b> = total nonfarm jobs ·
-      <span class="legend-cap"></span>state capital · <span class="legend-ring"></span>unemployment only</p>
+      <p class="legend-note"><b>Size</b> = total nonfarm jobs · <b>diamond</b> = the area holds a state capital ·
+      <b>hollow ring</b> = BLS publishes unemployment but no industry series · <b>grey outline</b> = the MSA's county footprint.
+      Click a marker to open its industry rose.</p>
       <div class="legend-ramp" style="background:linear-gradient(to right,${GREEN},${NEUTRAL},${PINK})"></div>
-      <div class="legend-ramp-labels"><span>½× the U.S. %</span><span>same</span><span>2× or more</span></div>`;
+      <div class="legend-ramp-labels"><span>rose: ½× the U.S. %</span><span>same</span><span>2× or more</span></div>`;
   }
   function unemploymentLegend() {
     const [lo, hi] = rateExtent;
