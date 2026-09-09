@@ -225,25 +225,24 @@
     .on("mouseleave", hideTip)
     .on("click", (ev, m) => { ev.stopPropagation(); select("metro", m.id); });
 
+  // hover card: name, then three big figures
+  function bigFigures(level, id) {
+    const r = level === "metro" ? rateOfMetro(id) : rateOfState(id);
+    const prof = profileOf(level, id), es = earningsSummary(level, id);
+    const top = prof.filter((d) => d.lq != null).sort((a, b) => b.lq - a.lq)[0];
+    return `<div class="tip-figs">
+      <div><span class="fig">${r != null ? r.toFixed(1) + "<small>%</small>" : "–"}</span><span class="lab">unemployment rate</span></div>
+      <div><span class="fig ${es && es.wageYoy != null ? (es.wageYoy >= 0 ? "up" : "down") : ""}">${es ? fmtSignedPct(es.wageYoy) : "–"}</span><span class="lab">hourly earnings, y/y${es ? ` · ${fmtUsd(es.now.value)}` : ""}</span></div>
+      <div><span class="fig" style="color:${top ? lqColor(top.lq) : "#fff"}">${top ? top.lq.toFixed(2) + "×" : "–"}</span><span class="lab">${top ? esc(top.industry) : "no industry series"}</span></div>
+    </div>`;
+  }
   function stateTip(fips) {
-    const r = rateOfState(fips), es = earningsSummary("state", fips);
-    return `<b>${esc(states[fips].name)}</b><div class="muted">State · statewide figures</div>
-      <div class="row"><span class="muted">Unemployment rate</span><span>${r != null ? r.toFixed(1) + "%" : "–"}</span></div>
-      ${es ? `<div class="row"><span class="muted">Hourly earnings</span><span>${fmtUsd(es.now.value)} · ${fmtSignedPct(es.wageYoy)} y/y</span></div>
-      <div class="row"><span class="muted">vs ${esc(REGION_NAME[es.e.region])} prices</span><span>${es.real != null ? signed(es.real) : "–"}</span></div>` : ""}`;
+    return `<b>${esc(states[fips].name)}</b><div class="muted">State · statewide figures</div>${bigFigures("state", fips)}`;
   }
   function metroTip(m) {
-    const r = rateOfMetro(m.id), prof = profileOf("metro", m.id), es = earningsSummary("metro", m.id);
-    const top = prof.filter((d) => d.lq != null).sort((a, b) => b.lq - a.lq)[0];
     const cap = capitalText(m);
-    return `<b>${esc(m.name)}</b><div class="muted">${geoType(m)}${geo[m.id]?.c ? ` · ${countyText(m.id)}` : ""}</div>` +
-      (cap ? `<div class="muted">${esc(cap)}</div>` : "") +
-      `<div class="row" style="margin-top:6px"><span class="muted">Unemployment rate</span><span>${r != null ? r.toFixed(1) + "%" : "–"}</span></div>` +
-      (prof.length ? `<div class="row"><span class="muted">Nonfarm jobs</span><span>${fmtK(jobsOf("metro", m.id))}</span></div>` : "") +
-      (top ? `<div class="row"><span class="muted">Regional specialty</span><span><i style="background:${lqColor(top.lq)}"></i>${esc(top.industry)} ${top.lq.toFixed(2)}×</span></div>` : "") +
-      (es ? `<div class="row"><span class="muted">Hourly earnings</span><span>${fmtUsd(es.now.value)} · ${fmtSignedPct(es.wageYoy)} y/y</span></div>
-             <div class="row"><span class="muted">vs ${esc(REGION_NAME[es.e.region])} prices</span><span>${es.real != null ? signed(es.real) : "–"}</span></div>` : "") +
-      `<div class="muted" style="margin-top:6px">Click to open the profile</div>`;
+    return `<b>${esc(m.name)}</b><div class="muted">${geoType(m)}${cap ? ` · ${esc(cap)}` : ""}</div>${bigFigures("metro", m.id)}
+      <div class="muted" style="margin-top:8px">Click to open the profile</div>`;
   }
 
   /* ---------------------------------------------------------------- zoom */

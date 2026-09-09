@@ -265,11 +265,17 @@ button { font: inherit; color: inherit; }
 .metro-rates .v { font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--hairline); padding: 3px 0; }
 
 /* ---------- tooltip & boot ---------- */
-.tip { position: fixed; z-index: 9; pointer-events: none; background: var(--ink); color: #fff; font-size: 12px; line-height: 1.4; padding: 8px 11px; border-radius: 8px; max-width: 280px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+.tip { position: fixed; z-index: 9; pointer-events: none; background: var(--ink); color: #fff; font-size: 12px; line-height: 1.4; padding: 10px 14px 12px; border-radius: 10px; max-width: 440px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
 .tip b { font-weight: 600; font-size: 13px; }
 .tip .row { display: flex; justify-content: space-between; gap: 14px; }
 .tip .muted { color: rgba(255, 255, 255, 0.65); }
 .tip i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.tip-figs { display: grid; grid-template-columns: repeat(3, auto); gap: 10px 18px; margin-top: 10px; }
+.tip-figs .fig { display: block; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; }
+.tip-figs .fig small { font-size: 12px; font-weight: 500; opacity: 0.7; }
+.tip-figs .fig.up { color: #5fd3a3; }
+.tip-figs .fig.down { color: #f08ab5; }
+.tip-figs .lab { display: block; font-size: 10.5px; color: rgba(255, 255, 255, 0.65); margin-top: 4px; max-width: 120px; line-height: 1.3; }
 .boot { position: fixed; inset: 0; display: grid; place-items: center; font-size: 13px; color: var(--ink); z-index: 3; pointer-events: none; }
 .boot.is-error { color: var(--pink-deep); pointer-events: auto; padding: 40px; text-align: center; }
 
