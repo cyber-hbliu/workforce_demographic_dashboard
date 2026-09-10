@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 880" width="2400" height="880" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+<rect width="2400" height="880" fill="#ffffff"/>
+<text x="80" y="90" font-size="28" fill="#6b6b6b" letter-spacing="2">USA WORKFORCE SNAPSHOT · HOW IT WAS MADE</text>
+<line x1="80" y1="130" x2="2320" y2="130" stroke="#111" stroke-width="2"/>
+<text x="80.0" y="215" font-size="42" font-weight="700" fill="#5A31F4">01</text>
+<text x="80.0" y="272" font-size="36" font-weight="700" fill="#111">Problem</text>
+<text x="80.0" y="330" font-size="21" fill="#6b6b6b">Official BLS data is free,</text>
+<text x="80.0" y="364" font-size="21" fill="#6b6b6b">monthly and complete,</text>
+<text x="80.0" y="398" font-size="21" fill="#6b6b6b">but it is split across</text>
+<text x="80.0" y="432" font-size="21" fill="#6b6b6b">four programs and</text>
+<text x="80.0" y="466" font-size="21" fill="#6b6b6b">thousands of series.</text>
+<line x1="314.0" y1="200" x2="364.0" y2="200" stroke="#5A31F4" stroke-width="3"/>
+<path d="M352.0,190 L364.0,200 L352.0,210" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<text x="400.0" y="215" font-size="42" font-weight="700" fill="#5A31F4">02</text>
+<text x="400.0" y="272" font-size="36" font-weight="700" fill="#111">Questions</text>
+<text x="400.0" y="330" font-size="21" fill="#6b6b6b">How is my area doing?</text>
+<text x="400.0" y="364" font-size="21" fill="#6b6b6b">What do people here do?</text>
+<text x="400.0" y="398" font-size="21" fill="#6b6b6b">Is pay beating prices?</text>
+<text x="400.0" y="432" font-size="21" fill="#6b6b6b">Where do we stand</text>
+<text x="400.0" y="466" font-size="21" fill="#6b6b6b">against our peers?</text>
+<line x1="634.0" y1="200" x2="684.0" y2="200" stroke="#5A31F4" stroke-width="3"/>
+<path d="M672.0,190 L684.0,200 L672.0,210" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<line x1="376.0" y1="170" x2="376.0" y2="520" stroke="#d8d8d8" stroke-width="2"/>
+<text x="720.0" y="215" font-size="42" font-weight="700" fill="#5A31F4">03</text>
+<text x="720.0" y="272" font-size="36" font-weight="700" fill="#111">Ideas</text>
+<text x="720.0" y="330" font-size="21" fill="#6b6b6b">The map is the interface.</text>
+<text x="720.0" y="364" font-size="21" fill="#6b6b6b">One page, three lenses.</text>
+<text x="720.0" y="398" font-size="21" fill="#6b6b6b">Every number shown</text>
+<text x="720.0" y="432" font-size="21" fill="#6b6b6b">with a comparison.</text>
+<text x="720.0" y="466" font-size="21" fill="#6b6b6b">Say what "my area" is.</text>
+<line x1="954.0" y1="200" x2="1004.0" y2="200" stroke="#5A31F4" stroke-width="3"/>
+<path d="M992.0,190 L1004.0,200 L992.0,210" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<line x1="696.0" y1="170" x2="696.0" y2="520" stroke="#d8d8d8" stroke-width="2"/>
+<text x="1040.0" y="215" font-size="42" font-weight="700" fill="#5A31F4">04</text>
+<text x="1040.0" y="272" font-size="36" font-weight="700" fill="#111">Methods</text>
+<text x="1040.0" y="330" font-size="21" fill="#6b6b6b">LAUS, CES, CPS and CPI</text>
+<text x="1040.0" y="364" font-size="21" fill="#6b6b6b">from the BLS API.</text>
+<text x="1040.0" y="398" font-size="21" fill="#6b6b6b">Location quotients.</text>
+<text x="1040.0" y="432" font-size="21" fill="#6b6b6b">Real earnings growth.</text>
+<text x="1040.0" y="466" font-size="21" fill="#6b6b6b">Census county outlines.</text>
+<line x1="1274.0" y1="200" x2="1324.0" y2="200" stroke="#5A31F4" stroke-width="3"/>
+<path d="M1312.0,190 L1324.0,200 L1312.0,210" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<line x1="1016.0" y1="170" x2="1016.0" y2="520" stroke="#d8d8d8" stroke-width="2"/>
+<text x="1360.0" y="215" font-size="42" font-weight="700" fill="#5A31F4">05</text>
+<text x="1360.0" y="272" font-size="36" font-weight="700" fill="#111">Design</text>
+<text x="1360.0" y="330" font-size="21" fill="#6b6b6b">Full-screen map with</text>
+<text x="1360.0" y="364" font-size="21" fill="#6b6b6b">floating panels. One</text>
+<text x="1360.0" y="398" font-size="21" fill="#6b6b6b">profile per place: rose,</text>
+<text x="1360.0" y="432" font-size="21" fill="#6b6b6b">ten-year trend,</text>
+<text x="1360.0" y="466" font-size="21" fill="#6b6b6b">earnings burst.</text>
+<line x1="1594.0" y1="200" x2="1644.0" y2="200" stroke="#5A31F4" stroke-width="3"/>
+<path d="M1632.0,190 L1644.0,200 L1632.0,210" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<line x1="1336.0" y1="170" x2="1336.0" y2="520" stroke="#d8d8d8" stroke-width="2"/>
+<text x="1680.0" y="215" font-size="42" font-weight="700" fill="#5A31F4">06</text>
+<text x="1680.0" y="272" font-size="36" font-weight="700" fill="#111">Results</text>
+<text x="1680.0" y="330" font-size="21" fill="#6b6b6b">114 metros, 51 states</text>
+<text x="1680.0" y="364" font-size="21" fill="#6b6b6b">and the nation. Updated</text>
+<text x="1680.0" y="398" font-size="21" fill="#6b6b6b">the day after each</text>
+<text x="1680.0" y="432" font-size="21" fill="#6b6b6b">BLS release. Open</text>
+<text x="1680.0" y="466" font-size="21" fill="#6b6b6b">source, free to reuse.</text>
+<line x1="1914.0" y1="200" x2="1964.0" y2="200" stroke="#5A31F4" stroke-width="3"/>
+<path d="M1952.0,190 L1964.0,200 L1952.0,210" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<line x1="1656.0" y1="170" x2="1656.0" y2="520" stroke="#d8d8d8" stroke-width="2"/>
+<text x="2000.0" y="215" font-size="42" font-weight="700" fill="#5A31F4">07</text>
+<text x="2000.0" y="272" font-size="36" font-weight="700" fill="#111">Verification</text>
+<text x="2000.0" y="330" font-size="21" fill="#6b6b6b">Series codes checked</text>
+<text x="2000.0" y="364" font-size="21" fill="#6b6b6b">against BLS lists.</text>
+<text x="2000.0" y="398" font-size="21" fill="#6b6b6b">Values checked against</text>
+<text x="2000.0" y="432" font-size="21" fill="#6b6b6b">the API. Limits stated</text>
+<text x="2000.0" y="466" font-size="21" fill="#6b6b6b">on the page itself.</text>
+<line x1="1976.0" y1="170" x2="1976.0" y2="520" stroke="#d8d8d8" stroke-width="2"/>
+<line x1="80" y1="600" x2="2320" y2="600" stroke="#d8d8d8" stroke-width="2"/>
+<text x="80" y="668" font-size="28" fill="#6b6b6b" letter-spacing="2">WHAT A READER GETS</text>
+<text x="80.0" y="730" font-size="34" font-weight="700" fill="#111">Who is working</text>
+<text x="80.0" y="775" font-size="23" fill="#6b6b6b">labor force, employment, unemployment rate,</text>
+<text x="80.0" y="808" font-size="23" fill="#6b6b6b">with its monthly and annual change</text>
+<text x="826.6666666666666" y="730" font-size="34" font-weight="700" fill="#111">What they do</text>
+<text x="826.6666666666666" y="775" font-size="23" fill="#6b6b6b">industry mix as a rose; largest sector</text>
+<text x="826.6666666666666" y="808" font-size="23" fill="#6b6b6b">and specialty compared with the U.S.</text>
+<text x="1573.3333333333333" y="730" font-size="34" font-weight="700" fill="#111">Whether pay keeps up</text>
+<text x="1573.3333333333333" y="775" font-size="23" fill="#6b6b6b">hourly earnings against regional prices,</text>
+<text x="1573.3333333333333" y="808" font-size="23" fill="#6b6b6b">by industry, over ten years</text>
+</svg>

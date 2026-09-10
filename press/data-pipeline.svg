@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 780" width="2400" height="780" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+<rect width="2400" height="780" fill="#ffffff"/>
+<text x="80" y="90" font-size="28" fill="#6b6b6b" letter-spacing="2">HOW THE NUMBERS REACH THE MAP · NO HANDS BETWEEN RELEASES</text>
+<line x1="80" y1="130" x2="2320" y2="130" stroke="#111" stroke-width="2"/>
+<rect x="80.0" y="200" width="340" height="270" rx="14" fill="#f5f5f5" stroke="#d8d8d8" stroke-width="2"/>
+<text x="106.0" y="260" font-size="30" font-weight="700" fill="#111">Release calendar</text>
+<text x="106.0" y="315" font-size="21" fill="#6b6b6b">State and metro release</text>
+<text x="106.0" y="349" font-size="21" fill="#6b6b6b">dates from BLS,</text>
+<text x="106.0" y="383" font-size="21" fill="#6b6b6b">refreshed each December.</text>
+<line x1="430.0" y1="335.0" x2="450.0" y2="335.0" stroke="#5A31F4" stroke-width="3"/>
+<path d="M438.0,325.0 L450.0,335.0 L438.0,345.0" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<rect x="460.0" y="200" width="340" height="270" rx="14" fill="#f5f5f5" stroke="#d8d8d8" stroke-width="2"/>
+<text x="486.0" y="260" font-size="30" font-weight="700" fill="#111">Daily check</text>
+<text x="486.0" y="315" font-size="21" fill="#6b6b6b">GitHub Actions, 12:00 UTC.</text>
+<text x="486.0" y="349" font-size="21" fill="#6b6b6b">Is today the day after</text>
+<text x="486.0" y="383" font-size="21" fill="#6b6b6b">a release? If not, stop.</text>
+<line x1="810.0" y1="335.0" x2="830.0" y2="335.0" stroke="#5A31F4" stroke-width="3"/>
+<path d="M818.0,325.0 L830.0,335.0 L818.0,345.0" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<rect x="840.0" y="200" width="340" height="270" rx="14" fill="#f5f5f5" stroke="#d8d8d8" stroke-width="2"/>
+<text x="866.0" y="260" font-size="30" font-weight="700" fill="#111">BLS public API</text>
+<text x="866.0" y="315" font-size="21" fill="#6b6b6b">About 4,000 series:</text>
+<text x="866.0" y="349" font-size="21" fill="#6b6b6b">LAUS, CES, CPS and CPI,</text>
+<text x="866.0" y="383" font-size="21" fill="#6b6b6b">ten years of each.</text>
+<line x1="1190.0" y1="335.0" x2="1210.0" y2="335.0" stroke="#5A31F4" stroke-width="3"/>
+<path d="M1198.0,325.0 L1210.0,335.0 L1198.0,345.0" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<rect x="1220.0" y="200" width="340" height="270" rx="14" fill="#f5f5f5" stroke="#d8d8d8" stroke-width="2"/>
+<text x="1246.0" y="260" font-size="30" font-weight="700" fill="#111">Fetch and compute</text>
+<text x="1246.0" y="315" font-size="21" fill="#6b6b6b">Tidy, align months,</text>
+<text x="1246.0" y="349" font-size="21" fill="#6b6b6b">percentages, quotients,</text>
+<text x="1246.0" y="383" font-size="21" fill="#6b6b6b">real earnings growth.</text>
+<line x1="1570.0" y1="335.0" x2="1590.0" y2="335.0" stroke="#5A31F4" stroke-width="3"/>
+<path d="M1578.0,325.0 L1590.0,335.0 L1578.0,345.0" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<rect x="1600.0" y="200" width="340" height="270" rx="14" fill="#f5f5f5" stroke="#d8d8d8" stroke-width="2"/>
+<text x="1626.0" y="260" font-size="30" font-weight="700" fill="#111">Data files</text>
+<text x="1626.0" y="315" font-size="21" fill="#6b6b6b">Committed to the repo.</text>
+<text x="1626.0" y="349" font-size="21" fill="#6b6b6b">An empty pull never</text>
+<text x="1626.0" y="383" font-size="21" fill="#6b6b6b">overwrites good data.</text>
+<line x1="1950.0" y1="335.0" x2="1970.0" y2="335.0" stroke="#5A31F4" stroke-width="3"/>
+<path d="M1958.0,325.0 L1970.0,335.0 L1958.0,345.0" fill="none" stroke="#5A31F4" stroke-width="3"/>
+<rect x="1980.0" y="200" width="340" height="270" rx="14" fill="#f5f5f5" stroke="#d8d8d8" stroke-width="2"/>
+<text x="2006.0" y="260" font-size="30" font-weight="700" fill="#111">The map</text>
+<text x="2006.0" y="315" font-size="21" fill="#6b6b6b">workforce.usllab.org,</text>
+<text x="2006.0" y="349" font-size="21" fill="#6b6b6b">a static page; the</text>
+<text x="2006.0" y="383" font-size="21" fill="#6b6b6b">browser draws the map.</text>
+<text x="80" y="590" font-size="28" fill="#6b6b6b" letter-spacing="2">GEOGRAPHY, BUILT ONCE</text>
+<text x="80" y="645" font-size="23" fill="#6b6b6b">Census county delineations and BLS area lists feed two build scripts that produce each metro's real county footprint and its exact series codes.</text>
+<text x="80" y="680" font-size="23" fill="#6b6b6b">A retired or mistyped code stops the build before anything is requested.</text>
+</svg>
