@@ -64,7 +64,7 @@ jobs:
         env:
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
         run: |
-          pip install requests
+          pip install requests openpyxl
           python scripts/fetch_bls.py
 
       - name: Log run

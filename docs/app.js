@@ -13,12 +13,13 @@
   const boot = document.getElementById("boot");
   const load = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(`${u}: ${r.status}`); return r.json(); });
   const optional = (u) => load(u).catch(() => null);
-  let meta, national, states, metros, rose, topo, geo, releases, earn;
+  let meta, national, states, metros, rose, topo, geo, releases, earn, ctyTopo, cty;
   try {
-    [meta, national, states, metros, rose, topo, geo, releases, earn] = await Promise.all([
+    [meta, national, states, metros, rose, topo, geo, releases, earn, ctyTopo, cty] = await Promise.all([
       load("data/meta.json"), load("data/national.json"), load("data/states.json"), load("data/metros.json"),
       load("data/rose.json"), load("lib/states-albers-10m.json"), load("lib/metros-albers.json"),
       optional("data/release_dates.json"), optional("data/earnings.json"),
+      optional("lib/counties-albers-10m.json"), optional("data/counties.json"),
     ]);
   } catch (e) {
     boot.textContent = `Could not load the data files (${e.message}). If this is a fresh deploy, run the "Update BLS data" workflow once.`;
@@ -87,7 +88,12 @@
     : "";
 
   /* ------------------------------------------------------------ app state */
-  const app = { lens: "industry", level: null, id: null, roseView: "chart" };
+  const app = { lens: "industry", level: null, id: null, roseView: "chart", county: null };
+  // county resolution (counties.json): LAUS monthly rates, QCEW quarterly weekly wages
+  const COUNTY = cty && ctyTopo ? cty.counties : null;
+  const countyOf = (fips) => (COUNTY ? COUNTY[fips] : null);
+  const qcewOf = (level, id) => (!cty ? null : level === "metro" ? cty.qcew.metros[id] : level === "state" ? cty.qcew.states[id] : cty.qcew.nation) || null;
+  const fmtQuarter = (q) => (q ? `${q.slice(5)}Q ${q.slice(0, 4)}` : "");
   const metroList = Object.entries(metros).map(([id, m]) => ({ id, ...m }));
   const profileOf = (level, id) =>
     level === "metro" ? rose.metros[id] || [] : level === "state" ? rose.states[id] || [] : national.industries || [];
@@ -188,6 +194,16 @@
     .on("mousemove", (ev, d) => showTip(stateTip(d.id), ev))
     .on("mouseleave", hideTip)
     .on("click", (ev, d) => { ev.stopPropagation(); select("state", d.id); });
+  // county layer: shown in the Unemployment and Earnings lenses, state borders drawn over it
+  const ctyG = zoomLayer.append("g").attr("class", "county-layer").style("display", "none");
+  const ctyFeatures = COUNTY ? topojson.feature(ctyTopo, ctyTopo.objects.counties).features.filter((f) => states[f.id.slice(0, 2)]) : [];
+  const ctyPaths = ctyG.selectAll("path").data(ctyFeatures).join("path")
+    .attr("class", "county").attr("d", path)
+    .on("mousemove", (ev, d) => showTip(countyTip(d.id), ev))
+    .on("mouseleave", hideTip)
+    .on("click", (ev, d) => { ev.stopPropagation(); selectCounty(d.id); });
+  ctyG.append("path").attr("class", "state-mesh")
+    .attr("d", path(topojson.mesh(topo, topo.objects.states, (a, b) => a !== b)));
   zoomLayer.append("path").attr("class", "nation-outline")
     .attr("d", path(topojson.mesh(topo, topo.objects.states, (a, b) => a === b)));
 
@@ -243,17 +259,47 @@
     .on("mouseleave", hideTip)
     .on("click", (ev, m) => { ev.stopPropagation(); select("metro", m.id); });
 
-  // hover card: name, then three big figures
+  // hover card: name, then big figures that follow the lens
   function bigFigures(level, id) {
-    const r = level === "metro" ? rateOfMetro(id) : rateOfState(id);
-    const prof = profileOf(level, id), es = earningsSummary(level, id);
+    const lens = app.lens, prof = profileOf(level, id);
+    if (lens === "unemployment") {
+      const s = seriesOf(level, id) || {};
+      const now = last(s.unemp_rate), m1 = back(s.unemp_rate, 1), y1 = back(s.unemp_rate, 12), un = last(s.unemployed);
+      return `<div class="tip-figs">
+      <div><span class="fig">${now ? now.value.toFixed(1) + "<small>%</small>" : "–"}</span><span class="lab">unemployment rate${now ? ` · ${esc(fmtMonth(now.date))}` : ""}</span></div>
+      <div><span class="fig ${now && y1 ? (now.value > y1.value ? "down" : now.value < y1.value ? "up" : "") : ""}">${now && y1 ? signed(now.value - y1.value) : "–"}</span><span class="lab">vs a year ago${now && m1 ? ` · ${signed(now.value - m1.value)} vs last month` : ""}</span></div>
+      <div><span class="fig">${un ? fmtNum(Math.round(un.value)) : "–"}</span><span class="lab">unemployed</span></div>
+    </div>`;
+    }
+    if (lens === "earnings") {
+      const es = earningsSummary(level, id), q = qcewOf(level, id);
+      return `<div class="tip-figs">
+      <div><span class="fig ${es && es.wageYoy != null ? (es.wageYoy >= 0 ? "up" : "down") : ""}">${es ? fmtSignedPct(es.wageYoy) : "–"}</span><span class="lab">hourly earnings, y/y${es ? ` · ${esc(fmtMonth(es.now.date))}` : ""}</span></div>
+      <div><span class="fig ${es && es.real != null ? (es.real >= 0 ? "up" : "down") : ""}">${es && es.real != null ? signed(es.real) : "–"}</span><span class="lab">real, vs regional prices</span></div>
+      ${q ? `<div><span class="fig">$${fmtNum(Math.round(q.w))}</span><span class="lab">weekly wage · ${esc(fmtQuarter(cty.quarter))}</span></div>` : ""}
+    </div>`;
+    }
+    // industry and types: the size and shape of the job base
     const { largest, specialty } = sectorSummary(prof);
+    const pj = last(seriesOf(level, id)?.payrolls);
     return `<div class="tip-figs">
-      <div><span class="fig">${r != null ? r.toFixed(1) + "<small>%</small>" : "–"}</span><span class="lab">unemployment rate</span></div>
-      <div><span class="fig ${es && es.wageYoy != null ? (es.wageYoy >= 0 ? "up" : "down") : ""}">${es ? fmtSignedPct(es.wageYoy) : "–"}</span><span class="lab">hourly earnings, y/y</span></div>
+      <div><span class="fig">${pj ? fmtNum(Math.round(pj.value)) + "<small>k</small>" : "–"}</span><span class="lab">nonfarm jobs${pj ? ` · ${esc(fmtMonth(pj.date))}` : " · no industry series"}</span></div>
       ${prof.length ? `<div><span class="fig fig-text">${largest ? esc(largest.industry) : "–"}</span><span class="lab">largest sector${largest ? ` · ${fmtPct(largest.share)} of jobs` : ""}</span></div>
       <div><span class="fig fig-text" style="color:${specialty ? lqColor(specialty.lq) : "rgba(255,255,255,0.5)"}">${specialty ? esc(specialty.industry) : "none"}</span><span class="lab">specialty${specialty ? ` · ${specialty.lq.toFixed(2)}× the U.S.` : " · no sector over-represented"}</span></div>` : ""}
     </div>`;
+  }
+  function countyTip(fips) {
+    const c = countyOf(fips);
+    if (!c) return `<b>${esc(fips)}</b><div class="muted">no county data</div>`;
+    const msa = c.cbsa && metros[c.cbsa] ? metros[c.cbsa].name : null;
+    const un = app.lens === "unemployment";
+    return `<b>${esc(c.n)}</b><div class="muted">County · ${msa ? `in ${esc(msa)} MSA` : "outside any metropolitan area"}</div>
+      <div class="tip-figs">
+        ${un ? `<div><span class="fig">${c.r.toFixed(1)}<small>%</small></span><span class="lab">unemployment rate · ${esc(fmtMonth(cty.month))}</span></div>
+        <div><span class="fig ${c.y1 != null ? (c.r > c.y1 ? "down" : c.r < c.y1 ? "up" : "") : ""}">${c.y1 != null ? signed(c.r - c.y1) : "–"}</span><span class="lab">vs a year ago${c.m1 != null ? ` · ${signed(c.r - c.m1)} vs last month` : ""}</span></div>`
+        : `<div><span class="fig">${c.w != null ? "$" + fmtNum(Math.round(c.w)) : "–"}</span><span class="lab">weekly wage · ${esc(fmtQuarter(cty.quarter))}</span></div>
+        <div><span class="fig ${c.real != null ? (c.real >= 0 ? "up" : "down") : ""}">${c.real != null ? signed(c.real) : "–"}</span><span class="lab">real growth${c.wy != null ? ` · ${fmtSignedPct(c.wy / 100)} nominal` : ""}</span></div>`}
+      </div><div class="muted" style="margin-top:8px">Click for the ${msa ? "metro" : "state"} profile</div>`;
   }
   function stateTip(fips) {
     return `<b>${esc(states[fips].name)}</b><div class="muted">State · statewide figures</div>${app.lens === "types" ? typePill("state", fips) : ""}${bigFigures("state", fips)}`;
@@ -329,6 +375,11 @@
   const legend = document.getElementById("legend");
   const rateExtent = d3.extent(stateFeatures.map((f) => rateOfState(f.id)).filter((v) => v != null));
   if (rateExtent[0] != null) rampColor.domain(d3.range(7).map((i) => rateExtent[0] + (i / 6) * (rateExtent[1] - rateExtent[0])));
+  // county ramp: same blue steps over the 2nd to 98th percentile of county rates
+  const ctyRates = COUNTY ? Object.values(COUNTY).map((c) => c.r).sort(d3.ascending) : [];
+  const ctyExtent = ctyRates.length ? [d3.quantileSorted(ctyRates, 0.02), d3.quantileSorted(ctyRates, 0.98)] : [0, 1];
+  const ctyRamp = d3.scaleLinear().range(BLUE_RAMP).interpolate(d3.interpolateRgb).clamp(true)
+    .domain(d3.range(7).map((i) => ctyExtent[0] + (i / 6) * (ctyExtent[1] - ctyExtent[0])));
 
   function renderLens() {
     const lens = app.lens, ind = lens === "industry", typ = lens === "types", markers = ind || typ;
@@ -340,7 +391,14 @@
     footPaths.style("fill", (m) => (typ ? (typeOf("metro", m.id) != null ? typeColor(typeOf("metro", m.id)) : "#d8d6cf") : null))
       .style("stroke", (m) => (typ ? "#ffffff" : null));
     glyphsG.style("display", ind ? null : "none");
-    udotsG.style("display", markers ? "none" : null);
+    const county = COUNTY && !markers;
+    ctyG.style("display", county ? null : "none");
+    if (county) ctyPaths.style("fill", (d) => {
+      const c = countyOf(d.id);
+      if (!c) return "#e6e4dc";
+      return lens === "unemployment" ? ctyRamp(c.r) : realColor(c.real);
+    });
+    udotsG.style("display", markers || county ? "none" : null);
     udots.attr("fill", (m) => lens === "unemployment"
       ? (rateOfMetro(m.id) != null ? rampColor(rateOfMetro(m.id)) : "#e6e4dc")
       : realColor(realOfMetro(m.id)));
@@ -376,6 +434,13 @@
       <div class="legend-ramp-labels"><span>rose: ½× the U.S. %</span><span>same</span><span>2× or more</span></div>`;
   }
   function unemploymentLegend() {
+    if (COUNTY) {
+      const [lo, hi] = ctyExtent;
+      return `<p class="legend-title">Unemployment rate by county · ${esc(fmtMonth(cty.month))}</p>
+        <div class="legend-ramp" style="background:linear-gradient(to right,${BLUE_RAMP.join(",")})"></div>
+        <div class="legend-ramp-labels"><span>${lo.toFixed(1)}% or less</span><span>counties, not seasonally adjusted</span><span>${hi.toFixed(1)}% or more</span></div>
+        <p class="legend-note" style="margin-top:8px">Every county is shaded by its own rate (LAUS). Hover for the county's figures; click to open the profile of its metropolitan area, or of its state outside metros, with the county's numbers on top. Counties are the resolution of this lens; the analysis units stay the MSA and the state.</p>`;
+    }
     const [lo, hi] = rateExtent;
     return `<p class="legend-title">Unemployment rate · ${esc(fmtMonth(meta.latest_state_month))}</p>
       <div class="legend-ramp" style="background:linear-gradient(to right,${BLUE_RAMP.join(",")})"></div>
@@ -385,6 +450,10 @@
   function earningsLegend() {
     if (!earn) return `<p class="legend-title">Earnings vs prices</p><p class="legend-note">Hourly-earnings and CPI series arrive with the next data refresh (run the "Update BLS data" workflow).</p>`;
     const m = last(earn.national?.total)?.date;
+    if (COUNTY) return `<p class="legend-title">Real wage growth by county · ${esc(fmtQuarter(cty.quarter))}</p>
+      <div class="legend-ramp" style="background:linear-gradient(to right,${PINK},${NEUTRAL},${GREEN})"></div>
+      <div class="legend-ramp-labels"><span>−3 pt: trailing prices</span><span>keeping pace</span><span>+3 pt: ahead</span></div>
+      <p class="legend-note" style="margin-top:8px">Year-on-year change in the county's <b>average weekly wage</b> (QCEW, all employers, quarterly) minus the change in the <b>CPI</b> for its census region. Click a county for its metro or state profile, which carries monthly hourly earnings (CES, through ${esc(fmtMonth(m))}) and the same quarterly wage measure.</p>`;
     return `<p class="legend-title">Real earnings growth · ${esc(fmtMonth(m))}</p>
       <div class="legend-ramp" style="background:linear-gradient(to right,${PINK},${NEUTRAL},${GREEN})"></div>
       <div class="legend-ramp-labels"><span>−3 pt: trailing prices</span><span>keeping pace</span><span>+3 pt: ahead</span></div>
@@ -398,6 +467,7 @@
     ...metroList.map((m) => ({ level: "metro", id: m.id, label: m.name, sub: [geoType(m), capitalText(m)].filter(Boolean).join(" · "), kind: geoShort(m),
       text: `${m.short} ${m.name} ${(m.capital_of || []).map((c) => c.city + " capital").join(" ")}`.toLowerCase() })),
     ...Object.entries(states).map(([id, s]) => ({ level: "state", id, label: s.name, sub: "Statewide", kind: "State", text: s.name.toLowerCase() })),
+    ...(COUNTY ? Object.entries(COUNTY).map(([fips, c]) => ({ level: "county", id: fips, label: c.n, sub: c.cbsa && metros[c.cbsa] ? `in ${metros[c.cbsa].name} MSA` : STATE_NAME(c.st), kind: "County", text: c.n.toLowerCase() })) : []),
   ];
   searchEl.oninput = () => {
     const q = searchEl.value.trim().toLowerCase();
@@ -412,7 +482,8 @@
     const b = ev.target.closest("button[data-id]");
     if (!b) return;
     resultsEl.hidden = true; searchEl.value = "";
-    select(b.dataset.level, b.dataset.id, true);
+    if (b.dataset.level === "county") { if (app.lens === "industry" || app.lens === "types") { app.lens = "unemployment"; renderLens(); } selectCounty(b.dataset.id); zoomTo(path.bounds(ctyFeatures.find((f) => f.id === b.dataset.id)), 8); }
+    else select(b.dataset.level, b.dataset.id, true);
   };
   searchEl.onkeydown = (ev) => {
     if (ev.key === "Enter") { const b = resultsEl.querySelector("button[data-id]"); if (b) b.click(); }
@@ -425,7 +496,14 @@
   document.getElementById("drawer-close").onclick = () => select(null, null);
   document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && app.level) select(null, null); });
 
-  function select(level, id, fly = false) {
+  function selectCounty(fips) {
+    const c = countyOf(fips);
+    if (!c) return;
+    app.county = fips;
+    if (c.cbsa && metros[c.cbsa]) select("metro", c.cbsa, false, true); else select("state", c.st, false, true);
+  }
+  function select(level, id, fly = false, keepCounty = false) {
+    if (!keepCounty) app.county = null;
     app.level = level; app.id = id;
     hideTip();
     statePaths.classed("is-selected", (d) => level === "state" && d.id === id);
@@ -434,6 +512,7 @@
     glyphs.classed("is-selected", (m) => level === "metro" && m.id === id)
       .classed("is-dim", (m) => level === "state" && !(m.states || []).includes(id));
     udots.classed("is-selected", (m) => level === "metro" && m.id === id);
+    ctyPaths.classed("is-selected", (d) => d.id === app.county);
     if (level) {
       renderDrawer();
       drawer.classList.add("is-open"); drawer.setAttribute("aria-hidden", "false");
@@ -477,14 +556,50 @@
     const sub = level === "metro" ? capitalText(sel) :
       level === "state" ? `Capital: ${(metroList.find((m) => (m.capital_of || []).some((c) => c.state === id))?.capital_of.find((c) => c.state === id)?.city) || "–"}` : "";
     const persons = level === "nation" ? 1000 : 1;
-    const lf = last(series.labor_force), em = last(series.employed);
-    const tiles = [
-      ["Labor force", lf ? fmtNum(Math.round(lf.value * persons)) : "–", lf ? fmtMonth(lf.date) : "", ""],
-      ["Employment", em ? fmtNum(Math.round(em.value * persons)) : "–", em ? fmtMonth(em.date) : "", ""],
-      ["Unemployment rate", now ? `${now.value.toFixed(1)}<small>%</small>` : "–", now ? fmtMonth(now.date) : "",
+    const lf = last(series.labor_force), em = last(series.employed), lfY = back(series.labor_force, 12);
+    const un = last(series.unemployed), unM = back(series.unemployed, 1), unY = back(series.unemployed, 12);
+    const pjRows = level === "nation" && series.payrolls_sa?.length ? series.payrolls_sa : series.payrolls;
+    const pj = last(pjRows), pjY = back(pjRows, 12);
+    const src = level === "nation" ? "CPS" : "LAUS";
+    const rateTile = ["Unemployment rate", now ? `${now.value.toFixed(1)}<small>%</small>` : "–", now ? `${src} · ${fmtMonth(now.date)}` : "",
         (m1 ? `<span class="kpi-delta">${deltaHtml(now, m1, "vs " + fmtMonth(m1.date))}</span>` : "") +
-        (y1 ? `<span class="kpi-delta">${deltaHtml(now, y1, "vs " + fmtMonth(y1.date))}</span>` : "")],
-    ];
+        (y1 ? `<span class="kpi-delta">${deltaHtml(now, y1, "vs " + fmtMonth(y1.date))}</span>` : "")];
+    const countDelta = (a, b, unit = "") => a && b ? `<span class="kpi-delta"><b class="${a.value >= b.value ? "up" : "down"}">${a.value >= b.value ? "+" : "−"}${fmtNum(Math.abs(Math.round((a.value - b.value) * persons)))}${unit}</b> vs ${esc(fmtMonth(b.date))}</span>` : "";
+    const prof = profileOf(level, id), gov = prof.find((d) => d.code === "90000000");
+    const usNow = last(national.unemp_rate);
+    const r12 = (series.unemp_rate || []).slice(-12).map((d) => d.value);
+    // the tiles follow the lens: the unemployment picture for Unemployment, the job base otherwise
+    let tiles;
+    if (lens === "unemployment") {
+      tiles = [
+        rateTile,
+        ["Unemployed", un ? fmtNum(Math.round(un.value * persons)) : "–", un ? `${src} · ${fmtMonth(un.date)}` : "", countDelta(un, unM) + countDelta(un, unY)],
+        level === "nation"
+          ? ["Past 12 months", r12.length ? `${d3.min(r12).toFixed(1)}–${d3.max(r12).toFixed(1)}<small>%</small>` : "–", "lowest and highest monthly rate", ""]
+          : ["United States", usNow ? `${usNow.value.toFixed(1)}<small>%</small>` : "–", usNow ? `national rate · ${fmtMonth(usNow.date)}` : "",
+             now && usNow ? `<span class="kpi-delta"><b class="${now.value <= usNow.value ? "up" : "down"}">${now.value === usNow.value ? "equal to" : `${signed(now.value - usNow.value)} vs`} the U.S.</b></span>` : ""],
+      ];
+    } else if (!prof.length && !pj) {
+      tiles = [];
+    } else {
+      tiles = [
+        ["Nonfarm jobs", pj ? fmtNum(Math.round(pj.value)) + "<small>k</small>" : "–", pj ? `CES${level === "nation" ? ", seasonally adjusted" : ""} · ${fmtMonth(pj.date)}` : "", ""],
+        ["Jobs vs a year ago", pj && pjY && pjY.value ? fmtSignedPct((pj.value - pjY.value) / pjY.value) : "–", pjY ? `since ${fmtMonth(pjY.date)}` : "",
+          pj && pjY ? `<span class="kpi-delta"><b class="${pj.value >= pjY.value ? "up" : "down"}">${pj.value >= pjY.value ? "+" : "−"}${fmtNum(Math.abs(Math.round(pj.value - pjY.value)))}k</b> jobs</span>` : ""],
+        ["Private employers", gov ? fmtPct(1 - gov.share) : "–", "% of nonfarm jobs", gov ? `<span class="kpi-delta">government <b>${fmtPct(gov.share)}</b></span>` : ""],
+      ];
+    }
+    const cc = app.county ? countyOf(app.county) : null;
+    const countyStrip = cc && (lens === "unemployment" || lens === "earnings") ? `<div class="county-strip">
+      <div class="county-head"><span class="county-label">County you clicked</span><b>${esc(cc.n)}</b></div>
+      <div class="county-figs">${lens === "unemployment"
+        ? `<div><span class="fig">${cc.r.toFixed(1)}<small>%</small></span><span class="lab">unemployment · ${esc(fmtMonth(cty.month))}</span></div>
+           <div><span class="fig ${cc.y1 != null ? (cc.r > cc.y1 ? "down" : cc.r < cc.y1 ? "up" : "") : ""}">${cc.y1 != null ? signed(cc.r - cc.y1) : "–"}</span><span class="lab">vs a year ago${cc.m1 != null ? ` · ${signed(cc.r - cc.m1)} vs last month` : ""}</span></div>
+           <div><span class="fig">${fmtNum(cc.un)}</span><span class="lab">unemployed</span></div>`
+        : `<div><span class="fig">${cc.w != null ? "$" + fmtNum(Math.round(cc.w)) : "–"}</span><span class="lab">weekly wage · ${esc(fmtQuarter(cty.quarter))}</span></div>
+           <div><span class="fig">${cc.wy != null ? fmtSignedPct(cc.wy / 100) : "–"}</span><span class="lab">vs a year ago</span></div>
+           <div><span class="fig ${cc.real != null ? (cc.real >= 0 ? "up" : "down") : ""}">${cc.real != null ? signed(cc.real) : "–"}</span><span class="lab">real, vs regional prices</span></div>`}
+      </div></div>` : "";
     const lensTitle = { industry: "Industry", unemployment: "Unemployment", earnings: "Earnings", types: "Types" }[lens];
 
     body.innerHTML = `
@@ -493,23 +608,26 @@
       <p class="d-geo">${geoLine}</p>
       ${sub ? `<p class="d-sub">${esc(sub)}</p>` : ""}
       ${level === "state" ? stateMetroChips(id) : ""}
-      ${lens === "earnings" ? "" : `<dl class="kpis kpis-3">${tiles.map(([k, v, s, extra]) => `<div class="kpi"><dt>${k}</dt><dd>${v}</dd><div class="kpi-sub">${esc(s)}</div>${extra}</div>`).join("")}</dl>`}
+      ${countyStrip}
+      ${lens === "earnings" || !tiles.length ? "" : `<dl class="kpis kpis-3">${tiles.map(([k, v, s, extra]) => `<div class="kpi"><dt>${k}</dt><dd>${v}</dd><div class="kpi-sub">${esc(s)}</div>${extra}</div>`).join("")}</dl>`}
       <div id="lens-host"></div>
-      <p class="d-foot">${level === "metro" ? `${esc(geoShort(sel))} unemployment is not seasonally adjusted; state and national rates are. ` : ""}${
-        lens === "earnings" ? "Average hourly earnings are for all employees of private employers (Current Employment Statistics, not seasonally adjusted). Prices are the CPI-U for the area's census region, all items, not seasonally adjusted; real growth is the difference between the two year-on-year changes."
-        : lens === "unemployment" ? "Unemployment figures are from the Local Area Unemployment Statistics program (Current Population Survey for the nation). Rankings compare the latest published month."
+      <p class="d-foot">${
+        lens === "earnings" ? "Average hourly earnings are for all employees of private employers (Current Employment Statistics, monthly, not seasonally adjusted). Weekly wages are from the Quarterly Census of Employment and Wages (all employers, quarterly) and are the measure drawn on the county map. Prices are the CPI-U for the area's census region, all items, not seasonally adjusted; real growth is the difference between the two year-on-year changes."
+        : lens === "unemployment" ? `${level === "metro" ? `${esc(geoShort(sel))} figures are not seasonally adjusted; state and national rates are. ` : ""}Unemployment figures are from the Local Area Unemployment Statistics program (Current Population Survey for the nation); county figures come from the same program's county table. Rankings compare the latest published month.`
         : lens === "types" ? `Types group metropolitan areas by the log location quotients of their ten industry supersectors (k-means with k chosen by silhouette; k = ${TYPO ? TYPO.k : "–"}). A type is named by the sectors it over-represents. States are assigned to the nearest type. The grouping is recomputed with every BLS release, so an area's type can change.`
         : `Industry percentages are from the Current Employment Statistics (not seasonally adjusted); "vs U.S." divides an industry's local percentage of jobs by its national percentage.${level === "metro" && sel.kind === "micro" ? " BLS does not publish industry series for micropolitan areas." : ""}`}</p>`;
 
     const host = document.getElementById("lens-host");
     if (lens === "industry") renderIndustrySection(host, level, id);
-    else if (lens === "types") { renderTypeSection(host, level, id); renderIndustrySection(host, level, id, true); }
+    else if (lens === "types") renderTypeSection(host, level, id);
     else if (lens === "unemployment") renderUnemploymentSection(host, level, id, name);
     else renderEarningsSection(host, level, id, name);
   }
   body.addEventListener("click", (ev) => {
     const c = ev.target.closest("[data-select-metro]");
     if (c) select("metro", c.dataset.selectMetro, true);
+    const k = ev.target.closest("[data-select-county]");
+    if (k) { selectCounty(k.dataset.selectCounty); body.scrollTop = 0; }
   });
 
   /* ------------------------------------------------------ industry lens */
@@ -520,7 +638,7 @@
           ${prof.length ? `<div class="view-toggle" id="rose-toggle"><button data-v="chart" class="${app.roseView === "chart" ? "is-active" : ""}">Rose</button><button data-v="table" class="${app.roseView === "table" ? "is-active" : ""}">Table</button></div>` : ""}</div>
         <div id="rose-host"></div><div id="dominant-host"></div></section>`);
     if (!prof.length) {
-      document.getElementById("rose-host").innerHTML = `<p class="rose-note">BLS publishes no industry employment series for this area, so only the unemployment picture is shown.</p>`;
+      document.getElementById("rose-host").innerHTML = `<p class="rose-note">BLS publishes no industry employment series for this area. Its unemployment figures are under the Unemployment lens.</p>`;
       return;
     }
     document.getElementById("rose-toggle").onclick = (ev) => { const b = ev.target.closest("button"); if (!b) return; app.roseView = b.dataset.v; renderDrawer(); };
@@ -530,19 +648,52 @@
   function renderTypeSection(host, level, id) {
     host.innerHTML = "";
     const t = typeInfo(typeOf(level, id)), prof = profileOf(level, id);
-    if (level === "nation") { host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Reference</p><p class="dom-stat">The national mix is the baseline every type is measured against.</p></div>`; return; }
-    if (!t) { host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Not typed</p><p class="dom-stat">${TYPO ? "Too few industry series are published for this area to place it." : "Types arrive with the next data refresh."}</p></div>`; return; }
+    if (!TYPO) { host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Not yet computed</p><p class="dom-stat">Types arrive with the next data refresh.</p></div>`; return; }
+    if (level === "nation") {
+      host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Reference</p><p class="dom-stat">The national mix is the baseline every type is measured against. The ${TYPO.k} types below group ${d3.sum(TYPO.types, (x) => x.n)} metropolitan areas by the shape of their industry mix.</p></div>
+        <section class="d-section"><div class="d-section-head"><div><div class="d-section-title">The types this release</div><div class="d-section-sub">metropolitan areas per type · sectors that define each</div></div></div>
+        <div class="type-roster">${TYPO.types.map((x) => `<div class="type-roster-row"><i style="background:${typeColor(x.id)}"></i><div><b>${esc(x.name)}</b><div class="muted">${x.n} areas · ${(x.lead || []).map((c) => SECTOR_NAME.get(c)).filter(Boolean).map(esc).join(", ") || "no sector over-represented"}</div></div></div>`).join("")}</div></section>`;
+      return;
+    }
+    if (!t) { host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Not typed</p><p class="dom-stat">Too few industry series are published for this area to place it.</p></div>${level === "state" ? stateTypeRoster(id) : ""}`; return; }
     const byCode = new Map(prof.map((d) => [d.code, d]));
     const sig = SECTORS.map(([code]) => ({ code, mean: t.center[code], here: byCode.get(code)?.lq }))
       .filter((d) => d.mean != null).sort((a, b) => Math.abs(Math.log(b.mean)) - Math.abs(Math.log(a.mean))).slice(0, 5);
     const maxV = Math.max(...sig.flatMap((d) => [d.mean, d.here || 0]), 1.2);
+    // distance from this area to every type centre, in log location-quotient space
+    const feats = Object.keys(t.center).filter((c) => byCode.get(c)?.lq > 0 && t.center[c] > 0);
+    const dist = TYPO.types.map((x) => ({ x, d: Math.sqrt(d3.sum(feats, (c) => (Math.log2(byCode.get(c).lq) - Math.log2(x.center[c])) ** 2)) })).sort((a, b) => a.d - b.d);
+    const maxD = d3.max(dist, (d) => d.d) || 1;
     host.innerHTML = `<div class="type-card" style="border-left-color:${typeColor(t.id)}">
       <p class="dom-label">Industry type · ${level === "state" ? "nearest of" : "one of"} ${TYPO.k}</p>
       <p class="dom-name">${esc(t.name)}</p>
       <p class="dom-stat">${t.n} metropolitan areas share this profile.${level === "state" ? " As a state this is the closest type, not a cluster membership." : ""} Sectors that define the type, with the type's average and this area's own ratio to the U.S.:</p>
       <div class="type-sig"><span class="h">sector</span><span></span><span class="h" style="text-align:right">type</span><span class="h" style="text-align:right">here</span>
         ${sig.map((d) => `<span class="name">${esc(SECTOR_NAME.get(d.code))}</span><span class="track"><span class="bar" style="width:${(d.mean / maxV) * 100}%"></span><span class="bar here" style="width:${((d.here || 0) / maxV) * 100}%;top:5px;height:5px"></span></span><span class="v">${d.mean.toFixed(2)}×</span><span class="v">${d.here != null ? d.here.toFixed(2) + "×" : "–"}</span>`).join("")}
-      </div></div>`;
+      </div></div>
+      ${feats.length ? `<section class="d-section"><div class="d-section-head"><div><div class="d-section-title">How well each type fits</div><div class="d-section-sub">distance to each type's centre · nearest first</div></div></div>
+        <div class="type-fit">${dist.map(({ x, d }) => `<i style="background:${typeColor(x.id)}"></i><span class="name${x.id === t.id ? " is-this" : ""}">${esc(x.name)}</span><span class="track"><span class="bar" style="width:${(1 - d / (maxD * 1.15)) * 100}%;background:${typeColor(x.id)}"></span></span><span class="v">${d.toFixed(2)}</span>`).join("")}</div>
+        <p class="rose-note">Distance is the root of the summed squared differences in log<sub>2</sub> location quotient across the ${feats.length} sectors used for clustering. A small gap between the first two rows means the area sits near a boundary and could change type with a new release.</p></section>` : ""}
+      ${level === "metro" ? typePeers(t, id) : stateTypeRoster(id)}`;
+  }
+  // the other metropolitan areas of the same type, largest first
+  function typePeers(t, id) {
+    const peers = metroList.filter((m) => m.id !== id && typeOf("metro", m.id) === t.id).sort((a, b) => jobsOf("metro", b.id) - jobsOf("metro", a.id));
+    if (!peers.length) return "";
+    const LIM = 24;
+    return `<section class="d-section"><div class="d-section-head"><div><div class="d-section-title">Metropolitan areas of this type</div><div class="d-section-sub">${peers.length} others · largest job base first</div></div></div>
+      <div class="chips${peers.length > LIM ? " is-clipped" : ""}" id="type-peers">${peers.map((m) => `<button class="chip" data-select-metro="${m.id}"><b>${esc(m.short)}</b> <span class="kind">${esc((m.name.split(", ")[1] || "").replace(/ .*$/, ""))}</span></button>`).join("")}</div>
+      ${peers.length > LIM ? `<button class="link-btn" onclick="document.getElementById('type-peers').classList.toggle('is-clipped');this.textContent=this.textContent.startsWith('Show all')?'Show fewer':'Show all ${peers.length}'">Show all ${peers.length}</button>` : ""}</section>`;
+  }
+  // a state's metropolitan areas with the type of each
+  function stateTypeRoster(fips) {
+    const list = metroList.filter((m) => (m.states || []).includes(fips)).sort((a, b) => jobsOf("metro", b.id) - jobsOf("metro", a.id));
+    if (!list.length) return "";
+    const counts = d3.rollup(list, (v) => v.length, (m) => typeOf("metro", m.id));
+    const summary = TYPO.types.filter((x) => counts.get(x.id)).sort((a, b) => counts.get(b.id) - counts.get(a.id)).map((x) => `<span><i style="background:${typeColor(x.id)}"></i>${esc(x.name)} <b>${counts.get(x.id)}</b></span>`).join("");
+    return `<section class="d-section"><div class="d-section-head"><div><div class="d-section-title">Metropolitan areas in ${esc(STATE_NAME(fips))} by type</div><div class="d-section-sub">${list.length} areas · largest job base first</div></div></div>
+      <div class="type-summary">${summary}${counts.get(null) ? `<span><i style="background:#c9c7bf"></i>not typed <b>${counts.get(null)}</b></span>` : ""}</div>
+      <div class="chips">${list.map((m) => { const ty = typeOf("metro", m.id); return `<button class="chip" data-select-metro="${m.id}"><i class="type-dot" style="background:${ty != null ? typeColor(ty) : "#c9c7bf"}"></i><b>${esc(m.short)}</b> ${esc(geoShort(m))}</button>`; }).join("")}</div></section>`;
   }
   function stateMetroChips(fips) {
     const list = metroList.filter((m) => (m.states || []).includes(fips)).sort((a, b) => jobsOf("metro", b.id) - jobsOf("metro", a.id));
@@ -639,8 +790,7 @@
   function renderUnemploymentSection(host, level, id, name) {
     const series = seriesOf(level, id);
     const now = last(series.unemp_rate), y1 = back(series.unemp_rate, 12);
-    const un = last(series.unemployed), unY = back(series.unemployed, 12), lf = last(series.labor_force), lfY = back(series.labor_force, 12);
-    const persons = level === "nation" ? 1000 : 1;
+    const r12 = (series.unemp_rate || []).slice(-12).map((d) => d.value);
     // where the area stands among its peers
     let standing = "";
     if (level !== "nation" && now) {
@@ -655,17 +805,23 @@
         <div class="rank-strip"><i style="left:${pos.toFixed(1)}%"></i></div>
         <div class="rank-labels"><span>lowest ${lo.toFixed(1)}%</span><span>highest ${hi.toFixed(1)}%</span></div>
         <p><b>${rank}${rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th"} lowest</b> unemployment rate of the ${n} ${level === "metro" ? "metropolitan areas on this map" : "states"}${usr ? `, ${now.value === usr.value ? "equal to" : now.value < usr.value ? `${(usr.value - now.value).toFixed(1)} pt below` : `${(now.value - usr.value).toFixed(1)} pt above`} the U.S. rate of ${usr.value.toFixed(1)}%` : ""}.</p>
-        ${un && unY ? `<p>Unemployed: <b>${fmtNum(Math.round(un.value * persons))}</b>, ${un.value >= unY.value ? "up" : "down"} <b>${fmtNum(Math.abs(Math.round((un.value - unY.value) * persons)))}</b> from a year earlier${lf && lfY ? `; labor force ${lf.value >= lfY.value ? "grew" : "shrank"} <b>${fmtSignedPct((lf.value - lfY.value) / lfY.value)}</b>` : ""}.</p>` : ""}
+        ${y1 ? `<p>A year ago, in ${esc(fmtMonth(y1.date))}, the rate was <b>${y1.value.toFixed(1)}%</b>${r12.length ? `; over the past twelve months it ranged from <b>${d3.min(r12).toFixed(1)}%</b> to <b>${d3.max(r12).toFixed(1)}%</b>` : ""}.</p>` : ""}
       </div>`;
-    } else if (level === "nation" && un && unY) {
-      standing = `<div class="standing"><p class="dom-label">Change over the year</p>
-        <p>Unemployed: <b>${fmtNum(Math.round(un.value * persons))}</b>, ${un.value >= unY.value ? "up" : "down"} <b>${fmtNum(Math.abs(Math.round((un.value - unY.value) * persons)))}</b> from ${esc(fmtMonth(unY.date))}${lf && lfY ? `; labor force ${fmtSignedPct((lf.value - lfY.value) / lfY.value)}` : ""}.</p></div>`;
     }
     host.innerHTML = `<section class="d-section">
         <div class="d-section-head"><div class="d-section-title">Ten-year unemployment trend</div><div class="d-section-sub">${level === "nation" ? "monthly rate" : "vs the United States"}</div></div>
         <div class="trend-wrap" id="trend-host"></div>${standing}</section>
-      ${level === "state" ? stateMetroRates(id) : ""}`;
+      ${level === "state" ? stateMetroRates(id) : ""}${countyRates(level, id)}`;
     renderTrend(series.unemp_rate || [], level === "nation" ? null : national.unemp_rate, name);
+  }
+  function countyRates(level, id) {
+    if (!COUNTY || level === "nation") return "";
+    const list = Object.entries(COUNTY).filter(([, c]) => (level === "metro" ? c.cbsa === id : c.st === id && !c.cbsa))
+      .sort((a, b) => a[1].r - b[1].r);
+    if (!list.length) return "";
+    const title = level === "metro" ? `Counties in this MSA` : `Counties outside metropolitan areas`;
+    return `<section class="d-section"><div class="d-section-head"><div class="d-section-title">${title}</div><div class="d-section-sub">unemployment rate · ${esc(fmtMonth(cty.month))} · lowest first</div></div>
+      <div class="metro-rates">${list.map(([f, c]) => `<button data-select-county="${f}">${esc(c.n.replace(/,.*$/, ""))}</button><span class="v">${c.r.toFixed(1)}%</span>`).join("")}</div></section>`;
   }
   function stateMetroRates(fips) {
     const list = metroList.filter((m) => (m.states || []).includes(fips) && rateOfMetro(m.id) != null).sort((a, b) => rateOfMetro(a.id) - rateOfMetro(b.id));
@@ -732,6 +888,12 @@
         <div class="kpi"><dt>Real earnings growth</dt><dd>${real != null ? signed(real) : "–"}</dd><div class="kpi-sub">earnings minus prices</div>
           ${real != null ? `<span class="kpi-delta"><b class="${real >= 0 ? "up" : "down"}">${real >= 0 ? "ahead of" : "trailing"} inflation</b></span>` : ""}</div>
       </dl>
+      ${(() => { const q = qcewOf(level, id); return q ? `<dl class="kpis kpis-3" style="margin-top:8px">
+        <div class="kpi"><dt>Weekly wage (QCEW)</dt><dd>$${fmtNum(Math.round(q.w))}</dd><div class="kpi-sub">all employers · ${esc(fmtQuarter(cty.quarter))}</div></div>
+        <div class="kpi"><dt>Wage change</dt><dd>${q.wy != null ? fmtSignedPct(q.wy / 100) : "–"}</dd><div class="kpi-sub">vs the same quarter a year ago</div></div>
+        <div class="kpi"><dt>Real wage growth</dt><dd>${q.real != null ? signed(q.real) : "–"}</dd><div class="kpi-sub">the county-map measure</div>
+          ${q.real != null ? `<span class="kpi-delta"><b class="${q.real >= 0 ? "up" : "down"}">${q.real >= 0 ? "ahead of" : "trailing"} inflation</b></span>` : ""}</div>
+      </dl>` : ""; })()}
       ${inds.length ? `<section class="d-section">
         <div class="d-section-head"><div><div class="d-section-title">Earnings by industry</div><div class="d-section-sub">average hourly earnings · ${esc(fmtMonth(now.date))}</div></div></div>
         <div id="burst-host"></div>

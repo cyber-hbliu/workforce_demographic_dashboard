@@ -11,6 +11,7 @@ Sources (BLS API v2, key required via env BLS_API_KEY):
   CES   average hourly earnings (data type 03) for total private and the private
         supersectors, state / metro / national
   CPI-U all items (NSA) for the nation and the four census regions
+  County unemployment (LAUS county file) and weekly wages (QCEW) via scripts/county_data.py
 
 Series ids are built from the BLS area codes resolved by scripts/build_areas.py
 (config/areas.json: laus_area, state_fips, ces) so nothing is hand-padded.
@@ -19,7 +20,7 @@ Series ids are built from the BLS area codes resolved by scripts/build_areas.py
   CES         = "SMU" + state_fips + area5 + industry8 + "01"  e.g. SMU06310800000000001
 
 Outputs to docs/data/:
-  national.json  states.json  metros.json  rose.json  earnings.json  meta.json
+  national.json  states.json  metros.json  rose.json  earnings.json  counties.json  meta.json
 
 Budget: about 16 series per metro with CES coverage; all metros fit in about 150 requests (limit 500/day).
 """
@@ -34,6 +35,7 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).parent))
 from typology import build_typology, nearest_type  # noqa: E402
+import county_data  # noqa: E402
 
 ROOT = Path(__file__).parent.parent
 DATA_OUT = ROOT / "docs" / "data"
@@ -297,6 +299,22 @@ def main() -> None:
                    for m in METROS if m["ces"]},
     }
 
+    # county resolution for the Unemployment and Earnings lenses; a failed download
+    # keeps the previous counties.json rather than failing the whole refresh
+    county_month = county_quarter = None
+    try:
+        counties_out = county_data.build(AREAS, earnings_out["cpi"], REGION_OF_STATE)
+        county_month, county_quarter = counties_out["month"], counties_out["quarter"]
+        (DATA_OUT / "counties.json").write_text(json.dumps(counties_out, separators=(",", ":")))
+        print(f"counties: {len(counties_out['counties'])} areas, LAUS {county_month}, QCEW {county_quarter}")
+    except Exception as e:  # noqa: BLE001
+        print(f"county data not refreshed: {e}", file=sys.stderr)
+        try:
+            prev = json.loads((DATA_OUT / "counties.json").read_text())
+            county_month, county_quarter = prev.get("month"), prev.get("quarter")
+        except OSError:
+            pass
+
     DATA_OUT.mkdir(parents=True, exist_ok=True)
     for fname, obj in (("states.json", states_out), ("metros.json", metros_out),
                        ("rose.json", rose_out), ("national.json", national_out),
@@ -313,6 +331,8 @@ def main() -> None:
         "latest_state_month": latest_state,
         "latest_metro_month": latest_metro,
         "latest_ces_month": us_month,
+        "latest_county_month": county_month,
+        "latest_qcew_quarter": county_quarter,
         "source": "bls_api",
         "series_requested": len(catalog),
         "series_empty": sum(empty.values()),

@@ -149,8 +149,28 @@ earnings = {"cpi": {"US": cpi_series(300, 0.03), "0100": cpi_series(310, 0.028),
             "metros": {m["cbsa"]: earn_profile(random.uniform(0.85, 1.3), REGION.get(m["state_fips"], "0300"))
                        for m in AREAS["metros"] if m["ces"]}}
 
+# counties: one entry per county in the map topology, with a wage and rate drawn around the state's
+topo = json.loads((ROOT / "docs" / "lib" / "counties-albers-10m.json").read_text())
+cbsa_of = {c: m["cbsa"] for m in AREAS["metros"] for c in m.get("counties", [])}
+counties = {}
+for g in topo["objects"]["counties"]["geometries"]:
+    fips = g["id"]
+    if fips[:2] not in AREAS["states"]:
+        continue
+    r = round(random.uniform(2.0, 7.0), 1)
+    lf = random.randint(2_000, 900_000)
+    wy = round(random.uniform(0.5, 7.0), 1)
+    counties[fips] = {"n": f"{g['properties']['name']} County, {fips[:2]}", "st": fips[:2], "cbsa": cbsa_of.get(fips),
+                      "r": r, "m1": round(r + random.uniform(-0.3, 0.3), 1), "y1": round(r + random.uniform(-0.6, 0.6), 1),
+                      "lf": lf, "un": int(lf * r / 100), "uny": int(lf * (r + 0.2) / 100),
+                      "w": round(random.uniform(700, 2400)), "wy": wy, "real": round(wy - 3.0, 1)}
+counties_out = {"month": MONTHS[-1], "quarter": "2026Q1", "counties": counties,
+                "qcew": {"nation": {"w": 1654, "wy": 3.9, "real": 0.6},
+                         "states": {f: {"w": random.randint(900, 1900), "wy": 3.5, "real": 0.5} for f in AREAS["states"]},
+                         "metros": {m["cbsa"]: {"w": random.randint(900, 2500), "wy": 4.0, "real": 1.0} for m in AREAS["metros"]}}}
+
 OUT.mkdir(parents=True, exist_ok=True)
-for name, obj in (("states.json", states), ("metros.json", metros),
+for name, obj in (("states.json", states), ("metros.json", metros), ("counties.json", counties_out),
                   ("rose.json", rose), ("national.json", national), ("earnings.json", earnings)):
     (OUT / name).write_text(json.dumps(obj, separators=(",", ":")))
 (OUT / "meta.json").write_text(json.dumps({
