@@ -203,7 +203,10 @@
 
   const footG = zoomLayer.append("g");
   const footPaths = footG.selectAll("path").data(metroList.filter((m) => geo[m.id])).join("path")
-    .attr("class", "footprint").attr("d", (m) => path(geo[m.id].g));
+    .attr("class", "footprint").attr("d", (m) => path(geo[m.id].g))
+    .on("mousemove", (ev, m) => showTip(metroTip(m), ev))
+    .on("mouseleave", hideTip)
+    .on("click", (ev, m) => { ev.stopPropagation(); select("metro", m.id); });
 
   // markers sized by nonfarm jobs (industry lens)
   const rGlyph = d3.scaleSqrt().domain([0, 8000]).range([0, 13]).clamp(true);
@@ -329,13 +332,14 @@
 
   function renderLens() {
     const lens = app.lens, ind = lens === "industry", typ = lens === "types", markers = ind || typ;
-    statePaths.attr("fill", (d) => ind ? null
-      : typ ? (typeOf("state", d.id) != null ? d3.color(typeColor(typeOf("state", d.id))).copy({ opacity: 0.22 }).formatRgb() : null)
+    statePaths.style("fill", (d) => ind ? null
+      : typ ? (typeOf("state", d.id) != null ? d3.interpolateRgb("#fbfaf6", typeColor(typeOf("state", d.id)))(0.28) : null)
       : lens === "unemployment" ? (rateOfState(d.id) != null ? rampColor(rateOfState(d.id)) : "#e6e4dc")
       : realColor(realOfState(d.id)));
-    footG.style("display", markers ? null : "none");
-    glyphsG.style("display", markers ? null : "none");
-    glyphs.selectAll(".core").style("fill", (m) => (typ ? typeColor(typeOf("metro", m.id)) : null));
+    footG.style("display", markers ? null : "none").classed("is-choropleth", typ);
+    footPaths.style("fill", (m) => (typ ? (typeOf("metro", m.id) != null ? typeColor(typeOf("metro", m.id)) : "#d8d6cf") : null))
+      .style("stroke", (m) => (typ ? "#ffffff" : null));
+    glyphsG.style("display", ind ? null : "none");
     udotsG.style("display", markers ? "none" : null);
     udots.attr("fill", (m) => lens === "unemployment"
       ? (rateOfMetro(m.id) != null ? rampColor(rateOfMetro(m.id)) : "#e6e4dc")
@@ -351,7 +355,7 @@
     if (!TYPO) return `<p class="legend-title">Industry types</p><p class="legend-note">Types arrive with the next data refresh (run the "Update BLS data" workflow).</p>`;
     return `<p class="legend-title">Industry types · ${esc(fmtMonth(rose.month))}</p>
       <div class="type-list">${TYPO.types.map((t) => `<div class="type-row"><i style="background:${typeColor(t.id)}"></i><b>${esc(t.name)}</b><span class="n">${t.n}</span></div>`).join("")}</div>
-      <p class="legend-note" style="margin-top:8px">Metros grouped by the shape of their industry mix (location quotients, ten sectors; k-means, k = ${TYPO.k} chosen by silhouette ${TYPO.silhouette}). States take the nearest type, shaded lightly. Marker size is still nonfarm jobs. Recomputed with every release.</p>`;
+      <p class="legend-note" style="margin-top:8px">Each metropolitan area's county footprint is filled with its type: metros grouped by the shape of their industry mix (location quotients, ten sectors; k-means, k = ${TYPO.k} chosen by silhouette ${TYPO.silhouette}). States take the nearest type, shaded lightly; grey footprints have too few industry series to be typed. Recomputed with every release.</p>`;
   }
   function industryLegend() {
     const sizes = [100, 1000, 5000].map((j) => [j, rGlyph(j)]);
