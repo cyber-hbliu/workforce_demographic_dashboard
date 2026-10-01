@@ -1,6 +1,6 @@
 /* Workforce Monitor — a full-screen atlas with floating glass instruments.
    One system: paper surfaces, ink text, a green<->pink diverging pair for
-   "percentage of jobs vs the U.S." and a single blue ramp for unemployment. */
+   "percentage of jobs vs the U.S." and a single warm ramp (cream to wine) for unemployment. */
 
 :root {
   color-scheme: light;
@@ -52,6 +52,8 @@ button { font: inherit; color: inherit; }
 .state:hover { fill: #f1efe6; }
 .state.is-selected { stroke: var(--ink); stroke-width: 1.4; fill: #efede3; }
 .state-label { font-family: var(--sans); font-size: 7.5px; font-weight: 600; letter-spacing: 0.14em; fill: #cfc7b6; text-anchor: middle; pointer-events: none; }
+/* over filled counties and footprints the names switch to ink with a light halo */
+.lens-fill .state-label { fill: #1f1e1e; font-size: 8px; font-weight: 700; paint-order: stroke; stroke: rgba(252, 252, 251, 0.85); stroke-width: 2.6px; stroke-linejoin: round; }
 .nation-outline { fill: none; stroke: var(--ink); stroke-width: 0.8; vector-effect: non-scaling-stroke; opacity: 0.6; pointer-events: none; }
 
 .footprint { fill: rgba(11, 11, 11, 0.045); stroke: rgba(11, 11, 11, 0.32); stroke-width: 0.6; vector-effect: non-scaling-stroke; pointer-events: none; transition: fill 0.3s, stroke 0.3s; }
@@ -277,7 +279,7 @@ button { font: inherit; color: inherit; }
 .standing .dom-label { color: var(--ink-2); }
 .standing p { font-size: 12.5px; color: var(--ink-2); margin-top: 6px; }
 .standing p b { color: var(--ink); font-weight: 600; }
-.rank-strip { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px; background: linear-gradient(to right, var(--green), var(--neutral), var(--pink)); }
+.rank-strip { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px; background: linear-gradient(to right, #FFE7E4, #F69680, #d4417f, #6e1a3f); }
 .rank-strip i { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; background: var(--ink); border-radius: 2px; }
 .rank-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); }
 .burst-spoke { stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
