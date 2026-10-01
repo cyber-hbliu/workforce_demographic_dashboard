@@ -57,6 +57,10 @@ button { font: inherit; color: inherit; }
 .footprint { fill: rgba(11, 11, 11, 0.045); stroke: rgba(11, 11, 11, 0.32); stroke-width: 0.6; vector-effect: non-scaling-stroke; pointer-events: none; transition: fill 0.3s, stroke 0.3s; }
 .footprint.is-selected { fill: var(--pink-soft); stroke: var(--pink-deep); stroke-width: 1.2; }
 .footprint.is-dim { fill: rgba(11, 11, 11, 0.02); stroke: rgba(11, 11, 11, 0.15); }
+.is-choropleth .footprint { pointer-events: auto; cursor: pointer; stroke-width: 0.8; fill-opacity: 0.92; }
+.is-choropleth .footprint:hover { fill-opacity: 1; stroke: var(--ink) !important; stroke-width: 1.2; }
+.is-choropleth .footprint.is-selected { stroke: var(--ink) !important; stroke-width: 1.6; fill-opacity: 1; }
+.is-choropleth .footprint.is-dim { fill-opacity: 0.35; }
 
 .glyph { cursor: pointer; outline: none; }
 .glyph .core { fill: var(--ink); stroke: var(--paper); stroke-width: 1.2; }
