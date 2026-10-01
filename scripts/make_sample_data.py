@@ -10,6 +10,9 @@ import random
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+from typology import build_typology, nearest_type  # noqa: E402
+
 ROOT = Path(__file__).parent.parent
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "docs" / "data"
 AREAS = json.loads((ROOT / "config" / "areas.json").read_text())
@@ -91,7 +94,12 @@ for m in AREAS["metros"]:
         series["payrolls"] = []
         rose["metros"][m["cbsa"]] = []
     metros[m["cbsa"]] = {**{k: m[k] for k in ("name", "short", "kind", "states", "capital_of")},
-                         "series": series}
+                         "series": {k: (v if k == "unemp_rate" else v[-13:]) for k, v in series.items()}}
+
+typ = build_typology(rose["metros"])
+rose["typology"] = {"k": typ["k"], "silhouette": typ["silhouette"], "features": typ["features"], "types": typ["types"],
+                    "metros": typ["assignments"],
+                    "states": {f: t for f in AREAS["states"] if (t := nearest_type(rose["states"][f], typ)) is not None}}
 
 us_ur, us_lf = unemp_series(3.9), level_series(160_000, 0)
 national = {"unemp_rate": us_ur, "labor_force": us_lf,
