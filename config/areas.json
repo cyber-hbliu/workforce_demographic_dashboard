@@ -1541,7 +1541,8 @@
    "ces": true,
    "capital_of": [],
    "counties": [
-    "09001"
+    "09120",
+    "09190"
    ]
   },
   {
@@ -1814,9 +1815,8 @@
     }
    ],
    "counties": [
-    "09003",
-    "09007",
-    "09013"
+    "09110",
+    "09130"
    ]
   },
   {
@@ -5869,7 +5869,7 @@
    "ces": true,
    "capital_of": [],
    "counties": [
-    "09009"
+    "09170"
    ]
   },
   {
@@ -5918,7 +5918,7 @@
    "ces": true,
    "capital_of": [],
    "counties": [
-    "09011"
+    "09180"
    ]
   },
   {
@@ -7197,6 +7197,22 @@
    "counties": [
     "13153",
     "13225"
+   ]
+  },
+  {
+   "cbsa": "47930",
+   "name": "Waterbury-Shelton, CT",
+   "short": "Waterbury",
+   "kind": "metro",
+   "laus_area": "MT0947930000000",
+   "state_fips": "09",
+   "states": [
+    "09"
+   ],
+   "ces": true,
+   "capital_of": [],
+   "counties": [
+    "09140"
    ]
   },
   {
