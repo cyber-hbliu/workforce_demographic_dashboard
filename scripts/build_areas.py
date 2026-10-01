@@ -172,6 +172,7 @@ def main() -> None:
             "states": states,
             "ces": cbsa in sm,
             "capital_of": capital_of.get(cbsa, []),
+            "counties": [c for c in d["counties"] if c in topo_ids],
         }
         if "lon" in m and "lat" in m:
             entry["lon"], entry["lat"] = m["lon"], m["lat"]

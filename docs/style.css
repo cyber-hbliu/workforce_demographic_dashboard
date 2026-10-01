@@ -72,6 +72,20 @@ button { font: inherit; color: inherit; }
 .glyph.no-industry .ring { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
 .glyph-label { font-family: var(--sans); font-size: 8.5px; font-weight: 500; fill: var(--ink-2); text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: var(--land); stroke-width: 2.5px; stroke-linejoin: round; }
 
+.county { stroke: #ffffff; stroke-width: 0.35; vector-effect: non-scaling-stroke; cursor: pointer; }
+.county:hover { stroke: var(--ink); stroke-width: 1.2; }
+.county.is-selected { stroke: var(--ink); stroke-width: 1.8; }
+.state-mesh { fill: none; stroke: var(--ink); stroke-width: 0.9; stroke-opacity: 0.55; vector-effect: non-scaling-stroke; pointer-events: none; }
+.county-strip { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--ink); color: #fff; }
+.county-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.county-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.65; font-weight: 600; }
+.county-head b { font-size: 14px; font-weight: 700; }
+.county-figs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+.county-figs .fig { display: block; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; }
+.county-figs .fig small { font-size: 11px; font-weight: 500; opacity: 0.7; }
+.county-figs .fig.up { color: #5fd3a3; }
+.county-figs .fig.down { color: #f08ab5; }
+.county-figs .lab { display: block; font-size: 10.5px; opacity: 0.65; margin-top: 3px; line-height: 1.3; }
 .udot { stroke: var(--paper); stroke-width: 1.2; cursor: pointer; }
 .udot.is-selected, .udot:hover { stroke: var(--ink); }
 
@@ -325,3 +339,22 @@ button { font: inherit; color: inherit; }
   .drawer-scroll { padding: 22px 18px 30px; }
   .kpis-3 { grid-template-columns: 1fr 1fr; }
 }
+
+/* types profile: fit bars, peer chips, state roster */
+.type-fit { display: grid; grid-template-columns: 10px 1fr 110px 40px; gap: 6px 8px; align-items: center; font-size: 12px; margin-top: 4px; }
+.type-fit i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.type-fit .name { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.type-fit .name.is-this { color: var(--ink); font-weight: 600; }
+.type-fit .track { position: relative; height: 8px; background: rgba(11, 11, 11, 0.06); border-radius: 4px; }
+.type-fit .bar { position: absolute; left: 0; top: 0; height: 8px; border-radius: 4px; }
+.type-fit .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.type-roster { display: grid; gap: 8px; }
+.type-roster-row { display: grid; grid-template-columns: 12px 1fr; gap: 10px; align-items: start; font-size: 12.5px; }
+.type-roster-row i { width: 12px; height: 12px; border-radius: 3px; margin-top: 3px; }
+.type-roster-row .muted { font-size: 11.5px; margin-top: 2px; }
+.type-summary { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11.5px; color: var(--ink-2); margin-bottom: 10px; }
+.type-summary i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+.chips.is-clipped .chip:nth-child(n + 25) { display: none; }
+.chip .kind { color: var(--muted); font-size: 11px; }
+.chip .type-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 6px; vertical-align: 0; }
+.link-btn { margin-top: 8px; border: 0; background: none; padding: 0; font-size: 12px; color: var(--ink-2); text-decoration: underline; cursor: pointer; }
