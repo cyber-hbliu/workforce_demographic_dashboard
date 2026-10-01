@@ -78,30 +78,3 @@ Series identifiers are validated against the BLS area lists before any request i
 
 The county file was checked for completeness after the first run: 3,143 counties and county equivalents, of which 3,132 match a shape in the map topology. Known limits are stated on the page itself: metro and county rates are not seasonally adjusted; county wages come from a quarterly census that is published about five months after the quarter ends; the six micropolitan capitals have no industry series; metro earnings are published only as a private-sector total; regional CPI is used for metros because BLS publishes metro CPIs for fewer than 25 areas; the industry types depend on the clustering settings and on the month's data, and an area near the boundary between two types can move between releases. Each workflow run appends a line to `docs/data/run_log.csv` (time, trigger, outcome, data month), which is the record used to evaluate the pipeline.
 
-## Running your own copy
-
-Fork or clone the repository. Get a free API key at data.bls.gov/registrationEngine and store it as a repository secret named `BLS_API_KEY`. Under Settings, Pages, choose deploy from branch with the `/docs` folder. Open the Actions tab and run the "Update BLS data" workflow once; this replaces the bundled sample data with real figures. After that the workflow runs on its own on BLS release days. Each December, update `docs/data/release_dates.json` from bls.gov/schedule/news_release/laus.htm and metro.htm, then run `python scripts/make_schedule.py` to rewrite the workflow schedule from the new dates and commit both files.
-
-To change which metros appear, edit `config/metro_selection.json` (CBSA codes, short labels, and the capital city for each state) and rebuild:
-
-    pip install requests openpyxl xlrd
-    python scripts/build_areas.py
-    node scripts/build_geo.js
-
-A full data run is about 150 requests of 50 series each, against a daily limit of 500. After changing the metro list, run the "Rebuild areas and fetch" workflow, which rebuilds the area list and map footprints and pulls data for every area in one job.
-
-## Files
-
-    config/metro_selection.json  hand-edited list of metros and capitals
-    config/areas.json            generated: states, supersectors, resolved metros
-    docs/data/release_dates.json BLS release calendar (also read by the page for the next-release line)
-    scripts/build_areas.py       metro_selection.json -> areas.json
-    scripts/build_geo.js         county topology -> metro outlines and map anchors
-    scripts/check_release.py     exits 0 when the last refresh predates the latest release
-    scripts/make_schedule.py     release_dates.json -> workflow schedule
-    scripts/fetch_bls.py         API pull, tidying, percentages, location quotients, earnings
-    scripts/typology.py          industry-structure clustering used by the fetcher and the sample generator
-    scripts/make_sample_data.py  placeholder data so the page renders before the first fetch
-    docs/                        the site (GitHub Pages root)
-    docs/lib/                    d3, topojson-client, us-atlas states, metro outlines
-    docs/assets/usl-logo.svg     Urban Spatial Lab mark shown in the masthead
