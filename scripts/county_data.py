@@ -13,7 +13,8 @@ Output: docs/data/counties.json
   counties  fips -> {n name, st state fips, cbsa or null, r rate, m1 rate a month
             earlier, y1 rate a year earlier, lf labor force, un unemployed,
             uny unemployed a year earlier, w weekly wage, wy wage change y/y (%),
-            real wy minus regional CPI change (points)}
+            real wy minus the year-on-year change in the regional CPI averaged over
+            the same quarter (points)}
   qcew      weekly wage, y/y and real growth for metros, states and the nation,
             so the Earnings profile can show the same measure at every level
 Puerto Rico is excluded. If either download fails the caller keeps the previous file.
@@ -120,10 +121,22 @@ def cpi_yoy(cpi_rows: list[dict], month: str) -> float | None:
     return (now / prev - 1) * 100 if now and prev else None
 
 
+def cpi_yoy_quarter(cpi_rows: list[dict], quarter: str) -> float | None:
+    """Year-on-year change of the quarter's average CPI ("2026Q1": Jan-Mar 2026 against
+    Jan-Mar 2025), so prices are measured over the same period as the QCEW quarterly wage."""
+    by = {r["date"]: r["value"] for r in cpi_rows}
+    y, q = int(quarter[:4]), int(quarter[5])
+    months = [f"{y}-{m:02d}" for m in range(3 * q - 2, 3 * q + 1)]
+    now = [by.get(m) for m in months]
+    prev = [by.get(_year_before(m)) for m in months]
+    if not all(now) or not all(prev):
+        return None
+    return (sum(now) / sum(prev) - 1) * 100
+
+
 def build(areas: dict, cpi: dict[str, list[dict]], region_of_state: dict[str, str]) -> dict:
     laus = laus_counties()
     quarter, qcew = qcew_latest()
-    q_end = f"{quarter[:4]}-{int(quarter[5]) * 3:02d}"  # last month of the quarter
     cbsa_of = {c: m["cbsa"] for m in areas["metros"] for c in m.get("counties", [])}
     latest = max(mo for c in laus.values() for mo in c["rows"])
 
@@ -131,7 +144,7 @@ def build(areas: dict, cpi: dict[str, list[dict]], region_of_state: dict[str, st
         w = qcew.get(area_key)
         if not w:
             return None
-        inflation = cpi_yoy(cpi.get(region_of_state.get(state, "US"), cpi.get("US", [])), q_end)
+        inflation = cpi_yoy_quarter(cpi.get(region_of_state.get(state, "US"), cpi.get("US", [])), quarter)
         return {"w": w[0], "wy": w[1], "real": round(w[1] - inflation, 1) if w[1] is not None and inflation is not None else None}
 
     counties = {}

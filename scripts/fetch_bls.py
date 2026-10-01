@@ -25,6 +25,7 @@ Outputs to docs/data/:
 Budget: about 16 series per metro with CES coverage; all metros fit in about 150 requests (limit 500/day).
 """
 import json
+import math
 import os
 import sys
 import time
@@ -34,7 +35,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).parent))
-from typology import build_typology, nearest_type  # noqa: E402
+from typology import SECTORS, adjusted_rand, build_typology, nearest_type  # noqa: E402
 import county_data  # noqa: E402
 
 ROOT = Path(__file__).parent.parent
@@ -208,6 +209,84 @@ def earnings_profile(area_ahe: dict, region: str) -> dict:
     return {"region": region, "total": total, "industries": inds}
 
 
+def month_shift(month: str, n: int) -> str:
+    """'2026-08' shifted by n months (negative = earlier)."""
+    y, m = int(month[:4]), int(month[5:]) - 1 + n
+    return f"{y + m // 12}-{m % 12 + 1:02d}"
+
+
+WINDOW = 12      # months averaged for the typology features
+MIN_MONTHS = 10  # a sector needs this many of the twelve months to count
+
+
+def window_profile(area_ces: dict, us_ces: dict, end: str) -> list[dict]:
+    """Location quotient per supersector averaged over the twelve months ending at
+    `end`, as the geometric mean of the monthly ratios (the arithmetic mean of
+    log2 LQ, which is the clustering feature). A sector missing in more than two
+    of the twelve months is left out."""
+    months = [month_shift(end, -i) for i in range(WINDOW)]
+    by = lambda rows: {r["date"]: r["value"] for r in rows or []}  # noqa: E731
+    a_tot, u_tot = by(area_ces.get("total")), by(us_ces.get("total"))
+    out = []
+    for ind in SUPERSECTORS:
+        a, u = by(area_ces.get(ind)), by(us_ces.get(ind))
+        logs = [math.log2((a[mo] / a_tot[mo]) / (u[mo] / u_tot[mo]))
+                for mo in months if a.get(mo) and a_tot.get(mo) and u.get(mo) and u_tot.get(mo)]
+        if len(logs) >= MIN_MONTHS:
+            out.append({"code": ind, "lq": round(2 ** (sum(logs) / len(logs)), 3)})
+    return out
+
+
+def typology_with_checks(metro_ces: dict, state_ces: dict, us_ces: dict, end: str) -> dict:
+    """The typology on twelve-month features, with the checks a reader needs to judge it:
+    silhouette by k, stability against the groupings of each of the previous twelve
+    releases, sensitivity to the treatment of missing sectors, and which areas are left out."""
+    profiles = {cbsa: window_profile(ces, us_ces, end) for cbsa, ces in metro_ces.items()}
+    typ = build_typology(profiles)
+
+    # stability: same method on the windows ending 1..12 months earlier
+    history = []
+    for back in range(1, 13):
+        e = month_shift(end, -back)
+        past = build_typology({c: window_profile(ces, us_ces, e) for c, ces in metro_ces.items()})
+        history.append({"end": e, "k": past["k"], "silhouette": past["silhouette"],
+                        "ari": adjusted_rand(typ["assignments"], past["assignments"])})
+
+    # sensitivity: cluster only areas with all ten sectors, compare on those areas
+    complete = {c: p for c, p in profiles.items() if len(p) == len(SECTORS)}
+    cc = build_typology(complete)
+    shared = {c: typ["assignments"][c] for c in cc["assignments"] if c in typ["assignments"]}
+
+    # coverage: which metros could not be typed and how large they are
+    jobs = {c: (ces.get("total") or [{}])[-1].get("value") for c, ces in metro_ces.items()}
+    typed = set(typ["assignments"])
+    no_ces = [m["cbsa"] for m in METROS if not m["ces"]]
+    too_few = [c for c in profiles if c not in typed]
+    med = lambda xs: round(sorted(xs)[len(xs) // 2], 1) if xs else None  # noqa: E731  thousands of jobs
+    missing = {SUPERSECTORS[s]: sum(1 for c in typed if s not in {r["code"] for r in profiles[c]}) for s in SECTORS}
+
+    states = {f: window_profile(ces, us_ces, end) for f, ces in state_ces.items()}
+    return {
+        "k": typ["k"], "silhouette": typ["silhouette"], "silhouette_by_k": typ["silhouette_by_k"],
+        "features": f"log2 location quotient, ten CES supersectors, mean of the {WINDOW} months ending {end}",
+        "window_end": end,
+        "types": typ["types"],
+        "metros": typ["assignments"],
+        "states": {f: t for f, p in states.items() if (t := nearest_type(p, typ)) is not None},
+        "profiles": {"metros": {c: {r["code"]: r["lq"] for r in p} for c, p in profiles.items() if p},
+                     "states": {f: {r["code"]: r["lq"] for r in p} for f, p in states.items() if p}},
+        "diagnostics": {
+            "stability": history,
+            "complete_case": {"n": len(complete), "k": cc["k"], "ari_vs_main": adjusted_rand(shared, cc["assignments"])},
+            "coverage": {"metros": len(METROS), "typed": len(typed), "no_ces": len(no_ces),
+                         "too_few_sectors": len(too_few),
+                         "median_jobs_typed": med([jobs[c] for c in typed if jobs.get(c)]),
+                         "median_jobs_too_few": med([jobs[c] for c in too_few if jobs.get(c)])},
+            "missing_sector_counts": {k: v for k, v in missing.items() if v},
+        },
+    }
+
+
 RECENT = 13  # months kept for level series the page only reads the latest and year-ago values of
 
 
@@ -267,16 +346,14 @@ def main() -> None:
         prof, _ = industry_profile(buckets.get("metro_ces", {}).get(m["cbsa"], {}), us_ces)
         rose_out["metros"][m["cbsa"]] = prof
 
-    # industry-structure typology: metros are the pool, states take the nearest type
-    typ = build_typology(rose_out["metros"])
-    rose_out["typology"] = {
-        "k": typ["k"], "silhouette": typ["silhouette"], "features": typ["features"],
-        "types": typ["types"],
-        "metros": typ["assignments"],
-        "states": {fips: t for fips in STATES if (t := nearest_type(rose_out["states"][fips], typ)) is not None},
-    }
+    # industry-structure typology on twelve-month features: metros are the pool,
+    # states take the nearest type; diagnostics are stored with it
+    typ = typology_with_checks(buckets.get("metro_ces", {}), buckets.get("state_ces", {}), us_ces, us_month)
+    rose_out["typology"] = typ
+    dg = typ["diagnostics"]
     print(f"typology: k={typ['k']} silhouette={typ['silhouette']} " +
-          ", ".join(f"{t['name']} ({t['n']})" for t in typ["types"]))
+          ", ".join(f"{t['name']} ({t['n']})" for t in typ["types"]) +
+          f"; ARI vs 12 months earlier {dg['stability'][-1]['ari']}; complete-case ARI {dg['complete_case']['ari_vs_main']}")
 
     nat = buckets.get("national", {}).get("US", {})
     national_out = {
@@ -302,13 +379,16 @@ def main() -> None:
     # county resolution for the Unemployment and Earnings lenses; a failed download
     # keeps the previous counties.json rather than failing the whole refresh
     county_month = county_quarter = None
+    county_status = "refreshed"
     try:
         counties_out = county_data.build(AREAS, earnings_out["cpi"], REGION_OF_STATE)
         county_month, county_quarter = counties_out["month"], counties_out["quarter"]
         (DATA_OUT / "counties.json").write_text(json.dumps(counties_out, separators=(",", ":")))
         print(f"counties: {len(counties_out['counties'])} areas, LAUS {county_month}, QCEW {county_quarter}")
     except Exception as e:  # noqa: BLE001
-        print(f"county data not refreshed: {e}", file=sys.stderr)
+        county_status = f"kept previous file: {type(e).__name__}: {str(e)[:160]}"
+        # a GitHub Actions annotation, so the run page shows the problem
+        print(f"::warning title=County data not refreshed::{county_status}")
         try:
             prev = json.loads((DATA_OUT / "counties.json").read_text())
             county_month, county_quarter = prev.get("month"), prev.get("quarter")
@@ -333,6 +413,7 @@ def main() -> None:
         "latest_ces_month": us_month,
         "latest_county_month": county_month,
         "latest_qcew_quarter": county_quarter,
+        "county_status": county_status,
         "source": "bls_api",
         "series_requested": len(catalog),
         "series_empty": sum(empty.values()),

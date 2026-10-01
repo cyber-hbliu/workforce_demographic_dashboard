@@ -63,6 +63,7 @@ jobs:
         continue-on-error: true
         env:
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+          BLS_CONTACT_EMAIL: ${{ secrets.BLS_CONTACT_EMAIL }}  # optional
         run: |
           pip install requests openpyxl
           python scripts/fetch_bls.py
@@ -71,15 +72,25 @@ jobs:
         if: steps.fetch.outcome != 'skipped'
         run: |
           f=docs/data/run_log.csv
-          [ -f "$f" ] || echo "run_utc,event,outcome,data_updated,series_requested,series_empty,state_month,metro_month" > "$f"
-          python - <<'EOF' >> docs/data/run_log.csv
-          import json, os, datetime
+          python - <<'EOF'
+          import csv, json, os, datetime
+          from pathlib import Path
+          f = Path("docs/data/run_log.csv")
+          cols = ["run_utc", "event", "outcome", "data_updated", "series_requested", "series_empty",
+                  "state_month", "metro_month", "county_month", "qcew_quarter", "county_status"]
+          rows = list(csv.DictReader(f.open())) if f.exists() else []
           m = json.load(open("docs/data/meta.json"))
-          print(",".join(str(x) for x in [
-              datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+          rows.append(dict(zip(cols, [
+              datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
               os.environ["EVENT"], os.environ["OUTCOME"], m.get("updated"),
               m.get("series_requested"), m.get("series_empty"),
-              m.get("latest_state_month"), m.get("latest_metro_month")]))
+              m.get("latest_state_month"), m.get("latest_metro_month"),
+              m.get("latest_county_month"), m.get("latest_qcew_quarter"),
+              m.get("county_status") if os.environ["OUTCOME"] == "success" else ""])))
+          with f.open("w", newline="") as out:  # rewrites the header when columns are added
+              w = csv.DictWriter(out, fieldnames=cols, restval="")
+              w.writeheader()
+              w.writerows(rows)
           EOF
         env:
           EVENT: ${{ github.event_name }}

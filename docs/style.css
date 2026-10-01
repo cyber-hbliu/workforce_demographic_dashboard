@@ -131,6 +131,7 @@ button { font: inherit; color: inherit; }
 .updated { margin-top: 12px; font-size: 11px; color: var(--muted); line-height: 1.5; }
 .updated b { font-weight: 600; color: var(--ink-2); }
 .updated.is-sample { color: var(--pink-deep); font-weight: 600; }
+.updated .is-stale { color: var(--pink-deep); }
 
 /* toolbar floating over the map */
 .hud-toolbar { padding: 12px 14px; }
@@ -148,7 +149,7 @@ button { font: inherit; color: inherit; }
 .search-results .sub { display: block; font-size: 11px; color: var(--muted); }
 .search-results .kind { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 
-.hud-legend { left: 22px; bottom: 22px; width: 330px; padding: 16px 20px 14px; }
+.hud-legend { left: 22px; bottom: 22px; width: 330px; padding: 16px 20px 14px; overflow-y: auto; }
 .legend-title { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
 .legend-key svg { display: block; overflow: visible; }
 .legend-key text { font-family: var(--sans); font-size: 8.5px; fill: var(--ink-2); }

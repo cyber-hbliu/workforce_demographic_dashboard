@@ -145,6 +145,32 @@
   const typeInfo = (t) => (TYPO && t != null ? TYPO.types[t] : null);
   const realOfMetro = (id) => earningsSummary("metro", id)?.real ?? null;
   const SECTOR_NAME = new Map(SECTORS.map(([code, name]) => [code, name]));
+  // twelve-month location quotients used for clustering (rose.typology.profiles); falls back
+  // to the latest month for files written before the window was introduced
+  const typoProfile = (level, id) => {
+    const p = TYPO && TYPO.profiles && (level === "metro" ? TYPO.profiles.metros : TYPO.profiles.states)[id];
+    return p ? Object.entries(p).map(([code, lq]) => ({ code, lq })) : profileOf(level, id);
+  };
+  const TYPO_WINDOW = TYPO && TYPO.window_end ? `12 months ending ${fmtMonth(TYPO.window_end)}` : null;
+  const TYPO_BRIEF = (() => {
+    const d = TYPO && TYPO.diagnostics;
+    if (!d) return "";
+    const st = d.stability || [], yr = st[st.length - 1], cov = d.coverage || {};
+    return [TYPO.silhouette != null ? `silhouette ${TYPO.silhouette}${TYPO.silhouette < 0.25 ? " (weak separation)" : ""}` : null,
+      yr && yr.ari != null ? `agreement with a year earlier ${yr.ari}` : null,
+      cov.typed != null ? `${cov.typed} of ${cov.metros} areas typed` : null].filter(Boolean).join(" · ");
+  })();
+  const TYPO_DIAG = (() => {
+    const d = TYPO && TYPO.diagnostics;
+    if (!d) return "";
+    const st = d.stability || [], yr = st[st.length - 1], cov = d.coverage || {}, cc = d.complete_case || {};
+    const parts = [];
+    if (TYPO.silhouette != null) parts.push(`Mean silhouette ${TYPO.silhouette}${TYPO.silhouette < 0.25 ? ", a weak separation: read the types as a description of the industry mix, not as sharply distinct groups" : ""}.`);
+    if (yr && yr.ari != null) parts.push(`Agreement with the grouping computed on the window ending ${fmtMonth(yr.end)}: adjusted Rand index ${yr.ari} (1 = identical).`);
+    if (cc.ari_vs_main != null) parts.push(`Clustering only the ${cc.n} areas with all ten sectors gives an index of ${cc.ari_vs_main} against these types.`);
+    if (cov.typed != null) parts.push(`${cov.typed} of ${cov.metros} areas typed; ${cov.too_few_sectors} have too few sector series and ${cov.no_ces} have none.`);
+    return parts.join(" ");
+  })();
 
   /* -------------------------------------------------------------- tooltip */
   const tip = document.getElementById("tip");
@@ -176,7 +202,9 @@
     updated.textContent = "Sample data — run the Update BLS data workflow to load real figures.";
     updated.classList.add("is-sample");
   } else {
-    updated.innerHTML = `Data pulled <b>${esc(meta.updated)}</b>${next ? ` · next BLS release <b>${esc(next[0])}</b> (${next[1]} figures)` : ""}`;
+    updated.innerHTML = `Data pulled <b>${esc(meta.updated)}</b>${next ? ` · next BLS release <b>${esc(next[0])}</b> (${next[1]} figures)` : ""}` +
+      (meta.county_status && !meta.county_status.startsWith("refreshed")
+        ? `<br><span class="is-stale">County layer not refreshed in the last run; it shows ${esc(fmtMonth(meta.latest_county_month))} rates and ${esc(fmtQuarter(meta.latest_qcew_quarter))} wages.</span>` : "");
   }
   document.getElementById("nation-stat").onclick = () => select("nation", null);
 
@@ -407,13 +435,22 @@
       b.classList.toggle("is-active", on); b.setAttribute("aria-pressed", on);
     });
     legend.innerHTML = ind ? industryLegend() : typ ? typesLegend() : lens === "unemployment" ? unemploymentLegend() : earningsLegend();
+    fitLegend();
     if (app.level) renderDrawer(); // the pop-out follows the lens
   }
+  // keep the legend clear of the masthead and controls: it scrolls inside the space left below them
+  function fitLegend() {
+    const stack = document.querySelector(".left-stack");
+    if (!stack || getComputedStyle(legend).display === "none") return;
+    legend.style.maxHeight = Math.max(140, innerHeight - stack.getBoundingClientRect().bottom - 22 - 14) + "px";
+  }
+  addEventListener("resize", fitLegend);
   function typesLegend() {
     if (!TYPO) return `<p class="legend-title">Industry types</p><p class="legend-note">Types arrive with the next data refresh (run the "Update BLS data" workflow).</p>`;
     return `<p class="legend-title">Industry types · ${esc(fmtMonth(rose.month))}</p>
       <div class="type-list">${TYPO.types.map((t) => `<div class="type-row"><i style="background:${typeColor(t.id)}"></i><b>${esc(t.name)}</b><span class="n">${t.n}</span></div>`).join("")}</div>
-      <p class="legend-note" style="margin-top:8px">Each metropolitan area's county footprint is filled with its type: metros grouped by the shape of their industry mix (location quotients, ten sectors; k-means, k = ${TYPO.k} chosen by silhouette ${TYPO.silhouette}). States take the nearest type, shaded lightly; grey footprints have too few industry series to be typed. Recomputed with every release.</p>`;
+      <p class="legend-note" style="margin-top:8px">Each metropolitan area's county footprint is filled with its type: metros grouped by the shape of their industry mix (location quotients of ten sectors${TYPO_WINDOW ? `, averaged over the ${TYPO_WINDOW}` : ""}; k-means, k = ${TYPO.k} chosen by mean silhouette over ${TYPO && TYPO.silhouette_by_k ? "2" : "3"} to 8). States take the nearest type, shaded lightly; grey footprints have too few industry series to be typed. Recomputed with every release.</p>
+      ${TYPO_BRIEF ? `<p class="legend-note">${esc(TYPO_BRIEF)}. Open any area for how these are measured.</p>` : ""}`;
   }
   function industryLegend() {
     const sizes = [100, 1000, 5000].map((j) => [j, rGlyph(j)]);
@@ -439,7 +476,8 @@
       return `<p class="legend-title">Unemployment rate by county · ${esc(fmtMonth(cty.month))}</p>
         <div class="legend-ramp" style="background:linear-gradient(to right,${BLUE_RAMP.join(",")})"></div>
         <div class="legend-ramp-labels"><span>${lo.toFixed(1)}% or less</span><span>counties, not seasonally adjusted</span><span>${hi.toFixed(1)}% or more</span></div>
-        <p class="legend-note" style="margin-top:8px">Every county is shaded by its own rate (LAUS). Hover for the county's figures; click to open the profile of its metropolitan area, or of its state outside metros, with the county's numbers on top. Counties are the resolution of this lens; the analysis units stay the MSA and the state.</p>`;
+        <p class="legend-note" style="margin-top:8px">Every county is shaded by its own rate (LAUS). Hover for the county's figures; click to open the profile of its metropolitan area, or of its state outside metros, with the county's numbers on top. Counties are the resolution of this lens; the analysis units stay the MSA and the state.</p>
+        <p class="legend-note">County rates are model-based estimates and less precise for small counties. Colours span the 2nd to 98th percentile.</p>`;
     }
     const [lo, hi] = rateExtent;
     return `<p class="legend-title">Unemployment rate · ${esc(fmtMonth(meta.latest_state_month))}</p>
@@ -453,7 +491,8 @@
     if (COUNTY) return `<p class="legend-title">Real wage growth by county · ${esc(fmtQuarter(cty.quarter))}</p>
       <div class="legend-ramp" style="background:linear-gradient(to right,${PINK},${NEUTRAL},${GREEN})"></div>
       <div class="legend-ramp-labels"><span>−3 pt: trailing prices</span><span>keeping pace</span><span>+3 pt: ahead</span></div>
-      <p class="legend-note" style="margin-top:8px">Year-on-year change in the county's <b>average weekly wage</b> (QCEW, all employers, quarterly) minus the change in the <b>CPI</b> for its census region. Click a county for its metro or state profile, which carries monthly hourly earnings (CES, through ${esc(fmtMonth(m))}) and the same quarterly wage measure.</p>`;
+      <p class="legend-note" style="margin-top:8px">Year-on-year change in the county's <b>average weekly wage</b> (QCEW, all employers, quarterly) minus the change in the <b>CPI</b> for its census region over the same quarter. Click a county for its metro or state profile, which carries monthly hourly earnings (CES, through ${esc(fmtMonth(m))}) and the same quarterly wage measure.</p>
+      <p class="legend-note">An average weekly wage also moves when the mix of jobs changes: losing low-paid jobs raises the average without any worker earning more.</p>`;
     return `<p class="legend-title">Real earnings growth · ${esc(fmtMonth(m))}</p>
       <div class="legend-ramp" style="background:linear-gradient(to right,${PINK},${NEUTRAL},${GREEN})"></div>
       <div class="legend-ramp-labels"><span>−3 pt: trailing prices</span><span>keeping pace</span><span>+3 pt: ahead</span></div>
@@ -612,9 +651,9 @@
       ${lens === "earnings" || !tiles.length ? "" : `<dl class="kpis kpis-3">${tiles.map(([k, v, s, extra]) => `<div class="kpi"><dt>${k}</dt><dd>${v}</dd><div class="kpi-sub">${esc(s)}</div>${extra}</div>`).join("")}</dl>`}
       <div id="lens-host"></div>
       <p class="d-foot">${
-        lens === "earnings" ? "Average hourly earnings are for all employees of private employers (Current Employment Statistics, monthly, not seasonally adjusted). Weekly wages are from the Quarterly Census of Employment and Wages (all employers, quarterly) and are the measure drawn on the county map. Prices are the CPI-U for the area's census region, all items, not seasonally adjusted; real growth is the difference between the two year-on-year changes."
+        lens === "earnings" ? "Average hourly earnings are for all employees of private employers (Current Employment Statistics, monthly, not seasonally adjusted). Weekly wages are from the Quarterly Census of Employment and Wages (all employers, quarterly) and are the measure drawn on the county map. Prices are the CPI-U for the area's census region, all items, not seasonally adjusted, compared over the same month (hourly earnings) or the same quarter (weekly wages); real growth is the difference between the two year-on-year changes. A change in the average weekly wage can reflect a change in the mix of jobs as well as in pay."
         : lens === "unemployment" ? `${level === "metro" ? `${esc(geoShort(sel))} figures are not seasonally adjusted; state and national rates are. ` : ""}Unemployment figures are from the Local Area Unemployment Statistics program (Current Population Survey for the nation); county figures come from the same program's county table. Rankings compare the latest published month.`
-        : lens === "types" ? `Types group metropolitan areas by the log location quotients of their ten industry supersectors (k-means with k chosen by silhouette; k = ${TYPO ? TYPO.k : "–"}). A type is named by the sectors it over-represents. States are assigned to the nearest type. The grouping is recomputed with every BLS release, so an area's type can change.`
+        : lens === "types" ? `Types group metropolitan areas by the log location quotients of their ten industry supersectors${TYPO_WINDOW ? `, averaged over the ${TYPO_WINDOW}` : ""} (k-means with k chosen by mean silhouette over ${TYPO && TYPO.silhouette_by_k ? "2" : "3"} to 8; k = ${TYPO ? TYPO.k : "–"}). A type is named by the sectors it over-represents. States are assigned to the nearest type. The grouping is recomputed with every BLS release, so an area's type can change.${TYPO_DIAG ? " " + esc(TYPO_DIAG) : ""}`
         : `Industry percentages are from the Current Employment Statistics (not seasonally adjusted); "vs U.S." divides an industry's local percentage of jobs by its national percentage.${level === "metro" && sel.kind === "micro" ? " BLS does not publish industry series for micropolitan areas." : ""}`}</p>`;
 
     const host = document.getElementById("lens-host");
@@ -647,7 +686,7 @@
   }
   function renderTypeSection(host, level, id) {
     host.innerHTML = "";
-    const t = typeInfo(typeOf(level, id)), prof = profileOf(level, id);
+    const t = typeInfo(typeOf(level, id)), prof = typoProfile(level, id);
     if (!TYPO) { host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Not yet computed</p><p class="dom-stat">Types arrive with the next data refresh.</p></div>`; return; }
     if (level === "nation") {
       host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Reference</p><p class="dom-stat">The national mix is the baseline every type is measured against. The ${TYPO.k} types below group ${d3.sum(TYPO.types, (x) => x.n)} metropolitan areas by the shape of their industry mix.</p></div>
@@ -667,7 +706,7 @@
     host.innerHTML = `<div class="type-card" style="border-left-color:${typeColor(t.id)}">
       <p class="dom-label">Industry type · ${level === "state" ? "nearest of" : "one of"} ${TYPO.k}</p>
       <p class="dom-name">${esc(t.name)}</p>
-      <p class="dom-stat">${t.n} metropolitan areas share this profile.${level === "state" ? " As a state this is the closest type, not a cluster membership." : ""} Sectors that define the type, with the type's average and this area's own ratio to the U.S.:</p>
+      <p class="dom-stat">${t.n} metropolitan areas share this profile.${level === "state" ? " As a state this is the closest type, not a cluster membership." : ""} Sectors that define the type, with the type's average and this area's own ratio to the U.S.${TYPO_WINDOW ? ` (both over the ${TYPO_WINDOW})` : ""}:</p>
       <div class="type-sig"><span class="h">sector</span><span></span><span class="h" style="text-align:right">type</span><span class="h" style="text-align:right">here</span>
         ${sig.map((d) => `<span class="name">${esc(SECTOR_NAME.get(d.code))}</span><span class="track"><span class="bar" style="width:${(d.mean / maxV) * 100}%"></span><span class="bar here" style="width:${((d.here || 0) / maxV) * 100}%;top:5px;height:5px"></span></span><span class="v">${d.mean.toFixed(2)}×</span><span class="v">${d.here != null ? d.here.toFixed(2) + "×" : "–"}</span>`).join("")}
       </div></div>

@@ -2,9 +2,12 @@
 quotients, with no dependencies beyond the standard library.
 
 Features: log2 of the location quotient for each of the ten CES supersectors
-(0 = the national mix). k-means with k-means++ seeding and a fixed random seed,
-k chosen by mean silhouette over a range, so the result is reproducible for a
-given release and recomputed automatically with each one.
+(0 = the national mix). The caller passes location quotients averaged over a
+twelve-month window, so seasonal swings in a single month do not move an area
+between types. k-means with k-means++ seeding and a fixed random seed, k chosen
+by mean silhouette over 2 to 8, so the result is reproducible for a given
+release and recomputed automatically with each one. adjusted_rand() compares two
+groupings and is used for the stability and sensitivity checks.
 
     typology = build_typology({area_id: [profile rows with 'code' and 'lq']}, ...)
 
@@ -43,12 +46,13 @@ def _kmeans(points, k, rng, iters=100):
         d2 = [min(_dist2(p, c) for c in centers) for p in points]
         total = sum(d2)
         r = rng.random() * total
-        acc = 0.0
+        acc, pick = 0.0, points[-1]  # last point if rounding leaves acc just short of r
         for p, d in zip(points, d2):
             acc += d
             if acc >= r:
-                centers.append(p)
+                pick = p
                 break
+        centers.append(pick)
     labels = [0] * len(points)
     for _ in range(iters):
         new = [min(range(k), key=lambda j: _dist2(p, centers[j])) for p in points]
@@ -63,12 +67,17 @@ def _kmeans(points, k, rng, iters=100):
     return labels, centers, inertia
 
 
-def _silhouette(points, labels, k):
+def _distances(points):
     n = len(points)
     d = [[0.0] * n for _ in range(n)]
     for i in range(n):
         for j in range(i + 1, n):
             d[i][j] = d[j][i] = math.sqrt(_dist2(points[i], points[j]))
+    return d
+
+
+def _silhouette(d, labels, k):
+    n = len(labels)
     idx = [[i for i in range(n) if labels[i] == j] for j in range(k)]
     s = []
     for i in range(n):
@@ -104,7 +113,29 @@ def _dedupe(names: list[str]) -> list[str]:
     return out
 
 
-def build_typology(profiles: dict[str, list[dict]], k_range=range(3, 9), seed=7, restarts=8) -> dict:
+def adjusted_rand(a: dict, b: dict) -> float | None:
+    """Adjusted Rand index of two groupings {id: label} over the ids they share
+    (Hubert and Arabie 1985). 1 = identical partitions, about 0 = chance agreement."""
+    ids = [i for i in a if i in b]
+    n = len(ids)
+    if n < 2:
+        return None
+    comb = lambda x: x * (x - 1) / 2  # noqa: E731
+    table: dict[tuple, int] = {}
+    ra: dict = {}
+    rb: dict = {}
+    for i in ids:
+        table[(a[i], b[i])] = table.get((a[i], b[i]), 0) + 1
+        ra[a[i]] = ra.get(a[i], 0) + 1
+        rb[b[i]] = rb.get(b[i], 0) + 1
+    index = sum(comb(v) for v in table.values())
+    sa, sb = sum(comb(v) for v in ra.values()), sum(comb(v) for v in rb.values())
+    expected = sa * sb / comb(n)
+    top = (sa + sb) / 2
+    return 1.0 if top == expected else round((index - expected) / (top - expected), 3)
+
+
+def build_typology(profiles: dict[str, list[dict]], k_range=range(2, 9), seed=7, restarts=8) -> dict:
     ids, points = [], []
     for aid, prof in profiles.items():
         v = feature_vector(prof)
@@ -113,15 +144,17 @@ def build_typology(profiles: dict[str, list[dict]], k_range=range(3, 9), seed=7,
             points.append(v)
     if len(points) < 12:
         return {"k": 0, "silhouette": None, "features": "log2 location quotient, ten CES supersectors",
-                "types": [], "assignments": {}}
-    best = None
+                "types": [], "assignments": {}, "silhouette_by_k": {}}
+    d = _distances(points)
+    best, by_k = None, {}
     for k in k_range:
         if k >= len(points):
             break
         rng = random.Random(seed)
         runs = [_kmeans(points, k, rng) for _ in range(restarts)]
         labels, centers, _ = min(runs, key=lambda r: r[2])
-        sil = _silhouette(points, labels, k)
+        sil = _silhouette(d, labels, k)
+        by_k[k] = round(sil, 3)
         if best is None or sil > best[0] + 1e-9:
             best = (sil, k, labels, centers)
     sil, k, labels, centers = best
@@ -137,7 +170,7 @@ def build_typology(profiles: dict[str, list[dict]], k_range=range(3, 9), seed=7,
         t["name"] = n
     assignments = {aid: remap[l] for aid, l in zip(ids, labels)}
     return {"k": k, "silhouette": round(sil, 3), "features": "log2 location quotient, ten CES supersectors",
-            "types": types, "assignments": assignments}
+            "types": types, "assignments": assignments, "silhouette_by_k": by_k}
 
 
 def nearest_type(profile: list[dict], typology: dict) -> int | None:
