@@ -1,0 +1,48 @@
+name: Rebuild areas and fetch
+
+# Run by hand after editing config/metro_selection.json: resolves the metro list
+# against BLS and Census reference files, rebuilds the map footprints, then pulls
+# data for every area so the page never shows a metro without figures.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-bls-data
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Resolve areas and build map footprints
+        run: |
+          pip install requests openpyxl xlrd
+          python scripts/build_areas.py
+          node scripts/build_geo.js
+
+      - name: Fetch BLS data
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: python scripts/fetch_bls.py
+
+      - name: Commit
+        run: |
+          git config user.name "bls-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "areas: rebuild metro list and refresh data $(date -u +%F)"
+          git pull --rebase
+          git push

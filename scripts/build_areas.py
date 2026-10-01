@@ -125,8 +125,17 @@ def main() -> None:
     for fips, c in sel["capitals"].items():
         capital_of.setdefault(c["cbsa"], []).append({"state": fips, "city": c["city"]})
 
-    metros, county_out, problems = [], {}, []
-    for m in sel["metros"]:
+    # curated entries first (their labels win collisions on the map), then every other
+    # metropolitan area BLS publishes, when include_all_metros is set
+    selection = [dict(m, curated=True) for m in sel["metros"]]
+    if sel.get("include_all_metros"):
+        have = {m["cbsa"] for m in selection}
+        extra = sorted(c for c, r in la.items()
+                       if r["kind"] == "metro" and c not in have and r["laus_area"][2:4] != "72")
+        selection += [{"cbsa": c, "curated": False} for c in extra]
+
+    metros, county_out, problems, warnings = [], {}, [], []
+    for m in selection:
         cbsa = m["cbsa"]
         ref = la.get(cbsa)
         if not ref:
@@ -139,7 +148,14 @@ def main() -> None:
             d = d20.get(cbsa, d)
         missing = [c for c in d["counties"] if c not in topo_ids]
         if missing:
-            problems.append(f"{cbsa} {ref['title']}: counties missing from map {missing}")
+            msg = f"{cbsa} {ref['title']}: counties missing from map {missing}"
+            if m["curated"]:
+                problems.append(msg)
+            elif len(missing) == len(d["counties"]):
+                warnings.append(msg + ", skipped")
+                continue
+            else:
+                warnings.append(msg + ", drawn without them")
         states = [STATE_ABBR[a] for a in ref["title"].rsplit(", ", 1)[-1].split("-") if a in STATE_ABBR]
         entry = {
             "cbsa": cbsa,
@@ -158,6 +174,8 @@ def main() -> None:
         county_out[cbsa] = {"counties": [c for c in d["counties"] if c in topo_ids],
                             "central": [c for c in d["central"] if c in topo_ids]}
 
+    if warnings:
+        print("\n".join(warnings), file=sys.stderr)
     if problems:
         print("\n".join(problems), file=sys.stderr)
         sys.exit("fix config/metro_selection.json")

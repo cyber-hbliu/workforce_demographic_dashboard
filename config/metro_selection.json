@@ -1,5 +1,6 @@
 {
-  "_note": "Hand-curated input for scripts/build_areas.py. Everything else about a metro (BLS area code, official title, member counties, CES coverage, map footprint) is derived from the BLS and Census reference files. cbsa = 5-digit CBSA code (check download.bls.gov/pub/time.series/la/la.area). lon/lat are optional anchor overrides for the map glyph; otherwise the centroid of the central counties is used.",
+  "_note": "Hand-curated input for scripts/build_areas.py. Everything else about a metro (BLS area code, official title, member counties, CES coverage, map footprint) is derived from the BLS and Census reference files. cbsa = 5-digit CBSA code (check download.bls.gov/pub/time.series/la/la.area). lon/lat are optional anchor overrides for the map glyph; otherwise the centroid of the central counties is used. include_all_metros = true adds every other metropolitan statistical area in BLS la.area after the curated list (Puerto Rico excluded).",
+  "include_all_metros": true,
   "capitals": {
     "01": {"city": "Montgomery", "cbsa": "33860"},
     "02": {"city": "Juneau", "cbsa": "27940"},

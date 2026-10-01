@@ -41,7 +41,7 @@ Data comes directly from the BLS public API, from four programs.
 | Current Population Survey (CPS) | national labor force, employment, unemployment | nation |
 | Consumer Price Index (CPI-U) | all-items price index | nation and the four census regions |
 
-The dashboard covers 114 metropolitan and micropolitan areas: the 30 largest metros, the metro of every state capital, and a set of other regional centres, plus all 50 states, the District of Columbia and the nation.
+The dashboard covers every metropolitan statistical area for which BLS publishes local unemployment data (Puerto Rico excluded), plus the micropolitan areas that contain a state capital, all 50 states, the District of Columbia and the nation. A curated list in `config/metro_selection.json` sets short labels and map anchors for the largest metros, and `include_all_metros` adds the rest.
 
 Three derived measures do most of the work. An industry's percentage of local nonfarm jobs is compared with the same percentage nationally, and the ratio between the two (the location quotient) shows which industries the area has more or less of than the country. The largest sector is simply the industry with the most jobs. Real earnings growth is the year-on-year change in average hourly earnings for private employers minus the year-on-year change in the CPI for the area's census region; a positive figure means pay rose faster than prices.
 
@@ -87,7 +87,7 @@ To change which metros appear, edit `config/metro_selection.json` (CBSA codes, s
     python scripts/build_areas.py
     node scripts/build_geo.js
 
-A full data run is about 80 requests of 50 series each, against a daily limit of 500.
+A full data run is about 150 requests of 50 series each, against a daily limit of 500. After changing the metro list, run the "Rebuild areas and fetch" workflow, which rebuilds the area list and map footprints and pulls data for every area in one job.
 
 ## Files
 

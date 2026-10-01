@@ -21,7 +21,7 @@ Series ids are built from the BLS area codes resolved by scripts/build_areas.py
 Outputs to docs/data/:
   national.json  states.json  metros.json  rose.json  earnings.json  meta.json
 
-Budget: ~85 API requests per full run (limit is 500/day with a key).
+Budget: about 16 series per metro with CES coverage; all metros fit in about 150 requests (limit 500/day).
 """
 import json
 import os
@@ -98,8 +98,8 @@ def build_catalog() -> dict[str, dict]:
             for ind in SUPERSECTORS:
                 cat[ces(m["state_fips"], m["cbsa"], ind)] = {
                     "kind": "metro_ces", "area": m["cbsa"], "field": ind}
-            for ind in EARN_INDUSTRIES:
-                cat[ahe(m["state_fips"], m["cbsa"], ind)] = {"kind": "metro_ahe", "area": m["cbsa"], "field": ind}
+            # BLS publishes metro hourly earnings for total private only
+            cat[ahe(m["state_fips"], m["cbsa"], "05000000")] = {"kind": "metro_ahe", "area": m["cbsa"], "field": "05000000"}
     for ind in EARN_INDUSTRIES:
         cat[ahe_national(ind)] = {"kind": "national_ahe", "area": "US", "field": ind}
     for region, sid in CPI_SERIES.items():
