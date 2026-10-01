@@ -61,8 +61,8 @@
   const realScale = d3.scaleLinear().domain([-3, -1.5, 0, 1.5, 3]).range(REAL_RAMP).interpolate(d3.interpolateRgb).clamp(true);
   const realColor = (pt) => (pt == null || !isFinite(pt) ? "#e6e4dc" : realScale(pt));
   // unemployment rate on a sequential ramp built from the site palette, light to dark:
-  // cream, mustard, coral, pink, wine (lightness falls at every step)
-  const RATE_RAMP = ["#FBF3D9", "#E6D88F", "#D4C361", "#F69680", "#E07A9E", "#B4457A", "#7A2A55"];
+  // cream, mustard, olive, watermelon green (lightness falls at every step; no deep tones)
+  const RATE_RAMP = ["#FBF3D9", "#E6D88F", "#D4C361", "#B5B467", "#8FA468", "#5EA468", "#3C9C62"];
   const rampColor = d3.scaleLinear().range(RATE_RAMP).interpolate(d3.interpolateRgb);
 
   const fmtNum = d3.format(",");
