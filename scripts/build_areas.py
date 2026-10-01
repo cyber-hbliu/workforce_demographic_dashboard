@@ -15,6 +15,7 @@ so series ids, titles, county footprints and state lists cannot drift apart.
 Run:  pip install requests openpyxl xlrd && python scripts/build_areas.py && node scripts/build_geo.js
 """
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -32,7 +33,9 @@ SOURCES = {
     "list1_2020.xls": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2020/delineation-files/list1_2020.xls",
     "counties-albers-10m.json": "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-albers-10m.json",
 }
-UA = {"User-Agent": "Mozilla/5.0 (workforce-monitor build script)"}
+# download.bls.gov rejects requests without contact details in the User-Agent
+CONTACT = os.environ.get("BLS_CONTACT_EMAIL", "")
+UA = {"User-Agent": f"USA Workforce Snapshot build script ({CONTACT or 'https://workforce.usllab.org'})"}
 
 STATE_ABBR = {
     "AL": "01", "AK": "02", "AZ": "04", "AR": "05", "CA": "06", "CO": "08", "CT": "09", "DE": "10",
@@ -53,7 +56,9 @@ def fetch_sources() -> None:
             continue
         print(f"downloading {name}")
         r = requests.get(url, headers=UA, timeout=120)
-        r.raise_for_status()
+        if not r.ok:
+            sys.exit(f"download failed: {url} returned HTTP {r.status_code}"
+                     + (" (BLS needs a contact email: set the BLS_CONTACT_EMAIL secret)" if "bls.gov" in url else ""))
         p.write_bytes(r.content)
 
 

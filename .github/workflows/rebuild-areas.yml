@@ -28,6 +28,8 @@ jobs:
           node-version: "20"
 
       - name: Resolve areas and build map footprints
+        env:
+          BLS_CONTACT_EMAIL: ${{ secrets.BLS_CONTACT_EMAIL }}
         run: |
           pip install requests openpyxl xlrd
           python scripts/build_areas.py
