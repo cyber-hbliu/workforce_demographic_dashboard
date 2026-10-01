@@ -56,8 +56,8 @@
     return t < 0 ? toGreen(-t) : toPink(t);
   };
   // real earnings growth in percentage points, drawn on a diverging ramp:
-  // pink (trailing prices) through a warm neutral to green (ahead of prices), ±3 pt
-  const REAL_RAMP = ["#d4417f", "#EF99B7", "#e8e0c8", "#BADD7F", "#3E8340"];
+  // salmon (trailing prices) through a warm neutral to watermelon green (ahead of prices), ±3 pt
+  const REAL_RAMP = ["#EE7657", "#F7C3AE", "#e8e0c8", "#A9CF7A", "#3C9C62"];
   const realScale = d3.scaleLinear().domain([-3, -1.5, 0, 1.5, 3]).range(REAL_RAMP).interpolate(d3.interpolateRgb).clamp(true);
   const realColor = (pt) => (pt == null || !isFinite(pt) ? "#e6e4dc" : realScale(pt));
   // unemployment rate on a sequential ramp built from the site palette, light to dark:
