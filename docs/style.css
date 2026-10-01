@@ -1,6 +1,6 @@
 /* Workforce Monitor — a full-screen atlas with floating glass instruments.
    One system: paper surfaces, ink text, a green<->pink diverging pair for
-   "percentage of jobs vs the U.S." and a single warm ramp (cream to wine) for unemployment. */
+   "percentage of jobs vs the U.S." and a cream-mustard-coral-wine ramp for unemployment. */
 
 :root {
   color-scheme: light;
@@ -279,7 +279,7 @@ button { font: inherit; color: inherit; }
 .standing .dom-label { color: var(--ink-2); }
 .standing p { font-size: 12.5px; color: var(--ink-2); margin-top: 6px; }
 .standing p b { color: var(--ink); font-weight: 600; }
-.rank-strip { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px; background: linear-gradient(to right, #FFE7E4, #F69680, #d4417f, #6e1a3f); }
+.rank-strip { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px; background: linear-gradient(to right, #FBF3D9, #D4C361, #F69680, #E07A9E, #7A2A55); }
 .rank-strip i { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; background: var(--ink); border-radius: 2px; }
 .rank-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); }
 .burst-spoke { stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
