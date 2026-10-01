@@ -55,14 +55,14 @@
     const t = Math.max(-1, Math.min(1, Math.log2(lq)));
     return t < 0 ? toGreen(-t) : toPink(t);
   };
-  // real earnings growth in percentage points: positive (ahead of prices) green, negative pink
-  const realColor = (pt) => {
-    if (pt == null || !isFinite(pt)) return "#e6e4dc";
-    const t = Math.max(-1, Math.min(1, pt / 3));
-    return t >= 0 ? toGreen(t) : toPink(-t);
-  };
-  const BLUE_RAMP = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"];
-  const rampColor = d3.scaleLinear().range(BLUE_RAMP).interpolate(d3.interpolateRgb);
+  // real earnings growth in percentage points, drawn on a diverging ramp:
+  // pink (trailing prices) through a warm neutral to green (ahead of prices), ±3 pt
+  const REAL_RAMP = ["#d4417f", "#EF99B7", "#e8e0c8", "#BADD7F", "#3E8340"];
+  const realScale = d3.scaleLinear().domain([-3, -1.5, 0, 1.5, 3]).range(REAL_RAMP).interpolate(d3.interpolateRgb).clamp(true);
+  const realColor = (pt) => (pt == null || !isFinite(pt) ? "#e6e4dc" : realScale(pt));
+  // unemployment rate on a single warm sequential ramp, light to dark (cream, peach, coral, pink, wine)
+  const RATE_RAMP = ["#FFE7E4", "#F7C3AE", "#F69680", "#ee6a6a", "#d4417f", "#a92a60", "#6e1a3f"];
+  const rampColor = d3.scaleLinear().range(RATE_RAMP).interpolate(d3.interpolateRgb);
 
   const fmtNum = d3.format(",");
   const fmtK = (v) => (v >= 1000 ? d3.format(",.1f")(v / 1000) + "M" : d3.format(",.0f")(v) + "k");
@@ -139,7 +139,8 @@
 
   // industry-structure typology (rose.typology), computed with each release
   const TYPO = rose.typology && rose.typology.k ? rose.typology : null;
-  const TYPE_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"];
+  // fixed categorical order from the site palette: green, coral, mustard, pink, sage, light green, peach, wine
+  const TYPE_COLORS = ["#3E8340", "#F69680", "#D4C361", "#EF99B7", "#8A9671", "#BADD7F", "#F7C3AE", "#a92a60"];
   const typeOf = (level, id) => (!TYPO ? null : level === "metro" ? TYPO.metros[id] : level === "state" ? TYPO.states[id] : null) ?? null;
   const typeColor = (t) => (t == null ? "#e6e4dc" : TYPE_COLORS[t % TYPE_COLORS.length]);
   const typeInfo = (t) => (TYPO && t != null ? TYPO.types[t] : null);
@@ -236,7 +237,8 @@
     .attr("d", path(topojson.mesh(topo, topo.objects.states, (a, b) => a === b)));
 
   const LABEL_NUDGE = { "26": [22, 30], "12": [14, 8], "22": [-10, 0], "24": [6, -6], "51": [10, 6], "23": [-4, 6] };
-  const stateLabels = zoomLayer.append("g").attr("class", "state-labels").selectAll("text").data(stateFeatures).join("text")
+  const labelsG = zoomLayer.append("g").attr("class", "state-labels");
+  const stateLabels = labelsG.selectAll("text").data(stateFeatures).join("text")
     .attr("class", "state-label")
     .each(function (d) {
       const [cx, cy] = path.centroid(d), [nx, ny] = LABEL_NUDGE[d.id] || [0, 0];
@@ -403,19 +405,24 @@
   const legend = document.getElementById("legend");
   const rateExtent = d3.extent(stateFeatures.map((f) => rateOfState(f.id)).filter((v) => v != null));
   if (rateExtent[0] != null) rampColor.domain(d3.range(7).map((i) => rateExtent[0] + (i / 6) * (rateExtent[1] - rateExtent[0])));
-  // county ramp: same blue steps over the 2nd to 98th percentile of county rates
+  // county ramp: the same steps over the 2nd to 98th percentile of county rates
   const ctyRates = COUNTY ? Object.values(COUNTY).map((c) => c.r).sort(d3.ascending) : [];
   const ctyExtent = ctyRates.length ? [d3.quantileSorted(ctyRates, 0.02), d3.quantileSorted(ctyRates, 0.98)] : [0, 1];
-  const ctyRamp = d3.scaleLinear().range(BLUE_RAMP).interpolate(d3.interpolateRgb).clamp(true)
+  const ctyRamp = d3.scaleLinear().range(RATE_RAMP).interpolate(d3.interpolateRgb).clamp(true)
     .domain(d3.range(7).map((i) => ctyExtent[0] + (i / 6) * (ctyExtent[1] - ctyExtent[0])));
 
   function renderLens() {
     const lens = app.lens, ind = lens === "industry", typ = lens === "types", markers = ind || typ;
     statePaths.style("fill", (d) => ind ? null
-      : typ ? (typeOf("state", d.id) != null ? d3.interpolateRgb("#fbfaf6", typeColor(typeOf("state", d.id)))(0.28) : null)
+      : typ ? (typeOf("state", d.id) != null ? d3.interpolateRgb("#fbfaf6", typeColor(typeOf("state", d.id)))(0.42) : null)
       : lens === "unemployment" ? (rateOfState(d.id) != null ? rampColor(rateOfState(d.id)) : "#e6e4dc")
       : realColor(realOfState(d.id)));
     footG.style("display", markers ? null : "none").classed("is-choropleth", typ);
+    svg.classed("lens-fill", !ind);
+    // in the Types lens the filled footprints would cover the state names, so the
+    // label layer moves above them (and back beneath the markers otherwise)
+    const zl = zoomLayer.node();
+    zl.insertBefore(labelsG.node(), typ ? glyphsG.node() : footG.node());
     footPaths.style("fill", (m) => (typ ? (typeOf("metro", m.id) != null ? typeColor(typeOf("metro", m.id)) : "#d8d6cf") : null))
       .style("stroke", (m) => (typ ? "#ffffff" : null));
     glyphsG.style("display", ind ? null : "none");
@@ -474,14 +481,14 @@
     if (COUNTY) {
       const [lo, hi] = ctyExtent;
       return `<p class="legend-title">Unemployment rate by county · ${esc(fmtMonth(cty.month))}</p>
-        <div class="legend-ramp" style="background:linear-gradient(to right,${BLUE_RAMP.join(",")})"></div>
+        <div class="legend-ramp" style="background:linear-gradient(to right,${RATE_RAMP.join(",")})"></div>
         <div class="legend-ramp-labels"><span>${lo.toFixed(1)}% or less</span><span>counties, not seasonally adjusted</span><span>${hi.toFixed(1)}% or more</span></div>
         <p class="legend-note" style="margin-top:8px">Every county is shaded by its own rate (LAUS). Hover for the county's figures; click to open the profile of its metropolitan area, or of its state outside metros, with the county's numbers on top. Counties are the resolution of this lens; the analysis units stay the MSA and the state.</p>
         <p class="legend-note">County rates are model-based estimates and less precise for small counties. Colours span the 2nd to 98th percentile.</p>`;
     }
     const [lo, hi] = rateExtent;
     return `<p class="legend-title">Unemployment rate · ${esc(fmtMonth(meta.latest_state_month))}</p>
-      <div class="legend-ramp" style="background:linear-gradient(to right,${BLUE_RAMP.join(",")})"></div>
+      <div class="legend-ramp" style="background:linear-gradient(to right,${RATE_RAMP.join(",")})"></div>
       <div class="legend-ramp-labels"><span>${lo != null ? lo.toFixed(1) + "%" : ""}</span><span>states, seasonally adjusted</span><span>${hi != null ? hi.toFixed(1) + "%" : ""}</span></div>
       <p class="legend-note" style="margin-top:8px"><b>Dots</b> are MSAs, sized by labor force and shaded by their own (not seasonally adjusted) rate. Click one for its ten-year trend and where it ranks.</p>`;
   }
@@ -489,12 +496,12 @@
     if (!earn) return `<p class="legend-title">Earnings vs prices</p><p class="legend-note">Hourly-earnings and CPI series arrive with the next data refresh (run the "Update BLS data" workflow).</p>`;
     const m = last(earn.national?.total)?.date;
     if (COUNTY) return `<p class="legend-title">Real wage growth by county · ${esc(fmtQuarter(cty.quarter))}</p>
-      <div class="legend-ramp" style="background:linear-gradient(to right,${PINK},${NEUTRAL},${GREEN})"></div>
+      <div class="legend-ramp" style="background:linear-gradient(to right,${REAL_RAMP.join(",")})"></div>
       <div class="legend-ramp-labels"><span>−3 pt: trailing prices</span><span>keeping pace</span><span>+3 pt: ahead</span></div>
       <p class="legend-note" style="margin-top:8px">Year-on-year change in the county's <b>average weekly wage</b> (QCEW, all employers, quarterly) minus the change in the <b>CPI</b> for its census region over the same quarter. Click a county for its metro or state profile, which carries monthly hourly earnings (CES, through ${esc(fmtMonth(m))}) and the same quarterly wage measure.</p>
       <p class="legend-note">An average weekly wage also moves when the mix of jobs changes: losing low-paid jobs raises the average without any worker earning more.</p>`;
     return `<p class="legend-title">Real earnings growth · ${esc(fmtMonth(m))}</p>
-      <div class="legend-ramp" style="background:linear-gradient(to right,${PINK},${NEUTRAL},${GREEN})"></div>
+      <div class="legend-ramp" style="background:linear-gradient(to right,${REAL_RAMP.join(",")})"></div>
       <div class="legend-ramp-labels"><span>−3 pt: trailing prices</span><span>keeping pace</span><span>+3 pt: ahead</span></div>
       <p class="legend-note" style="margin-top:8px">Year-on-year change in <b>average hourly earnings</b> (private employers, CES) minus the change in the <b>CPI</b> for the area's census region. States shaded, MSAs as dots sized by labor force. Click one for earnings by industry.</p>`;
   }
