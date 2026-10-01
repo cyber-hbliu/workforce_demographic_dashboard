@@ -2,11 +2,16 @@ name: Update BLS data
 
 on:
   schedule:
-    - cron: "0 12 * * *"   # daily 12:00 UTC (8am ET); gate script decides whether to fetch
+    - cron: "7 12 * * *"    # 8:07am ET; gate decides whether to fetch
+    - cron: "7 18 * * *"    # second daily attempt in case the first is delayed or fails
   workflow_dispatch:        # manual run always fetches, ignoring the gate
 
 permissions:
   contents: write
+
+concurrency:
+  group: update-bls-data
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -29,12 +34,32 @@ jobs:
           fi
 
       - name: Fetch BLS data
+        id: fetch
         if: github.event_name == 'workflow_dispatch' || steps.gate.outputs.run == 'true'
+        continue-on-error: true
         env:
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
         run: |
           pip install requests
           python scripts/fetch_bls.py
+
+      - name: Log run
+        if: steps.fetch.outcome != 'skipped'
+        run: |
+          f=docs/data/run_log.csv
+          [ -f "$f" ] || echo "run_utc,event,outcome,data_updated,series_requested,series_empty,state_month,metro_month" > "$f"
+          python - <<'EOF' >> docs/data/run_log.csv
+          import json, os, datetime
+          m = json.load(open("docs/data/meta.json"))
+          print(",".join(str(x) for x in [
+              datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+              os.environ["EVENT"], os.environ["OUTCOME"], m.get("updated"),
+              m.get("series_requested"), m.get("series_empty"),
+              m.get("latest_state_month"), m.get("latest_metro_month")]))
+          EOF
+        env:
+          EVENT: ${{ github.event_name }}
+          OUTCOME: ${{ steps.fetch.outcome }}
 
       - name: Commit
         run: |
@@ -44,4 +69,9 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add -A
           git diff --cached --quiet || git commit -m "data: refresh $(date -u +%F)"
+          git pull --rebase
           git push
+
+      - name: Fail visibly if the fetch failed
+        if: steps.fetch.outcome == 'failure'
+        run: exit 1
