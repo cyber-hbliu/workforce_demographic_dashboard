@@ -24,7 +24,7 @@ We started from four positions.
 
 The map should be the interface. Labor-market data is spatial; the first thing a reader wants to do is find their own place. A full-screen map with a search box beats a table with a dropdown.
 
-One page, three lenses. Employment structure, unemployment and earnings are three views of the same places, so they should be three buttons on one map rather than three separate pages, and clicking a place should open a profile that changes with the lens.
+One page, four lenses. Employment structure, unemployment, earnings and industry type are four views of the same places, so they should be four buttons on one map rather than separate pages, and clicking a place should open a profile that changes with the lens.
 
 Compare, don't just report. A 4.2% unemployment rate means little on its own. It means something next to the national rate, the state's other metros, and the same month a year earlier. Every figure on the page is shown with at least one comparison.
 
@@ -43,7 +43,7 @@ Data comes directly from the BLS public API, from four programs.
 
 The dashboard covers every metropolitan statistical area for which BLS publishes local unemployment data (Puerto Rico excluded), plus the micropolitan areas that contain a state capital, all 50 states, the District of Columbia and the nation. A curated list in `config/metro_selection.json` sets short labels and map anchors for the largest metros, and `include_all_metros` adds the rest.
 
-Three derived measures do most of the work. An industry's percentage of local nonfarm jobs is compared with the same percentage nationally, and the ratio between the two (the location quotient) shows which industries the area has more or less of than the country. The largest sector is simply the industry with the most jobs. Real earnings growth is the year-on-year change in average hourly earnings for private employers minus the year-on-year change in the CPI for the area's census region; a positive figure means pay rose faster than prices.
+Four derived measures do most of the work. An industry's percentage of local nonfarm jobs is compared with the same percentage nationally, and the ratio between the two (the location quotient) shows which industries the area has more or less of than the country. The largest sector is simply the industry with the most jobs. Real earnings growth is the year-on-year change in average hourly earnings for private employers minus the year-on-year change in the CPI for the area's census region; a positive figure means pay rose faster than prices. The industry type groups metropolitan areas by the log of their ten location quotients using k-means (k-means++ seeding, a fixed seed, k chosen by mean silhouette over 3 to 8); each type is named by the sectors it over-represents, states are assigned to the nearest type, and the grouping is recomputed with each release, so a type can change as the data does. The clustering is in `scripts/typology.py` and uses nothing beyond the Python standard library.
 
 Two limits of the source data are carried through rather than hidden. BLS does not seasonally adjust metro unemployment rates, so metro rates are labelled as such and are not directly comparable with state and national rates. BLS publishes hourly earnings by industry for states but only a private-sector total for metros, so the industry earnings chart appears for states and the nation only.
 
@@ -57,7 +57,7 @@ The page is one full-screen map with a small set of floating panels, so the data
 
 Top left: the title, the month of the latest data, and two national figures, nonfarm employment and the unemployment rate with its monthly and annual change. Under it, the three lens buttons and a search box that finds any metro, capital or state.
 
-The map: every metro is a marker sized by its nonfarm jobs, drawn over the area's real county footprint. A diamond marks a state capital; a hollow ring marks an area for which BLS publishes unemployment but no industry data. The unemployment and earnings lenses shade states and metros by their value, on a single blue ramp for unemployment and a green-to-pink scale for real earnings growth, with green meaning pay is ahead of prices.
+The map: every metro is a marker sized by its nonfarm jobs, drawn over the area's real county footprint. A diamond marks a state capital; a hollow ring marks an area for which BLS publishes unemployment but no industry data. The unemployment and earnings lenses shade states and metros by their value, on a single blue ramp for unemployment and a green-to-pink scale for real earnings growth, with green meaning pay is ahead of prices. The types lens colors each metro by its industry type and lists the types in the legend with their member counts.
 
 Hover: a card with the area's official name, its unemployment rate, hourly-earnings growth, its largest sector and its specialty.
 
@@ -75,7 +75,7 @@ Because the pipeline is automatic, the page is never more than one day behind th
 
 Series identifiers are validated against the BLS area lists before any request is made, and the fetch refuses to overwrite good data if a run returns empty results for most states. The figures shown on the site were checked against the BLS data tables for several areas (Philadelphia employment, Texas unemployment, Colorado hourly earnings among them) and against the seasonally adjusted national figures in the monthly Employment Situation release. The page was rendered in a headless browser across desktop and mobile sizes at each stage of development, and every chart has a hover readout so a reader can verify any value by pointing at it.
 
-Known limits are stated on the page itself: metro rates are not seasonally adjusted; the six micropolitan capitals have no industry series; metro earnings are published only as a private-sector total; regional CPI is used for metros because BLS publishes metro CPIs for fewer than 25 areas.
+Known limits are stated on the page itself: metro rates are not seasonally adjusted; the six micropolitan capitals have no industry series; metro earnings are published only as a private-sector total; regional CPI is used for metros because BLS publishes metro CPIs for fewer than 25 areas; the industry types depend on the clustering settings and on the month's data, and an area near the boundary between two types can move between releases. Each workflow run appends a line to `docs/data/run_log.csv` (time, trigger, outcome, data month), which is the record used to evaluate the pipeline.
 
 ## Running your own copy
 
@@ -99,6 +99,7 @@ A full data run is about 150 requests of 50 series each, against a daily limit o
     scripts/check_release.py     exits 0 when the last refresh predates the latest release
     scripts/make_schedule.py     release_dates.json -> workflow schedule
     scripts/fetch_bls.py         API pull, tidying, percentages, location quotients, earnings
+    scripts/typology.py          industry-structure clustering used by the fetcher and the sample generator
     scripts/make_sample_data.py  placeholder data so the page renders before the first fetch
     docs/                        the site (GitHub Pages root)
     docs/lib/                    d3, topojson-client, us-atlas states, metro outlines

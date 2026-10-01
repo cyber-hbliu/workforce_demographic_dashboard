@@ -32,6 +32,9 @@ from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).parent))
+from typology import build_typology, nearest_type  # noqa: E402
+
 ROOT = Path(__file__).parent.parent
 DATA_OUT = ROOT / "docs" / "data"
 API = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
@@ -203,6 +206,14 @@ def earnings_profile(area_ahe: dict, region: str) -> dict:
     return {"region": region, "total": total, "industries": inds}
 
 
+RECENT = 13  # months kept for level series the page only reads the latest and year-ago values of
+
+
+def trim(series: dict) -> dict:
+    """Keep the full unemployment-rate history (ten-year trend); other series keep RECENT months."""
+    return {k: (v if k == "unemp_rate" else v[-RECENT:]) for k, v in series.items()}
+
+
 def main() -> None:
     if not KEY:
         sys.exit("BLS_API_KEY is not set")
@@ -235,7 +246,7 @@ def main() -> None:
     for fips, name in STATES.items():
         laus = buckets.get("state_laus", {}).get(fips, {})
         payrolls = buckets.get("state_ces", {}).get(fips, {}).get("total", [])
-        states_out[fips] = {"name": name, "series": {**laus, "payrolls": payrolls}}
+        states_out[fips] = {"name": name, "series": trim({**laus, "payrolls": payrolls})}
 
     metros_out = {}
     for m in METROS:
@@ -243,7 +254,7 @@ def main() -> None:
         payrolls = buckets.get("metro_ces", {}).get(m["cbsa"], {}).get("total", [])
         metros_out[m["cbsa"]] = {
             **{k: m[k] for k in ("name", "short", "kind", "states", "capital_of")},
-            "series": {**laus, "payrolls": payrolls},
+            "series": trim({**laus, "payrolls": payrolls}),
         }
 
     rose_out = {"month": us_month, "states": {}, "metros": {}}
@@ -253,6 +264,17 @@ def main() -> None:
     for m in METROS:
         prof, _ = industry_profile(buckets.get("metro_ces", {}).get(m["cbsa"], {}), us_ces)
         rose_out["metros"][m["cbsa"]] = prof
+
+    # industry-structure typology: metros are the pool, states take the nearest type
+    typ = build_typology(rose_out["metros"])
+    rose_out["typology"] = {
+        "k": typ["k"], "silhouette": typ["silhouette"], "features": typ["features"],
+        "types": typ["types"],
+        "metros": typ["assignments"],
+        "states": {fips: t for fips in STATES if (t := nearest_type(rose_out["states"][fips], typ)) is not None},
+    }
+    print(f"typology: k={typ['k']} silhouette={typ['silhouette']} " +
+          ", ".join(f"{t['name']} ({t['n']})" for t in typ["types"]))
 
     nat = buckets.get("national", {}).get("US", {})
     national_out = {

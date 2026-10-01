@@ -1875,6 +1875,3646 @@
      "city": "Cheyenne"
     }
    ]
+  },
+  {
+   "cbsa": "10180",
+   "name": "Abilene, TX",
+   "short": "Abilene",
+   "kind": "metro",
+   "laus_area": "MT4810180000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "10420",
+   "name": "Akron, OH",
+   "short": "Akron",
+   "kind": "metro",
+   "laus_area": "MT3910420000000",
+   "state_fips": "39",
+   "states": [
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "10500",
+   "name": "Albany, GA",
+   "short": "Albany",
+   "kind": "metro",
+   "laus_area": "MT1310500000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "10540",
+   "name": "Albany, OR",
+   "short": "Albany",
+   "kind": "metro",
+   "laus_area": "MT4110540000000",
+   "state_fips": "41",
+   "states": [
+    "41"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "10780",
+   "name": "Alexandria, LA",
+   "short": "Alexandria",
+   "kind": "metro",
+   "laus_area": "MT2210780000000",
+   "state_fips": "22",
+   "states": [
+    "22"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "10900",
+   "name": "Allentown-Bethlehem-Easton, PA-NJ",
+   "short": "Allentown",
+   "kind": "metro",
+   "laus_area": "MT4210900000000",
+   "state_fips": "42",
+   "states": [
+    "42",
+    "34"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "11020",
+   "name": "Altoona, PA",
+   "short": "Altoona",
+   "kind": "metro",
+   "laus_area": "MT4211020000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "11100",
+   "name": "Amarillo, TX",
+   "short": "Amarillo",
+   "kind": "metro",
+   "laus_area": "MT4811100000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "11180",
+   "name": "Ames, IA",
+   "short": "Ames",
+   "kind": "metro",
+   "laus_area": "MT1911180000000",
+   "state_fips": "19",
+   "states": [
+    "19"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "11200",
+   "name": "Amherst Town-Northampton, MA",
+   "short": "Amherst Town",
+   "kind": "metro",
+   "laus_area": "MT2511200000000",
+   "state_fips": "25",
+   "states": [
+    "25"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "11460",
+   "name": "Ann Arbor, MI",
+   "short": "Ann Arbor",
+   "kind": "metro",
+   "laus_area": "MT2611460000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "11500",
+   "name": "Anniston-Oxford, AL",
+   "short": "Anniston",
+   "kind": "metro",
+   "laus_area": "MT0111500000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "11540",
+   "name": "Appleton, WI",
+   "short": "Appleton",
+   "kind": "metro",
+   "laus_area": "MT5511540000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "11700",
+   "name": "Asheville, NC",
+   "short": "Asheville",
+   "kind": "metro",
+   "laus_area": "MT3711700000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "12020",
+   "name": "Athens-Clarke County, GA",
+   "short": "Athens",
+   "kind": "metro",
+   "laus_area": "MT1312020000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "12100",
+   "name": "Atlantic City-Hammonton, NJ",
+   "short": "Atlantic City",
+   "kind": "metro",
+   "laus_area": "MT3412100000000",
+   "state_fips": "34",
+   "states": [
+    "34"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "12220",
+   "name": "Auburn-Opelika, AL",
+   "short": "Auburn",
+   "kind": "metro",
+   "laus_area": "MT0112220000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "12260",
+   "name": "Augusta-Richmond County, GA-SC",
+   "short": "Augusta",
+   "kind": "metro",
+   "laus_area": "MT1312260000000",
+   "state_fips": "13",
+   "states": [
+    "13",
+    "45"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "12540",
+   "name": "Bakersfield-Delano, CA",
+   "short": "Bakersfield",
+   "kind": "metro",
+   "laus_area": "MT0612540000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "12620",
+   "name": "Bangor, ME",
+   "short": "Bangor",
+   "kind": "metro",
+   "laus_area": "MT2312620000000",
+   "state_fips": "23",
+   "states": [
+    "23"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "12700",
+   "name": "Barnstable Town, MA",
+   "short": "Barnstable Town",
+   "kind": "metro",
+   "laus_area": "MT2512700000000",
+   "state_fips": "25",
+   "states": [
+    "25"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "12980",
+   "name": "Battle Creek, MI",
+   "short": "Battle Creek",
+   "kind": "metro",
+   "laus_area": "MT2612980000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "13020",
+   "name": "Bay City, MI",
+   "short": "Bay City",
+   "kind": "metro",
+   "laus_area": "MT2613020000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "13140",
+   "name": "Beaumont-Port Arthur, TX",
+   "short": "Beaumont",
+   "kind": "metro",
+   "laus_area": "MT4813140000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "13220",
+   "name": "Beckley, WV",
+   "short": "Beckley",
+   "kind": "metro",
+   "laus_area": "MT5413220000000",
+   "state_fips": "54",
+   "states": [
+    "54"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "13380",
+   "name": "Bellingham, WA",
+   "short": "Bellingham",
+   "kind": "metro",
+   "laus_area": "MT5313380000000",
+   "state_fips": "53",
+   "states": [
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "13460",
+   "name": "Bend, OR",
+   "short": "Bend",
+   "kind": "metro",
+   "laus_area": "MT4113460000000",
+   "state_fips": "41",
+   "states": [
+    "41"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "13780",
+   "name": "Binghamton, NY",
+   "short": "Binghamton",
+   "kind": "metro",
+   "laus_area": "MT3613780000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "13980",
+   "name": "Blacksburg-Christiansburg-Radford, VA",
+   "short": "Blacksburg",
+   "kind": "metro",
+   "laus_area": "MT5113980000000",
+   "state_fips": "51",
+   "states": [
+    "51"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "14010",
+   "name": "Bloomington, IL",
+   "short": "Bloomington",
+   "kind": "metro",
+   "laus_area": "MT1714010000000",
+   "state_fips": "17",
+   "states": [
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "14020",
+   "name": "Bloomington, IN",
+   "short": "Bloomington",
+   "kind": "metro",
+   "laus_area": "MT1814020000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "14500",
+   "name": "Boulder, CO",
+   "short": "Boulder",
+   "kind": "metro",
+   "laus_area": "MT0814500000000",
+   "state_fips": "08",
+   "states": [
+    "08"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "14540",
+   "name": "Bowling Green, KY",
+   "short": "Bowling Green",
+   "kind": "metro",
+   "laus_area": "MT2114540000000",
+   "state_fips": "21",
+   "states": [
+    "21"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "14580",
+   "name": "Bozeman, MT",
+   "short": "Bozeman",
+   "kind": "metro",
+   "laus_area": "MT3014580000000",
+   "state_fips": "30",
+   "states": [
+    "30"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "14740",
+   "name": "Bremerton-Silverdale-Port Orchard, WA",
+   "short": "Bremerton",
+   "kind": "metro",
+   "laus_area": "MT5314740000000",
+   "state_fips": "53",
+   "states": [
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "15180",
+   "name": "Brownsville-Harlingen, TX",
+   "short": "Brownsville",
+   "kind": "metro",
+   "laus_area": "MT4815180000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "15260",
+   "name": "Brunswick-St. Simons, GA",
+   "short": "Brunswick",
+   "kind": "metro",
+   "laus_area": "MT1315260000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "15500",
+   "name": "Burlington, NC",
+   "short": "Burlington",
+   "kind": "metro",
+   "laus_area": "MT3715500000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "15940",
+   "name": "Canton-Massillon, OH",
+   "short": "Canton",
+   "kind": "metro",
+   "laus_area": "MT3915940000000",
+   "state_fips": "39",
+   "states": [
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "15980",
+   "name": "Cape Coral-Fort Myers, FL",
+   "short": "Cape Coral",
+   "kind": "metro",
+   "laus_area": "MT1215980000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "16020",
+   "name": "Cape Girardeau, MO-IL",
+   "short": "Cape Girardeau",
+   "kind": "metro",
+   "laus_area": "MT2916020000000",
+   "state_fips": "29",
+   "states": [
+    "29",
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "16220",
+   "name": "Casper, WY",
+   "short": "Casper",
+   "kind": "metro",
+   "laus_area": "MT5616220000000",
+   "state_fips": "56",
+   "states": [
+    "56"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "16300",
+   "name": "Cedar Rapids, IA",
+   "short": "Cedar Rapids",
+   "kind": "metro",
+   "laus_area": "MT1916300000000",
+   "state_fips": "19",
+   "states": [
+    "19"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "16540",
+   "name": "Chambersburg, PA",
+   "short": "Chambersburg",
+   "kind": "metro",
+   "laus_area": "MT4216540000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "16580",
+   "name": "Champaign-Urbana, IL",
+   "short": "Champaign",
+   "kind": "metro",
+   "laus_area": "MT1716580000000",
+   "state_fips": "17",
+   "states": [
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "16820",
+   "name": "Charlottesville, VA",
+   "short": "Charlottesville",
+   "kind": "metro",
+   "laus_area": "MT5116820000000",
+   "state_fips": "51",
+   "states": [
+    "51"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "17020",
+   "name": "Chico, CA",
+   "short": "Chico",
+   "kind": "metro",
+   "laus_area": "MT0617020000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "17300",
+   "name": "Clarksville, TN-KY",
+   "short": "Clarksville",
+   "kind": "metro",
+   "laus_area": "MT4717300000000",
+   "state_fips": "47",
+   "states": [
+    "47",
+    "21"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "17420",
+   "name": "Cleveland, TN",
+   "short": "Cleveland",
+   "kind": "metro",
+   "laus_area": "MT4717420000000",
+   "state_fips": "47",
+   "states": [
+    "47"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "17660",
+   "name": "Coeur d'Alene, ID",
+   "short": "Coeur d'Alene",
+   "kind": "metro",
+   "laus_area": "MT1617660000000",
+   "state_fips": "16",
+   "states": [
+    "16"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "17780",
+   "name": "College Station-Bryan, TX",
+   "short": "College Station",
+   "kind": "metro",
+   "laus_area": "MT4817780000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "17860",
+   "name": "Columbia, MO",
+   "short": "Columbia",
+   "kind": "metro",
+   "laus_area": "MT2917860000000",
+   "state_fips": "29",
+   "states": [
+    "29"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "17980",
+   "name": "Columbus, GA-AL",
+   "short": "Columbus",
+   "kind": "metro",
+   "laus_area": "MT1317980000000",
+   "state_fips": "13",
+   "states": [
+    "13",
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "18020",
+   "name": "Columbus, IN",
+   "short": "Columbus",
+   "kind": "metro",
+   "laus_area": "MT1818020000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "18580",
+   "name": "Corpus Christi, TX",
+   "short": "Corpus Christi",
+   "kind": "metro",
+   "laus_area": "MT4818580000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "18700",
+   "name": "Corvallis, OR",
+   "short": "Corvallis",
+   "kind": "metro",
+   "laus_area": "MT4118700000000",
+   "state_fips": "41",
+   "states": [
+    "41"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "18880",
+   "name": "Crestview-Fort Walton Beach-Destin, FL",
+   "short": "Crestview",
+   "kind": "metro",
+   "laus_area": "MT1218880000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "19140",
+   "name": "Dalton, GA",
+   "short": "Dalton",
+   "kind": "metro",
+   "laus_area": "MT1319140000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "19300",
+   "name": "Daphne-Fairhope-Foley, AL",
+   "short": "Daphne",
+   "kind": "metro",
+   "laus_area": "MT0119300000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "19340",
+   "name": "Davenport-Moline-Rock Island, IA-IL",
+   "short": "Davenport",
+   "kind": "metro",
+   "laus_area": "MT1719340000000",
+   "state_fips": "17",
+   "states": [
+    "19",
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "19460",
+   "name": "Decatur, AL",
+   "short": "Decatur",
+   "kind": "metro",
+   "laus_area": "MT0119460000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "19500",
+   "name": "Decatur, IL",
+   "short": "Decatur",
+   "kind": "metro",
+   "laus_area": "MT1719500000000",
+   "state_fips": "17",
+   "states": [
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "19660",
+   "name": "Deltona-Daytona Beach-Ormond Beach, FL",
+   "short": "Deltona",
+   "kind": "metro",
+   "laus_area": "MT1219660000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "20020",
+   "name": "Dothan, AL",
+   "short": "Dothan",
+   "kind": "metro",
+   "laus_area": "MT0120020000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "20220",
+   "name": "Dubuque, IA",
+   "short": "Dubuque",
+   "kind": "metro",
+   "laus_area": "MT1920220000000",
+   "state_fips": "19",
+   "states": [
+    "19"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "20260",
+   "name": "Duluth, MN-WI",
+   "short": "Duluth",
+   "kind": "metro",
+   "laus_area": "MT2720260000000",
+   "state_fips": "27",
+   "states": [
+    "27",
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "20580",
+   "name": "Eagle Pass, TX",
+   "short": "Eagle Pass",
+   "kind": "metro",
+   "laus_area": "MT4820580000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "20740",
+   "name": "Eau Claire, WI",
+   "short": "Eau Claire",
+   "kind": "metro",
+   "laus_area": "MT5520740000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "20940",
+   "name": "El Centro, CA",
+   "short": "El Centro",
+   "kind": "metro",
+   "laus_area": "MT0620940000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "21060",
+   "name": "Elizabethtown, KY",
+   "short": "Elizabethtown",
+   "kind": "metro",
+   "laus_area": "MT2121060000000",
+   "state_fips": "21",
+   "states": [
+    "21"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "21140",
+   "name": "Elkhart-Goshen, IN",
+   "short": "Elkhart",
+   "kind": "metro",
+   "laus_area": "MT1821140000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "21300",
+   "name": "Elmira, NY",
+   "short": "Elmira",
+   "kind": "metro",
+   "laus_area": "MT3621300000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "21420",
+   "name": "Enid, OK",
+   "short": "Enid",
+   "kind": "metro",
+   "laus_area": "MT4021420000000",
+   "state_fips": "40",
+   "states": [
+    "40"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "21500",
+   "name": "Erie, PA",
+   "short": "Erie",
+   "kind": "metro",
+   "laus_area": "MT4221500000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "21660",
+   "name": "Eugene-Springfield, OR",
+   "short": "Eugene",
+   "kind": "metro",
+   "laus_area": "MT4121660000000",
+   "state_fips": "41",
+   "states": [
+    "41"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "21780",
+   "name": "Evansville, IN",
+   "short": "Evansville",
+   "kind": "metro",
+   "laus_area": "MT1821780000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "21820",
+   "name": "Fairbanks-College, AK",
+   "short": "Fairbanks",
+   "kind": "metro",
+   "laus_area": "MT0221820000000",
+   "state_fips": "02",
+   "states": [
+    "02"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22140",
+   "name": "Farmington, NM",
+   "short": "Farmington",
+   "kind": "metro",
+   "laus_area": "MT3522140000000",
+   "state_fips": "35",
+   "states": [
+    "35"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22180",
+   "name": "Fayetteville, NC",
+   "short": "Fayetteville",
+   "kind": "metro",
+   "laus_area": "MT3722180000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22220",
+   "name": "Fayetteville-Springdale-Rogers, AR",
+   "short": "Fayetteville",
+   "kind": "metro",
+   "laus_area": "MT0522220000000",
+   "state_fips": "05",
+   "states": [
+    "05"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22380",
+   "name": "Flagstaff, AZ",
+   "short": "Flagstaff",
+   "kind": "metro",
+   "laus_area": "MT0422380000000",
+   "state_fips": "04",
+   "states": [
+    "04"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22420",
+   "name": "Flint, MI",
+   "short": "Flint",
+   "kind": "metro",
+   "laus_area": "MT2622420000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22500",
+   "name": "Florence, SC",
+   "short": "Florence",
+   "kind": "metro",
+   "laus_area": "MT4522500000000",
+   "state_fips": "45",
+   "states": [
+    "45"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22520",
+   "name": "Florence-Muscle Shoals, AL",
+   "short": "Florence",
+   "kind": "metro",
+   "laus_area": "MT0122520000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22540",
+   "name": "Fond du Lac, WI",
+   "short": "Fond du Lac",
+   "kind": "metro",
+   "laus_area": "MT5522540000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22660",
+   "name": "Fort Collins-Loveland, CO",
+   "short": "Fort Collins",
+   "kind": "metro",
+   "laus_area": "MT0822660000000",
+   "state_fips": "08",
+   "states": [
+    "08"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "22900",
+   "name": "Fort Smith, AR-OK",
+   "short": "Fort Smith",
+   "kind": "metro",
+   "laus_area": "MT0522900000000",
+   "state_fips": "05",
+   "states": [
+    "05",
+    "40"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "23060",
+   "name": "Fort Wayne, IN",
+   "short": "Fort Wayne",
+   "kind": "metro",
+   "laus_area": "MT1823060000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "23460",
+   "name": "Gadsden, AL",
+   "short": "Gadsden",
+   "kind": "metro",
+   "laus_area": "MT0123460000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "23540",
+   "name": "Gainesville, FL",
+   "short": "Gainesville",
+   "kind": "metro",
+   "laus_area": "MT1223540000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "23580",
+   "name": "Gainesville, GA",
+   "short": "Gainesville",
+   "kind": "metro",
+   "laus_area": "MT1323580000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "23900",
+   "name": "Gettysburg, PA",
+   "short": "Gettysburg",
+   "kind": "metro",
+   "laus_area": "MT4223900000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24020",
+   "name": "Glens Falls, NY",
+   "short": "Glens Falls",
+   "kind": "metro",
+   "laus_area": "MT3624020000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24140",
+   "name": "Goldsboro, NC",
+   "short": "Goldsboro",
+   "kind": "metro",
+   "laus_area": "MT3724140000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24220",
+   "name": "Grand Forks, ND-MN",
+   "short": "Grand Forks",
+   "kind": "metro",
+   "laus_area": "MT3824220000000",
+   "state_fips": "38",
+   "states": [
+    "38",
+    "27"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24260",
+   "name": "Grand Island, NE",
+   "short": "Grand Island",
+   "kind": "metro",
+   "laus_area": "MT3124260000000",
+   "state_fips": "31",
+   "states": [
+    "31"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24300",
+   "name": "Grand Junction, CO",
+   "short": "Grand Junction",
+   "kind": "metro",
+   "laus_area": "MT0824300000000",
+   "state_fips": "08",
+   "states": [
+    "08"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24420",
+   "name": "Grants Pass, OR",
+   "short": "Grants Pass",
+   "kind": "metro",
+   "laus_area": "MT4124420000000",
+   "state_fips": "41",
+   "states": [
+    "41"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24500",
+   "name": "Great Falls, MT",
+   "short": "Great Falls",
+   "kind": "metro",
+   "laus_area": "MT3024500000000",
+   "state_fips": "30",
+   "states": [
+    "30"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24540",
+   "name": "Greeley, CO",
+   "short": "Greeley",
+   "kind": "metro",
+   "laus_area": "MT0824540000000",
+   "state_fips": "08",
+   "states": [
+    "08"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24580",
+   "name": "Green Bay, WI",
+   "short": "Green Bay",
+   "kind": "metro",
+   "laus_area": "MT5524580000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24660",
+   "name": "Greensboro-High Point, NC",
+   "short": "Greensboro",
+   "kind": "metro",
+   "laus_area": "MT3724660000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "24780",
+   "name": "Greenville, NC",
+   "short": "Greenville",
+   "kind": "metro",
+   "laus_area": "MT3724780000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25060",
+   "name": "Gulfport-Biloxi, MS",
+   "short": "Gulfport",
+   "kind": "metro",
+   "laus_area": "MT2825060000000",
+   "state_fips": "28",
+   "states": [
+    "28"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25180",
+   "name": "Hagerstown-Martinsburg, MD-WV",
+   "short": "Hagerstown",
+   "kind": "metro",
+   "laus_area": "MT2425180000000",
+   "state_fips": "24",
+   "states": [
+    "24",
+    "54"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25220",
+   "name": "Hammond, LA",
+   "short": "Hammond",
+   "kind": "metro",
+   "laus_area": "MT2225220000000",
+   "state_fips": "22",
+   "states": [
+    "22"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25260",
+   "name": "Hanford-Corcoran, CA",
+   "short": "Hanford",
+   "kind": "metro",
+   "laus_area": "MT0625260000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25500",
+   "name": "Harrisonburg, VA",
+   "short": "Harrisonburg",
+   "kind": "metro",
+   "laus_area": "MT5125500000000",
+   "state_fips": "51",
+   "states": [
+    "51"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25620",
+   "name": "Hattiesburg, MS",
+   "short": "Hattiesburg",
+   "kind": "metro",
+   "laus_area": "MT2825620000000",
+   "state_fips": "28",
+   "states": [
+    "28"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25860",
+   "name": "Hickory-Lenoir-Morganton, NC",
+   "short": "Hickory",
+   "kind": "metro",
+   "laus_area": "MT3725860000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25940",
+   "name": "Hilton Head Island-Bluffton-Port Royal, SC",
+   "short": "Hilton Head Island",
+   "kind": "metro",
+   "laus_area": "MT4525940000000",
+   "state_fips": "45",
+   "states": [
+    "45"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "25980",
+   "name": "Hinesville, GA",
+   "short": "Hinesville",
+   "kind": "metro",
+   "laus_area": "MT1325980000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "26140",
+   "name": "Homosassa Springs, FL",
+   "short": "Homosassa Springs",
+   "kind": "metro",
+   "laus_area": "MT1226140000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "26300",
+   "name": "Hot Springs, AR",
+   "short": "Hot Springs",
+   "kind": "metro",
+   "laus_area": "MT0526300000000",
+   "state_fips": "05",
+   "states": [
+    "05"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "26380",
+   "name": "Houma-Bayou Cane-Thibodaux, LA",
+   "short": "Houma",
+   "kind": "metro",
+   "laus_area": "MT2226380000000",
+   "state_fips": "22",
+   "states": [
+    "22"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "26580",
+   "name": "Huntington-Ashland, WV-KY-OH",
+   "short": "Huntington",
+   "kind": "metro",
+   "laus_area": "MT5426580000000",
+   "state_fips": "54",
+   "states": [
+    "54",
+    "21",
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "26620",
+   "name": "Huntsville, AL",
+   "short": "Huntsville",
+   "kind": "metro",
+   "laus_area": "MT0126620000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "26820",
+   "name": "Idaho Falls, ID",
+   "short": "Idaho Falls",
+   "kind": "metro",
+   "laus_area": "MT1626820000000",
+   "state_fips": "16",
+   "states": [
+    "16"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "26980",
+   "name": "Iowa City, IA",
+   "short": "Iowa City",
+   "kind": "metro",
+   "laus_area": "MT1926980000000",
+   "state_fips": "19",
+   "states": [
+    "19"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27060",
+   "name": "Ithaca, NY",
+   "short": "Ithaca",
+   "kind": "metro",
+   "laus_area": "MT3627060000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27100",
+   "name": "Jackson, MI",
+   "short": "Jackson",
+   "kind": "metro",
+   "laus_area": "MT2627100000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27180",
+   "name": "Jackson, TN",
+   "short": "Jackson",
+   "kind": "metro",
+   "laus_area": "MT4727180000000",
+   "state_fips": "47",
+   "states": [
+    "47"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27340",
+   "name": "Jacksonville, NC",
+   "short": "Jacksonville",
+   "kind": "metro",
+   "laus_area": "MT3727340000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27500",
+   "name": "Janesville-Beloit, WI",
+   "short": "Janesville",
+   "kind": "metro",
+   "laus_area": "MT5527500000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27740",
+   "name": "Johnson City, TN",
+   "short": "Johnson City",
+   "kind": "metro",
+   "laus_area": "MT4727740000000",
+   "state_fips": "47",
+   "states": [
+    "47"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27780",
+   "name": "Johnstown, PA",
+   "short": "Johnstown",
+   "kind": "metro",
+   "laus_area": "MT4227780000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27860",
+   "name": "Jonesboro, AR",
+   "short": "Jonesboro",
+   "kind": "metro",
+   "laus_area": "MT0527860000000",
+   "state_fips": "05",
+   "states": [
+    "05"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27900",
+   "name": "Joplin, MO-KS",
+   "short": "Joplin",
+   "kind": "metro",
+   "laus_area": "MT2927900000000",
+   "state_fips": "29",
+   "states": [
+    "29",
+    "20"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "27980",
+   "name": "Kahului-Wailuku, HI",
+   "short": "Kahului",
+   "kind": "metro",
+   "laus_area": "MT1527980000000",
+   "state_fips": "15",
+   "states": [
+    "15"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "28020",
+   "name": "Kalamazoo-Portage, MI",
+   "short": "Kalamazoo",
+   "kind": "metro",
+   "laus_area": "MT2628020000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "28100",
+   "name": "Kankakee, IL",
+   "short": "Kankakee",
+   "kind": "metro",
+   "laus_area": "MT1728100000000",
+   "state_fips": "17",
+   "states": [
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "28420",
+   "name": "Kennewick-Richland, WA",
+   "short": "Kennewick",
+   "kind": "metro",
+   "laus_area": "MT5328420000000",
+   "state_fips": "53",
+   "states": [
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "28450",
+   "name": "Kenosha, WI",
+   "short": "Kenosha",
+   "kind": "metro",
+   "laus_area": "MT5528450000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "28660",
+   "name": "Killeen-Temple, TX",
+   "short": "Killeen",
+   "kind": "metro",
+   "laus_area": "MT4828660000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "28700",
+   "name": "Kingsport-Bristol, TN-VA",
+   "short": "Kingsport",
+   "kind": "metro",
+   "laus_area": "MT4728700000000",
+   "state_fips": "47",
+   "states": [
+    "47",
+    "51"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "28740",
+   "name": "Kingston, NY",
+   "short": "Kingston",
+   "kind": "metro",
+   "laus_area": "MT3628740000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "28880",
+   "name": "Kiryas Joel-Poughkeepsie-Newburgh, NY",
+   "short": "Kiryas Joel",
+   "kind": "metro",
+   "laus_area": "MT3628880000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29020",
+   "name": "Kokomo, IN",
+   "short": "Kokomo",
+   "kind": "metro",
+   "laus_area": "MT1829020000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29100",
+   "name": "La Crosse-Onalaska, WI-MN",
+   "short": "La Crosse",
+   "kind": "metro",
+   "laus_area": "MT5529100000000",
+   "state_fips": "55",
+   "states": [
+    "55",
+    "27"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29180",
+   "name": "Lafayette, LA",
+   "short": "Lafayette",
+   "kind": "metro",
+   "laus_area": "MT2229180000000",
+   "state_fips": "22",
+   "states": [
+    "22"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29200",
+   "name": "Lafayette-West Lafayette, IN",
+   "short": "Lafayette",
+   "kind": "metro",
+   "laus_area": "MT1829200000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29340",
+   "name": "Lake Charles, LA",
+   "short": "Lake Charles",
+   "kind": "metro",
+   "laus_area": "MT2229340000000",
+   "state_fips": "22",
+   "states": [
+    "22"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29420",
+   "name": "Lake Havasu City-Kingman, AZ",
+   "short": "Lake Havasu City",
+   "kind": "metro",
+   "laus_area": "MT0429420000000",
+   "state_fips": "04",
+   "states": [
+    "04"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29460",
+   "name": "Lakeland-Winter Haven, FL",
+   "short": "Lakeland",
+   "kind": "metro",
+   "laus_area": "MT1229460000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29540",
+   "name": "Lancaster, PA",
+   "short": "Lancaster",
+   "kind": "metro",
+   "laus_area": "MT4229540000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29700",
+   "name": "Laredo, TX",
+   "short": "Laredo",
+   "kind": "metro",
+   "laus_area": "MT4829700000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29740",
+   "name": "Las Cruces, NM",
+   "short": "Las Cruces",
+   "kind": "metro",
+   "laus_area": "MT3529740000000",
+   "state_fips": "35",
+   "states": [
+    "35"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "29940",
+   "name": "Lawrence, KS",
+   "short": "Lawrence",
+   "kind": "metro",
+   "laus_area": "MT2029940000000",
+   "state_fips": "20",
+   "states": [
+    "20"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "30020",
+   "name": "Lawton, OK",
+   "short": "Lawton",
+   "kind": "metro",
+   "laus_area": "MT4030020000000",
+   "state_fips": "40",
+   "states": [
+    "40"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "30140",
+   "name": "Lebanon, PA",
+   "short": "Lebanon",
+   "kind": "metro",
+   "laus_area": "MT4230140000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "30300",
+   "name": "Lewiston, ID-WA",
+   "short": "Lewiston",
+   "kind": "metro",
+   "laus_area": "MT1630300000000",
+   "state_fips": "16",
+   "states": [
+    "16",
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "30340",
+   "name": "Lewiston-Auburn, ME",
+   "short": "Lewiston",
+   "kind": "metro",
+   "laus_area": "MT2330340000000",
+   "state_fips": "23",
+   "states": [
+    "23"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "30500",
+   "name": "Lexington Park, MD",
+   "short": "Lexington Park",
+   "kind": "metro",
+   "laus_area": "MT2430500000000",
+   "state_fips": "24",
+   "states": [
+    "24"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "30620",
+   "name": "Lima, OH",
+   "short": "Lima",
+   "kind": "metro",
+   "laus_area": "MT3930620000000",
+   "state_fips": "39",
+   "states": [
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "30860",
+   "name": "Logan, UT-ID",
+   "short": "Logan",
+   "kind": "metro",
+   "laus_area": "MT4930860000000",
+   "state_fips": "49",
+   "states": [
+    "49",
+    "16"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "30980",
+   "name": "Longview, TX",
+   "short": "Longview",
+   "kind": "metro",
+   "laus_area": "MT4830980000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "31020",
+   "name": "Longview-Kelso, WA",
+   "short": "Longview",
+   "kind": "metro",
+   "laus_area": "MT5331020000000",
+   "state_fips": "53",
+   "states": [
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "31180",
+   "name": "Lubbock, TX",
+   "short": "Lubbock",
+   "kind": "metro",
+   "laus_area": "MT4831180000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "31340",
+   "name": "Lynchburg, VA",
+   "short": "Lynchburg",
+   "kind": "metro",
+   "laus_area": "MT5131340000000",
+   "state_fips": "51",
+   "states": [
+    "51"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "31420",
+   "name": "Macon-Bibb County, GA",
+   "short": "Macon",
+   "kind": "metro",
+   "laus_area": "MT1331420000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "31740",
+   "name": "Manhattan, KS",
+   "short": "Manhattan",
+   "kind": "metro",
+   "laus_area": "MT2031740000000",
+   "state_fips": "20",
+   "states": [
+    "20"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "31860",
+   "name": "Mankato, MN",
+   "short": "Mankato",
+   "kind": "metro",
+   "laus_area": "MT2731860000000",
+   "state_fips": "27",
+   "states": [
+    "27"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "31900",
+   "name": "Mansfield, OH",
+   "short": "Mansfield",
+   "kind": "metro",
+   "laus_area": "MT3931900000000",
+   "state_fips": "39",
+   "states": [
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "32580",
+   "name": "McAllen-Edinburg-Mission, TX",
+   "short": "McAllen",
+   "kind": "metro",
+   "laus_area": "MT4832580000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "32780",
+   "name": "Medford, OR",
+   "short": "Medford",
+   "kind": "metro",
+   "laus_area": "MT4132780000000",
+   "state_fips": "41",
+   "states": [
+    "41"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "32900",
+   "name": "Merced, CA",
+   "short": "Merced",
+   "kind": "metro",
+   "laus_area": "MT0632900000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "33140",
+   "name": "Michigan City-La Porte, IN",
+   "short": "Michigan City",
+   "kind": "metro",
+   "laus_area": "MT1833140000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "33220",
+   "name": "Midland, MI",
+   "short": "Midland",
+   "kind": "metro",
+   "laus_area": "MT2633220000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "33260",
+   "name": "Midland, TX",
+   "short": "Midland",
+   "kind": "metro",
+   "laus_area": "MT4833260000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "33500",
+   "name": "Minot, ND",
+   "short": "Minot",
+   "kind": "metro",
+   "laus_area": "MT3833500000000",
+   "state_fips": "38",
+   "states": [
+    "38"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "33540",
+   "name": "Missoula, MT",
+   "short": "Missoula",
+   "kind": "metro",
+   "laus_area": "MT3033540000000",
+   "state_fips": "30",
+   "states": [
+    "30"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "33700",
+   "name": "Modesto, CA",
+   "short": "Modesto",
+   "kind": "metro",
+   "laus_area": "MT0633700000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "33740",
+   "name": "Monroe, LA",
+   "short": "Monroe",
+   "kind": "metro",
+   "laus_area": "MT2233740000000",
+   "state_fips": "22",
+   "states": [
+    "22"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "33780",
+   "name": "Monroe, MI",
+   "short": "Monroe",
+   "kind": "metro",
+   "laus_area": "MT2633780000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "34060",
+   "name": "Morgantown, WV",
+   "short": "Morgantown",
+   "kind": "metro",
+   "laus_area": "MT5434060000000",
+   "state_fips": "54",
+   "states": [
+    "54"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "34100",
+   "name": "Morristown, TN",
+   "short": "Morristown",
+   "kind": "metro",
+   "laus_area": "MT4734100000000",
+   "state_fips": "47",
+   "states": [
+    "47"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "34580",
+   "name": "Mount Vernon-Anacortes, WA",
+   "short": "Mount Vernon",
+   "kind": "metro",
+   "laus_area": "MT5334580000000",
+   "state_fips": "53",
+   "states": [
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "34620",
+   "name": "Muncie, IN",
+   "short": "Muncie",
+   "kind": "metro",
+   "laus_area": "MT1834620000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "34740",
+   "name": "Muskegon-Norton Shores, MI",
+   "short": "Muskegon",
+   "kind": "metro",
+   "laus_area": "MT2634740000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "34820",
+   "name": "Myrtle Beach-Conway-North Myrtle Beach, SC",
+   "short": "Myrtle Beach",
+   "kind": "metro",
+   "laus_area": "MT4534820000000",
+   "state_fips": "45",
+   "states": [
+    "45"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "34900",
+   "name": "Napa, CA",
+   "short": "Napa",
+   "kind": "metro",
+   "laus_area": "MT0634900000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "34940",
+   "name": "Naples-Marco Island, FL",
+   "short": "Naples",
+   "kind": "metro",
+   "laus_area": "MT1234940000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "35300",
+   "name": "New Haven, CT",
+   "short": "New Haven",
+   "kind": "metro",
+   "laus_area": "MT0935300000000",
+   "state_fips": "09",
+   "states": [
+    "09"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "35660",
+   "name": "Niles, MI",
+   "short": "Niles",
+   "kind": "metro",
+   "laus_area": "MT2635660000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "35840",
+   "name": "North Port-Bradenton-Sarasota, FL",
+   "short": "North Port",
+   "kind": "metro",
+   "laus_area": "MT1235840000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "35980",
+   "name": "Norwich-New London-Willimantic, CT",
+   "short": "Norwich",
+   "kind": "metro",
+   "laus_area": "MT0935980000000",
+   "state_fips": "09",
+   "states": [
+    "09"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "36100",
+   "name": "Ocala, FL",
+   "short": "Ocala",
+   "kind": "metro",
+   "laus_area": "MT1236100000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "36220",
+   "name": "Odessa, TX",
+   "short": "Odessa",
+   "kind": "metro",
+   "laus_area": "MT4836220000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "36260",
+   "name": "Ogden, UT",
+   "short": "Ogden",
+   "kind": "metro",
+   "laus_area": "MT4936260000000",
+   "state_fips": "49",
+   "states": [
+    "49"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "36780",
+   "name": "Oshkosh-Neenah, WI",
+   "short": "Oshkosh",
+   "kind": "metro",
+   "laus_area": "MT5536780000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "36980",
+   "name": "Owensboro, KY",
+   "short": "Owensboro",
+   "kind": "metro",
+   "laus_area": "MT2136980000000",
+   "state_fips": "21",
+   "states": [
+    "21"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "37100",
+   "name": "Oxnard-Thousand Oaks-Ventura, CA",
+   "short": "Oxnard",
+   "kind": "metro",
+   "laus_area": "MT0637100000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "37140",
+   "name": "Paducah, KY-IL",
+   "short": "Paducah",
+   "kind": "metro",
+   "laus_area": "MT2137140000000",
+   "state_fips": "21",
+   "states": [
+    "21",
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "37340",
+   "name": "Palm Bay-Melbourne-Titusville, FL",
+   "short": "Palm Bay",
+   "kind": "metro",
+   "laus_area": "MT1237340000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "37460",
+   "name": "Panama City-Panama City Beach, FL",
+   "short": "Panama City",
+   "kind": "metro",
+   "laus_area": "MT1237460000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "37620",
+   "name": "Parkersburg-Vienna, WV",
+   "short": "Parkersburg",
+   "kind": "metro",
+   "laus_area": "MT5437620000000",
+   "state_fips": "54",
+   "states": [
+    "54"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "37860",
+   "name": "Pensacola-Ferry Pass-Brent, FL",
+   "short": "Pensacola",
+   "kind": "metro",
+   "laus_area": "MT1237860000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "37900",
+   "name": "Peoria, IL",
+   "short": "Peoria",
+   "kind": "metro",
+   "laus_area": "MT1737900000000",
+   "state_fips": "17",
+   "states": [
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "38240",
+   "name": "Pinehurst-Southern Pines, NC",
+   "short": "Pinehurst",
+   "kind": "metro",
+   "laus_area": "MT3738240000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "38340",
+   "name": "Pittsfield, MA",
+   "short": "Pittsfield",
+   "kind": "metro",
+   "laus_area": "MT2538340000000",
+   "state_fips": "25",
+   "states": [
+    "25"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "38540",
+   "name": "Pocatello, ID",
+   "short": "Pocatello",
+   "kind": "metro",
+   "laus_area": "MT1638540000000",
+   "state_fips": "16",
+   "states": [
+    "16"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "38940",
+   "name": "Port St. Lucie, FL",
+   "short": "Port St. Lucie",
+   "kind": "metro",
+   "laus_area": "MT1238940000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "39150",
+   "name": "Prescott Valley-Prescott, AZ",
+   "short": "Prescott Valley",
+   "kind": "metro",
+   "laus_area": "MT0439150000000",
+   "state_fips": "04",
+   "states": [
+    "04"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "39380",
+   "name": "Pueblo, CO",
+   "short": "Pueblo",
+   "kind": "metro",
+   "laus_area": "MT0839380000000",
+   "state_fips": "08",
+   "states": [
+    "08"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "39460",
+   "name": "Punta Gorda, FL",
+   "short": "Punta Gorda",
+   "kind": "metro",
+   "laus_area": "MT1239460000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "39540",
+   "name": "Racine-Mount Pleasant, WI",
+   "short": "Racine",
+   "kind": "metro",
+   "laus_area": "MT5539540000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "39660",
+   "name": "Rapid City, SD",
+   "short": "Rapid City",
+   "kind": "metro",
+   "laus_area": "MT4639660000000",
+   "state_fips": "46",
+   "states": [
+    "46"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "39740",
+   "name": "Reading, PA",
+   "short": "Reading",
+   "kind": "metro",
+   "laus_area": "MT4239740000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "39820",
+   "name": "Redding, CA",
+   "short": "Redding",
+   "kind": "metro",
+   "laus_area": "MT0639820000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "40220",
+   "name": "Roanoke, VA",
+   "short": "Roanoke",
+   "kind": "metro",
+   "laus_area": "MT5140220000000",
+   "state_fips": "51",
+   "states": [
+    "51"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "40340",
+   "name": "Rochester, MN",
+   "short": "Rochester",
+   "kind": "metro",
+   "laus_area": "MT2740340000000",
+   "state_fips": "27",
+   "states": [
+    "27"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "40420",
+   "name": "Rockford, IL",
+   "short": "Rockford",
+   "kind": "metro",
+   "laus_area": "MT1740420000000",
+   "state_fips": "17",
+   "states": [
+    "17"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "40580",
+   "name": "Rocky Mount, NC",
+   "short": "Rocky Mount",
+   "kind": "metro",
+   "laus_area": "MT3740580000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "40660",
+   "name": "Rome, GA",
+   "short": "Rome",
+   "kind": "metro",
+   "laus_area": "MT1340660000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "40980",
+   "name": "Saginaw, MI",
+   "short": "Saginaw",
+   "kind": "metro",
+   "laus_area": "MT2640980000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "41060",
+   "name": "St. Cloud, MN",
+   "short": "St. Cloud",
+   "kind": "metro",
+   "laus_area": "MT2741060000000",
+   "state_fips": "27",
+   "states": [
+    "27"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "41100",
+   "name": "St. George, UT",
+   "short": "St. George",
+   "kind": "metro",
+   "laus_area": "MT4941100000000",
+   "state_fips": "49",
+   "states": [
+    "49"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "41140",
+   "name": "St. Joseph, MO-KS",
+   "short": "St. Joseph",
+   "kind": "metro",
+   "laus_area": "MT2941140000000",
+   "state_fips": "29",
+   "states": [
+    "29",
+    "20"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "41500",
+   "name": "Salinas, CA",
+   "short": "Salinas",
+   "kind": "metro",
+   "laus_area": "MT0641500000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "41540",
+   "name": "Salisbury, MD",
+   "short": "Salisbury",
+   "kind": "metro",
+   "laus_area": "MT2441540000000",
+   "state_fips": "24",
+   "states": [
+    "24"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "41660",
+   "name": "San Angelo, TX",
+   "short": "San Angelo",
+   "kind": "metro",
+   "laus_area": "MT4841660000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "41780",
+   "name": "Sandusky, OH",
+   "short": "Sandusky",
+   "kind": "metro",
+   "laus_area": "MT3941780000000",
+   "state_fips": "39",
+   "states": [
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "42020",
+   "name": "San Luis Obispo-Paso Robles, CA",
+   "short": "San Luis Obispo",
+   "kind": "metro",
+   "laus_area": "MT0642020000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "42100",
+   "name": "Santa Cruz-Watsonville, CA",
+   "short": "Santa Cruz",
+   "kind": "metro",
+   "laus_area": "MT0642100000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "42200",
+   "name": "Santa Maria-Santa Barbara, CA",
+   "short": "Santa Maria",
+   "kind": "metro",
+   "laus_area": "MT0642200000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "42220",
+   "name": "Santa Rosa-Petaluma, CA",
+   "short": "Santa Rosa",
+   "kind": "metro",
+   "laus_area": "MT0642220000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "42340",
+   "name": "Savannah, GA",
+   "short": "Savannah",
+   "kind": "metro",
+   "laus_area": "MT1342340000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "42540",
+   "name": "Scranton--Wilkes-Barre, PA",
+   "short": "Scranton",
+   "kind": "metro",
+   "laus_area": "MT4242540000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "42680",
+   "name": "Sebastian-Vero Beach-West Vero Corridor, FL",
+   "short": "Sebastian",
+   "kind": "metro",
+   "laus_area": "MT1242680000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "42700",
+   "name": "Sebring, FL",
+   "short": "Sebring",
+   "kind": "metro",
+   "laus_area": "MT1242700000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "43100",
+   "name": "Sheboygan, WI",
+   "short": "Sheboygan",
+   "kind": "metro",
+   "laus_area": "MT5543100000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "43300",
+   "name": "Sherman-Denison, TX",
+   "short": "Sherman",
+   "kind": "metro",
+   "laus_area": "MT4843300000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "43420",
+   "name": "Sierra Vista-Douglas, AZ",
+   "short": "Sierra Vista",
+   "kind": "metro",
+   "laus_area": "MT0443420000000",
+   "state_fips": "04",
+   "states": [
+    "04"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "43580",
+   "name": "Sioux City, IA-NE-SD",
+   "short": "Sioux City",
+   "kind": "metro",
+   "laus_area": "MT1943580000000",
+   "state_fips": "19",
+   "states": [
+    "19",
+    "31",
+    "46"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "43640",
+   "name": "Slidell-Mandeville-Covington, LA",
+   "short": "Slidell",
+   "kind": "metro",
+   "laus_area": "MT2243640000000",
+   "state_fips": "22",
+   "states": [
+    "22"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "43780",
+   "name": "South Bend-Mishawaka, IN-MI",
+   "short": "South Bend",
+   "kind": "metro",
+   "laus_area": "MT1843780000000",
+   "state_fips": "18",
+   "states": [
+    "18",
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "43900",
+   "name": "Spartanburg, SC",
+   "short": "Spartanburg",
+   "kind": "metro",
+   "laus_area": "MT4543900000000",
+   "state_fips": "45",
+   "states": [
+    "45"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "44140",
+   "name": "Springfield, MA",
+   "short": "Springfield",
+   "kind": "metro",
+   "laus_area": "MT2544140000000",
+   "state_fips": "25",
+   "states": [
+    "25"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "44180",
+   "name": "Springfield, MO",
+   "short": "Springfield",
+   "kind": "metro",
+   "laus_area": "MT2944180000000",
+   "state_fips": "29",
+   "states": [
+    "29"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "44220",
+   "name": "Springfield, OH",
+   "short": "Springfield",
+   "kind": "metro",
+   "laus_area": "MT3944220000000",
+   "state_fips": "39",
+   "states": [
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "44300",
+   "name": "State College, PA",
+   "short": "State College",
+   "kind": "metro",
+   "laus_area": "MT4244300000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "44420",
+   "name": "Staunton-Stuarts Draft, VA",
+   "short": "Staunton",
+   "kind": "metro",
+   "laus_area": "MT5144420000000",
+   "state_fips": "51",
+   "states": [
+    "51"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "44700",
+   "name": "Stockton-Lodi, CA",
+   "short": "Stockton",
+   "kind": "metro",
+   "laus_area": "MT0644700000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "44940",
+   "name": "Sumter, SC",
+   "short": "Sumter",
+   "kind": "metro",
+   "laus_area": "MT4544940000000",
+   "state_fips": "45",
+   "states": [
+    "45"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "45060",
+   "name": "Syracuse, NY",
+   "short": "Syracuse",
+   "kind": "metro",
+   "laus_area": "MT3645060000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "45460",
+   "name": "Terre Haute, IN",
+   "short": "Terre Haute",
+   "kind": "metro",
+   "laus_area": "MT1845460000000",
+   "state_fips": "18",
+   "states": [
+    "18"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "45500",
+   "name": "Texarkana, TX-AR",
+   "short": "Texarkana",
+   "kind": "metro",
+   "laus_area": "MT4845500000000",
+   "state_fips": "48",
+   "states": [
+    "48",
+    "05"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "45780",
+   "name": "Toledo, OH",
+   "short": "Toledo",
+   "kind": "metro",
+   "laus_area": "MT3945780000000",
+   "state_fips": "39",
+   "states": [
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "45900",
+   "name": "Traverse City, MI",
+   "short": "Traverse City",
+   "kind": "metro",
+   "laus_area": "MT2645900000000",
+   "state_fips": "26",
+   "states": [
+    "26"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "46220",
+   "name": "Tuscaloosa, AL",
+   "short": "Tuscaloosa",
+   "kind": "metro",
+   "laus_area": "MT0146220000000",
+   "state_fips": "01",
+   "states": [
+    "01"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "46300",
+   "name": "Twin Falls, ID",
+   "short": "Twin Falls",
+   "kind": "metro",
+   "laus_area": "MT1646300000000",
+   "state_fips": "16",
+   "states": [
+    "16"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "46340",
+   "name": "Tyler, TX",
+   "short": "Tyler",
+   "kind": "metro",
+   "laus_area": "MT4846340000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "46540",
+   "name": "Utica-Rome, NY",
+   "short": "Utica",
+   "kind": "metro",
+   "laus_area": "MT3646540000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "46660",
+   "name": "Valdosta, GA",
+   "short": "Valdosta",
+   "kind": "metro",
+   "laus_area": "MT1346660000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "46700",
+   "name": "Vallejo, CA",
+   "short": "Vallejo",
+   "kind": "metro",
+   "laus_area": "MT0646700000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "47020",
+   "name": "Victoria, TX",
+   "short": "Victoria",
+   "kind": "metro",
+   "laus_area": "MT4847020000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "47220",
+   "name": "Vineland, NJ",
+   "short": "Vineland",
+   "kind": "metro",
+   "laus_area": "MT3447220000000",
+   "state_fips": "34",
+   "states": [
+    "34"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "47300",
+   "name": "Visalia, CA",
+   "short": "Visalia",
+   "kind": "metro",
+   "laus_area": "MT0647300000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "47380",
+   "name": "Waco, TX",
+   "short": "Waco",
+   "kind": "metro",
+   "laus_area": "MT4847380000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "47460",
+   "name": "Walla Walla, WA",
+   "short": "Walla Walla",
+   "kind": "metro",
+   "laus_area": "MT5347460000000",
+   "state_fips": "53",
+   "states": [
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "47580",
+   "name": "Warner Robins, GA",
+   "short": "Warner Robins",
+   "kind": "metro",
+   "laus_area": "MT1347580000000",
+   "state_fips": "13",
+   "states": [
+    "13"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "47940",
+   "name": "Waterloo-Cedar Falls, IA",
+   "short": "Waterloo",
+   "kind": "metro",
+   "laus_area": "MT1947940000000",
+   "state_fips": "19",
+   "states": [
+    "19"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48060",
+   "name": "Watertown-Fort Drum, NY",
+   "short": "Watertown",
+   "kind": "metro",
+   "laus_area": "MT3648060000000",
+   "state_fips": "36",
+   "states": [
+    "36"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48140",
+   "name": "Wausau, WI",
+   "short": "Wausau",
+   "kind": "metro",
+   "laus_area": "MT5548140000000",
+   "state_fips": "55",
+   "states": [
+    "55"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48260",
+   "name": "Weirton-Steubenville, WV-OH",
+   "short": "Weirton",
+   "kind": "metro",
+   "laus_area": "MT3948260000000",
+   "state_fips": "39",
+   "states": [
+    "54",
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48300",
+   "name": "Wenatchee-East Wenatchee, WA",
+   "short": "Wenatchee",
+   "kind": "metro",
+   "laus_area": "MT5348300000000",
+   "state_fips": "53",
+   "states": [
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48540",
+   "name": "Wheeling, WV-OH",
+   "short": "Wheeling",
+   "kind": "metro",
+   "laus_area": "MT5448540000000",
+   "state_fips": "54",
+   "states": [
+    "54",
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48660",
+   "name": "Wichita Falls, TX",
+   "short": "Wichita Falls",
+   "kind": "metro",
+   "laus_area": "MT4848660000000",
+   "state_fips": "48",
+   "states": [
+    "48"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48680",
+   "name": "Wildwood-The Villages, FL",
+   "short": "Wildwood",
+   "kind": "metro",
+   "laus_area": "MT1248680000000",
+   "state_fips": "12",
+   "states": [
+    "12"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48700",
+   "name": "Williamsport, PA",
+   "short": "Williamsport",
+   "kind": "metro",
+   "laus_area": "MT4248700000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "48900",
+   "name": "Wilmington, NC",
+   "short": "Wilmington",
+   "kind": "metro",
+   "laus_area": "MT3748900000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "49020",
+   "name": "Winchester, VA-WV",
+   "short": "Winchester",
+   "kind": "metro",
+   "laus_area": "MT5149020000000",
+   "state_fips": "51",
+   "states": [
+    "51",
+    "54"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "49180",
+   "name": "Winston-Salem, NC",
+   "short": "Winston",
+   "kind": "metro",
+   "laus_area": "MT3749180000000",
+   "state_fips": "37",
+   "states": [
+    "37"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "49420",
+   "name": "Yakima, WA",
+   "short": "Yakima",
+   "kind": "metro",
+   "laus_area": "MT5349420000000",
+   "state_fips": "53",
+   "states": [
+    "53"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "49620",
+   "name": "York-Hanover, PA",
+   "short": "York",
+   "kind": "metro",
+   "laus_area": "MT4249620000000",
+   "state_fips": "42",
+   "states": [
+    "42"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "49660",
+   "name": "Youngstown-Warren, OH",
+   "short": "Youngstown",
+   "kind": "metro",
+   "laus_area": "MT3949660000000",
+   "state_fips": "39",
+   "states": [
+    "39"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "49700",
+   "name": "Yuba City, CA",
+   "short": "Yuba City",
+   "kind": "metro",
+   "laus_area": "MT0649700000000",
+   "state_fips": "06",
+   "states": [
+    "06"
+   ],
+   "ces": true,
+   "capital_of": []
+  },
+  {
+   "cbsa": "49740",
+   "name": "Yuma, AZ",
+   "short": "Yuma",
+   "kind": "metro",
+   "laus_area": "MT0449740000000",
+   "state_fips": "04",
+   "states": [
+    "04"
+   ],
+   "ces": true,
+   "capital_of": []
   }
  ],
  "supersectors": {

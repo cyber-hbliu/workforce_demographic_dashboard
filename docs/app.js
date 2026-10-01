@@ -130,7 +130,15 @@
     return { e, now, wageYoy, cpiYoy, cpiMonth: cNow?.date, real: wageYoy != null && cpiYoy != null ? (wageYoy - cpiYoy) * 100 : null };
   }
   const realOfState = (fips) => earningsSummary("state", fips)?.real ?? null;
+
+  // industry-structure typology (rose.typology), computed with each release
+  const TYPO = rose.typology && rose.typology.k ? rose.typology : null;
+  const TYPE_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"];
+  const typeOf = (level, id) => (!TYPO ? null : level === "metro" ? TYPO.metros[id] : level === "state" ? TYPO.states[id] : null) ?? null;
+  const typeColor = (t) => (t == null ? "#e6e4dc" : TYPE_COLORS[t % TYPE_COLORS.length]);
+  const typeInfo = (t) => (TYPO && t != null ? TYPO.types[t] : null);
   const realOfMetro = (id) => earningsSummary("metro", id)?.real ?? null;
+  const SECTOR_NAME = new Map(SECTORS.map(([code, name]) => [code, name]));
 
   /* -------------------------------------------------------------- tooltip */
   const tip = document.getElementById("tip");
@@ -198,8 +206,8 @@
     .attr("class", "footprint").attr("d", (m) => path(geo[m.id].g));
 
   // markers sized by nonfarm jobs (industry lens)
-  const rGlyph = d3.scaleSqrt().domain([0, 8000]).range([0, 16]).clamp(true);
-  const glyphR = (m) => Math.max(3.5, rGlyph(jobsOf("metro", m.id)));
+  const rGlyph = d3.scaleSqrt().domain([0, 8000]).range([0, 13]).clamp(true);
+  const glyphR = (m) => Math.max(2.6, rGlyph(jobsOf("metro", m.id)));
   const glyphsG = zoomLayer.append("g").attr("class", "glyph-layer");
   const glyphData = metroList.filter((m) => geo[m.id]).sort((a, b) => glyphR(b) - glyphR(a));
   const glyphs = glyphsG.selectAll("g.glyph").data(glyphData, (m) => m.id).join("g")
@@ -223,7 +231,7 @@
   });
 
   // shaded dots for the unemployment and earnings lenses
-  const rDot = d3.scaleSqrt().domain([0, 10_000_000]).range([0, 15]).clamp(true);
+  const rDot = d3.scaleSqrt().domain([0, 10_000_000]).range([0, 12]).clamp(true);
   const udotsG = zoomLayer.append("g").attr("class", "udot-layer").style("display", "none");
   const udots = udotsG.selectAll("circle").data(glyphData, (m) => m.id).join("circle")
     .attr("class", "udot")
@@ -245,11 +253,15 @@
     </div>`;
   }
   function stateTip(fips) {
-    return `<b>${esc(states[fips].name)}</b><div class="muted">State · statewide figures</div>${bigFigures("state", fips)}`;
+    return `<b>${esc(states[fips].name)}</b><div class="muted">State · statewide figures</div>${app.lens === "types" ? typePill("state", fips) : ""}${bigFigures("state", fips)}`;
+  }
+  function typePill(level, id) {
+    const t = typeInfo(typeOf(level, id));
+    return t ? `<div><span class="type-pill" style="background:${typeColor(t.id)}">${esc(t.name)}</span></div>` : "";
   }
   function metroTip(m) {
     const cap = capitalText(m);
-    return `<b>${esc(m.name)}</b><div class="muted">${geoType(m)}${cap ? ` · ${esc(cap)}` : ""}</div>${bigFigures("metro", m.id)}
+    return `<b>${esc(m.name)}</b><div class="muted">${geoType(m)}${cap ? ` · ${esc(cap)}` : ""}</div>${app.lens === "types" ? typePill("metro", m.id) : ""}${bigFigures("metro", m.id)}
       <div class="muted" style="margin-top:8px">Click to open the profile</div>`;
   }
 
@@ -316,13 +328,15 @@
   if (rateExtent[0] != null) rampColor.domain(d3.range(7).map((i) => rateExtent[0] + (i / 6) * (rateExtent[1] - rateExtent[0])));
 
   function renderLens() {
-    const lens = app.lens, ind = lens === "industry";
+    const lens = app.lens, ind = lens === "industry", typ = lens === "types", markers = ind || typ;
     statePaths.attr("fill", (d) => ind ? null
+      : typ ? (typeOf("state", d.id) != null ? d3.color(typeColor(typeOf("state", d.id))).copy({ opacity: 0.22 }).formatRgb() : null)
       : lens === "unemployment" ? (rateOfState(d.id) != null ? rampColor(rateOfState(d.id)) : "#e6e4dc")
       : realColor(realOfState(d.id)));
-    footG.style("display", ind ? null : "none");
-    glyphsG.style("display", ind ? null : "none");
-    udotsG.style("display", ind ? "none" : null);
+    footG.style("display", markers ? null : "none");
+    glyphsG.style("display", markers ? null : "none");
+    glyphs.selectAll(".core").style("fill", (m) => (typ ? typeColor(typeOf("metro", m.id)) : null));
+    udotsG.style("display", markers ? "none" : null);
     udots.attr("fill", (m) => lens === "unemployment"
       ? (rateOfMetro(m.id) != null ? rampColor(rateOfMetro(m.id)) : "#e6e4dc")
       : realColor(realOfMetro(m.id)));
@@ -330,8 +344,14 @@
       const on = b.dataset.lens === lens;
       b.classList.toggle("is-active", on); b.setAttribute("aria-pressed", on);
     });
-    legend.innerHTML = ind ? industryLegend() : lens === "unemployment" ? unemploymentLegend() : earningsLegend();
+    legend.innerHTML = ind ? industryLegend() : typ ? typesLegend() : lens === "unemployment" ? unemploymentLegend() : earningsLegend();
     if (app.level) renderDrawer(); // the pop-out follows the lens
+  }
+  function typesLegend() {
+    if (!TYPO) return `<p class="legend-title">Industry types</p><p class="legend-note">Types arrive with the next data refresh (run the "Update BLS data" workflow).</p>`;
+    return `<p class="legend-title">Industry types · ${esc(fmtMonth(rose.month))}</p>
+      <div class="type-list">${TYPO.types.map((t) => `<div class="type-row"><i style="background:${typeColor(t.id)}"></i><b>${esc(t.name)}</b><span class="n">${t.n}</span></div>`).join("")}</div>
+      <p class="legend-note" style="margin-top:8px">Metros grouped by the shape of their industry mix (location quotients, ten sectors; k-means, k = ${TYPO.k} chosen by silhouette ${TYPO.silhouette}). States take the nearest type, shaded lightly. Marker size is still nonfarm jobs. Recomputed with every release.</p>`;
   }
   function industryLegend() {
     const sizes = [100, 1000, 5000].map((j) => [j, rGlyph(j)]);
@@ -461,7 +481,7 @@
         (m1 ? `<span class="kpi-delta">${deltaHtml(now, m1, "vs " + fmtMonth(m1.date))}</span>` : "") +
         (y1 ? `<span class="kpi-delta">${deltaHtml(now, y1, "vs " + fmtMonth(y1.date))}</span>` : "")],
     ];
-    const lensTitle = { industry: "Industry", unemployment: "Unemployment", earnings: "Earnings" }[lens];
+    const lensTitle = { industry: "Industry", unemployment: "Unemployment", earnings: "Earnings", types: "Types" }[lens];
 
     body.innerHTML = `
       <p class="d-tags"><span class="d-tag">${esc(fmtMonthLong(monthTag))} release</span><span class="d-tag d-tag-geo">${esc(geoTag)}</span><span class="d-tag d-tag-geo">${lensTitle} lens</span></p>
@@ -474,10 +494,12 @@
       <p class="d-foot">${level === "metro" ? `${esc(geoShort(sel))} unemployment is not seasonally adjusted; state and national rates are. ` : ""}${
         lens === "earnings" ? "Average hourly earnings are for all employees of private employers (Current Employment Statistics, not seasonally adjusted). Prices are the CPI-U for the area's census region, all items, not seasonally adjusted; real growth is the difference between the two year-on-year changes."
         : lens === "unemployment" ? "Unemployment figures are from the Local Area Unemployment Statistics program (Current Population Survey for the nation). Rankings compare the latest published month."
+        : lens === "types" ? `Types group metropolitan areas by the log location quotients of their ten industry supersectors (k-means with k chosen by silhouette; k = ${TYPO ? TYPO.k : "–"}). A type is named by the sectors it over-represents. States are assigned to the nearest type. The grouping is recomputed with every BLS release, so an area's type can change.`
         : `Industry percentages are from the Current Employment Statistics (not seasonally adjusted); "vs U.S." divides an industry's local percentage of jobs by its national percentage.${level === "metro" && sel.kind === "micro" ? " BLS does not publish industry series for micropolitan areas." : ""}`}</p>`;
 
     const host = document.getElementById("lens-host");
     if (lens === "industry") renderIndustrySection(host, level, id);
+    else if (lens === "types") { renderTypeSection(host, level, id); renderIndustrySection(host, level, id, true); }
     else if (lens === "unemployment") renderUnemploymentSection(host, level, id, name);
     else renderEarningsSection(host, level, id, name);
   }
@@ -487,12 +509,12 @@
   });
 
   /* ------------------------------------------------------ industry lens */
-  function renderIndustrySection(host, level, id) {
+  function renderIndustrySection(host, level, id, append = false) {
     const prof = profileOf(level, id), jobs = jobsOf(level, id), jobsRow = last(seriesOf(level, id).payrolls);
-    host.innerHTML = `<section class="d-section">
+    host.insertAdjacentHTML("beforeend", `<section class="d-section">
         <div class="d-section-head"><div><div class="d-section-title">Industry structure</div><div class="d-section-sub">${prof.length ? `% of nonfarm jobs${jobsRow ? ` · ${fmtNum(Math.round(jobs))}k jobs` : ""} · ${esc(fmtMonth(jobsRow ? jobsRow.date : rose.month))}` : ""}</div></div>
           ${prof.length ? `<div class="view-toggle" id="rose-toggle"><button data-v="chart" class="${app.roseView === "chart" ? "is-active" : ""}">Rose</button><button data-v="table" class="${app.roseView === "table" ? "is-active" : ""}">Table</button></div>` : ""}</div>
-        <div id="rose-host"></div><div id="dominant-host"></div></section>`;
+        <div id="rose-host"></div><div id="dominant-host"></div></section>`);
     if (!prof.length) {
       document.getElementById("rose-host").innerHTML = `<p class="rose-note">BLS publishes no industry employment series for this area, so only the unemployment picture is shown.</p>`;
       return;
@@ -500,6 +522,23 @@
     document.getElementById("rose-toggle").onclick = (ev) => { const b = ev.target.closest("button"); if (!b) return; app.roseView = b.dataset.v; renderDrawer(); };
     if (app.roseView === "table") renderTable(prof, jobs); else renderRose(prof);
     renderDominant(prof, level);
+  }
+  function renderTypeSection(host, level, id) {
+    host.innerHTML = "";
+    const t = typeInfo(typeOf(level, id)), prof = profileOf(level, id);
+    if (level === "nation") { host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Reference</p><p class="dom-stat">The national mix is the baseline every type is measured against.</p></div>`; return; }
+    if (!t) { host.innerHTML = `<div class="type-card"><p class="dom-label">Industry type</p><p class="dom-name dom-none">Not typed</p><p class="dom-stat">${TYPO ? "Too few industry series are published for this area to place it." : "Types arrive with the next data refresh."}</p></div>`; return; }
+    const byCode = new Map(prof.map((d) => [d.code, d]));
+    const sig = SECTORS.map(([code]) => ({ code, mean: t.center[code], here: byCode.get(code)?.lq }))
+      .filter((d) => d.mean != null).sort((a, b) => Math.abs(Math.log(b.mean)) - Math.abs(Math.log(a.mean))).slice(0, 5);
+    const maxV = Math.max(...sig.flatMap((d) => [d.mean, d.here || 0]), 1.2);
+    host.innerHTML = `<div class="type-card" style="border-left-color:${typeColor(t.id)}">
+      <p class="dom-label">Industry type · ${level === "state" ? "nearest of" : "one of"} ${TYPO.k}</p>
+      <p class="dom-name">${esc(t.name)}</p>
+      <p class="dom-stat">${t.n} metropolitan areas share this profile.${level === "state" ? " As a state this is the closest type, not a cluster membership." : ""} Sectors that define the type, with the type's average and this area's own ratio to the U.S.:</p>
+      <div class="type-sig"><span class="h">sector</span><span></span><span class="h" style="text-align:right">type</span><span class="h" style="text-align:right">here</span>
+        ${sig.map((d) => `<span class="name">${esc(SECTOR_NAME.get(d.code))}</span><span class="track"><span class="bar" style="width:${(d.mean / maxV) * 100}%"></span><span class="bar here" style="width:${((d.here || 0) / maxV) * 100}%;top:5px;height:5px"></span></span><span class="v">${d.mean.toFixed(2)}×</span><span class="v">${d.here != null ? d.here.toFixed(2) + "×" : "–"}</span>`).join("")}
+      </div></div>`;
   }
   function stateMetroChips(fips) {
     const list = metroList.filter((m) => (m.states || []).includes(fips)).sort((a, b) => jobsOf("metro", b.id) - jobsOf("metro", a.id));
