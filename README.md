@@ -49,7 +49,7 @@ Two limits of the source data are carried through rather than hidden. BLS does n
 
 Geography is built from reference files, not typed by hand. A script resolves each metro's code against the BLS area list, reads its member counties from the Census Bureau's delineation file, and merges those counties into the area's real outline on the map. If a code has been retired or mistyped, the script stops rather than sending a bad request.
 
-A scheduled job checks the BLS release calendar every day and, on the day after a state or metro release, pulls about 4,000 series, recomputes every figure and publishes the new files. Nothing has to be done by hand between releases.
+The update job is scheduled only on BLS release days, at 16:00 and 20:00 UTC after the 10:00 ET release, with one retry the following day. Before fetching, it compares the time of the last successful refresh with the most recent release, so a run that finds the data already current does nothing and a failed run is retried at the next scheduled time. Each run is recorded in `docs/data/run_log.csv`. Nothing has to be done by hand between releases.
 
 ## Design
 
@@ -79,7 +79,7 @@ Known limits are stated on the page itself: metro rates are not seasonally adjus
 
 ## Running your own copy
 
-Fork or clone the repository. Get a free API key at data.bls.gov/registrationEngine and store it as a repository secret named `BLS_API_KEY`. Under Settings, Pages, choose deploy from branch with the `/docs` folder. Open the Actions tab and run the "Update BLS data" workflow once; this replaces the bundled sample data with real figures. After that the workflow runs on its own: every day at 12:00 UTC it checks `docs/data/release_dates.json` and only calls the API on the day after a scheduled release. The release calendar has to be refreshed each December from bls.gov/schedule/news_release/laus.htm and metro.htm.
+Fork or clone the repository. Get a free API key at data.bls.gov/registrationEngine and store it as a repository secret named `BLS_API_KEY`. Under Settings, Pages, choose deploy from branch with the `/docs` folder. Open the Actions tab and run the "Update BLS data" workflow once; this replaces the bundled sample data with real figures. After that the workflow runs on its own on BLS release days. Each December, update `docs/data/release_dates.json` from bls.gov/schedule/news_release/laus.htm and metro.htm, then run `python scripts/make_schedule.py` to rewrite the workflow schedule from the new dates and commit both files.
 
 To change which metros appear, edit `config/metro_selection.json` (CBSA codes, short labels, and the capital city for each state) and rebuild:
 
@@ -96,7 +96,8 @@ A full data run is about 150 requests of 50 series each, against a daily limit o
     docs/data/release_dates.json BLS release calendar (also read by the page for the next-release line)
     scripts/build_areas.py       metro_selection.json -> areas.json
     scripts/build_geo.js         county topology -> metro outlines and map anchors
-    scripts/check_release.py     exits 0 only on the day after a release
+    scripts/check_release.py     exits 0 when the last refresh predates the latest release
+    scripts/make_schedule.py     release_dates.json -> workflow schedule
     scripts/fetch_bls.py         API pull, tidying, percentages, location quotients, earnings
     scripts/make_sample_data.py  placeholder data so the page renders before the first fetch
     docs/                        the site (GitHub Pages root)

@@ -27,7 +27,7 @@ import json
 import os
 import sys
 import time
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import requests
@@ -287,6 +287,7 @@ def main() -> None:
                         for r in s["series"].get("unemp_rate", [])), default=None)
     (DATA_OUT / "meta.json").write_text(json.dumps({
         "updated": date.today().isoformat(),
+        "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "latest_state_month": latest_state,
         "latest_metro_month": latest_metro,
         "latest_ces_month": us_month,
