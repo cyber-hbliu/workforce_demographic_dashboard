@@ -2,11 +2,14 @@
 quotients, with no dependencies beyond the standard library.
 
 Features: log2 of the location quotient for each of the ten CES supersectors
-(0 = the national mix). The caller passes location quotients averaged over a
+(0 = the national mix); the first sector is the combined mining, logging and
+construction supersector (15000000), which BLS publishes for most metros in
+place of its parts. The caller passes location quotients averaged over a
 twelve-month window, so seasonal swings in a single month do not move an area
 between types. k-means with k-means++ seeding and a fixed random seed, k chosen
-by mean silhouette over 2 to 8, so the result is reproducible for a given
-release and recomputed automatically with each one. adjusted_rand() compares two
+by mean silhouette over 2 to 8 (the caller may apply a stability rule among
+near-best k; see fetch_bls.typology_with_checks), so the result is reproducible
+for a given release and recomputed automatically with each one. adjusted_rand() compares two
 groupings and is used for the stability and sensitivity checks.
 
     typology = build_typology({area_id: [profile rows with 'code' and 'lq']}, ...)
@@ -19,7 +22,7 @@ import math
 import random
 
 SECTOR_SHORT = {
-    "20000000": "construction", "30000000": "manufacturing", "40000000": "trade & transport",
+    "15000000": "mining & construction", "30000000": "manufacturing", "40000000": "trade & transport",
     "50000000": "information", "55000000": "finance", "60000000": "professional services",
     "65000000": "education & health", "70000000": "leisure & hospitality",
     "80000000": "other services", "90000000": "government",

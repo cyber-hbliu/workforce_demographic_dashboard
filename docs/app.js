@@ -29,8 +29,15 @@
   boot.remove();
 
   /* ------------------------------------------------------------ constants */
+  // the first sector is BLS's combined "mining, logging and construction" supersector
+  // (15000000), which the pipeline builds for every area; data files from before that
+  // change carry construction alone (20000000), and the page follows the data
+  const HAS_COMBINED = (national.industries || []).some((d) => d.code === "15000000");
+  const CONSTR = HAS_COMBINED
+    ? ["15000000", "Mining, Logging & Construction", "Mining & constr.", ["Mining, Logging", "& Construction"]]
+    : ["20000000", "Construction", "Constr.", ["Construction"]];
   const SECTORS = [
-    ["20000000", "Construction", "Constr.", ["Construction"]],
+    CONSTR,
     ["30000000", "Manufacturing", "Manuf.", ["Manufacturing"]],
     ["40000000", "Trade, Transportation & Utilities", "Trade & transport", ["Trade, Transportation", "& Utilities"]],
     ["50000000", "Information", "Information", ["Information"]],
@@ -42,6 +49,9 @@
     ["90000000", "Government", "Government", ["Government"]],
   ];
   const N = SECTORS.length;
+  // hourly earnings are published for construction proper, not for the combined sector
+  const AHE_SECTORS = SECTORS.filter(([code]) => code !== "90000000")
+    .map((s) => (s[0] === "15000000" ? ["20000000", "Construction", "Constr.", ["Construction"]] : s));
   const angleOf = (i) => (i / N) * 2 * Math.PI - Math.PI / 2;
   const SHARE_MAX = 0.3;
   const US_SHARE = new Map((national.industries || []).map((d) => [d.code, d.share]));
@@ -60,9 +70,9 @@
   const REAL_RAMP = ["#EE7657", "#F7C3AE", "#e8e0c8", "#A9CF7A", "#3C9C62"];
   const realScale = d3.scaleLinear().domain([-3, -1.5, 0, 1.5, 3]).range(REAL_RAMP).interpolate(d3.interpolateRgb).clamp(true);
   const realColor = (pt) => (pt == null || !isFinite(pt) ? "#e6e4dc" : realScale(pt));
-  // unemployment rate on a sequential ramp built from the site palette, light to dark:
-  // cream, mustard, olive, watermelon green (lightness falls at every step; no deep tones)
-  const RATE_RAMP = ["#FBF3D9", "#E6D88F", "#D4C361", "#B5B467", "#8FA468", "#5EA468", "#3C9C62"];
+  // unemployment rate on a single-hue sequential ramp, cream through mustard to olive
+  // brown; green is kept for the earnings lens, where it means pay ahead of prices
+  const RATE_RAMP = ["#FBF3D9", "#EDE0A4", "#D4C361", "#BBA94E", "#9E8C3E", "#7F6F31", "#5E5226"];
   const rampColor = d3.scaleLinear().range(RATE_RAMP).interpolate(d3.interpolateRgb);
 
   const fmtNum = d3.format(",");
@@ -84,9 +94,10 @@
   const parse = d3.timeParse("%Y-%m");
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const signed = (v) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(1)} pt`;
-  const deltaHtml = (now, prev, label) => now && prev
-    ? `<b class="${now.value > prev.value ? "up" : now.value < prev.value ? "down" : ""}">${signed(now.value - prev.value)}</b> ${label}`
-    : "";
+  // a change in the unemployment rate is shown in plain ink: a lower rate is not "good"
+  // for everyone it describes, and the page does not colour it as a verdict
+  const deltaHtml = (now, prev, label) => now && prev ? `<b>${signed(now.value - prev.value)}</b> ${label}` : "";
+  const ordinal = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
 
   /* ------------------------------------------------------------ app state */
   const app = { lens: "industry", level: null, id: null, roseView: "chart", county: null };
@@ -167,6 +178,8 @@
     if (!d) return "";
     const st = d.stability || [], yr = st[st.length - 1], cov = d.coverage || {}, cc = d.complete_case || {};
     const parts = [];
+    const kr = d.k_rule;
+    if (kr && kr.candidates) parts.push(`Number of types: among k from 2 to 8 whose mean silhouette is within ${kr.tolerance} of the best (${Object.entries(kr.candidates).map(([k, c]) => `k = ${k}: silhouette ${c.silhouette}, median agreement with the twelve earlier windows ${c.median_ari}`).join("; ")}), the rule takes the most stable, and the larger k on a tie: k = ${kr.chosen}.`);
     if (TYPO.silhouette != null) parts.push(`Mean silhouette ${TYPO.silhouette}${TYPO.silhouette < 0.25 ? ", a weak separation: read the types as a description of the industry mix, not as sharply distinct groups" : ""}.`);
     if (yr && yr.ari != null) parts.push(`Agreement with the grouping computed on the window ending ${fmtMonth(yr.end)}: adjusted Rand index ${yr.ari} (1 = identical).`);
     if (cc.ari_vs_main != null) parts.push(`Clustering only the ${cc.n} areas with all ten sectors gives an index of ${cc.ari_vs_main} against these types.`);
@@ -277,8 +290,11 @@
     else if (capital) { const s = R * 1.25; inner.append("path").attr("class", "core").attr("d", `M0,${-s}L${s},0L0,${s}L${-s},0Z`); }
     else inner.append("circle").attr("class", "core").attr("r", R);
     inner.append("circle").attr("class", "hit").attr("r", Math.max(R + 5, 10));
-    g.append("text").attr("class", "glyph-label").attr("y", R * 1.25 + 11).text(m.short);
   });
+  // labels live above every marker so that a neighbouring marker cannot cover them
+  const glyphLabelsG = glyphsG.append("g").attr("class", "glyph-labels");
+  const glyphLabels = glyphLabelsG.selectAll("text").data(glyphData, (m) => m.id).join("text")
+    .attr("class", "glyph-label").attr("y", (m) => glyphR(m) * 1.25 + 11).text((m) => m.short);
 
   // shaded dots for the unemployment and earnings lenses
   const rDot = d3.scaleSqrt().domain([0, 10_000_000]).range([0, 12]).clamp(true);
@@ -298,7 +314,7 @@
       const now = last(s.unemp_rate), m1 = back(s.unemp_rate, 1), y1 = back(s.unemp_rate, 12), un = last(s.unemployed);
       return `<div class="tip-figs">
       <div><span class="fig">${now ? now.value.toFixed(1) + "<small>%</small>" : "–"}</span><span class="lab">unemployment rate${now ? ` · ${esc(fmtMonth(now.date))}` : ""}</span></div>
-      <div><span class="fig ${now && y1 ? (now.value > y1.value ? "down" : now.value < y1.value ? "up" : "") : ""}">${now && y1 ? signed(now.value - y1.value) : "–"}</span><span class="lab">vs a year ago${now && m1 ? ` · ${signed(now.value - m1.value)} vs last month` : ""}</span></div>
+      <div><span class="fig">${now && y1 ? signed(now.value - y1.value) : "–"}</span><span class="lab">vs a year ago${now && m1 ? ` · ${signed(now.value - m1.value)} vs last month` : ""}</span></div>
       <div><span class="fig">${un ? fmtNum(Math.round(un.value)) : "–"}</span><span class="lab">unemployed</span></div>
     </div>`;
     }
@@ -327,7 +343,7 @@
     return `<b>${esc(c.n)}</b><div class="muted">County · ${msa ? `in ${esc(msa)} MSA` : "outside any metropolitan area"}</div>
       <div class="tip-figs">
         ${un ? `<div><span class="fig">${c.r.toFixed(1)}<small>%</small></span><span class="lab">unemployment rate · ${esc(fmtMonth(cty.month))}</span></div>
-        <div><span class="fig ${c.y1 != null ? (c.r > c.y1 ? "down" : c.r < c.y1 ? "up" : "") : ""}">${c.y1 != null ? signed(c.r - c.y1) : "–"}</span><span class="lab">vs a year ago${c.m1 != null ? ` · ${signed(c.r - c.m1)} vs last month` : ""}</span></div>`
+        <div><span class="fig">${c.y1 != null ? signed(c.r - c.y1) : "–"}</span><span class="lab">vs a year ago${c.m1 != null ? ` · ${signed(c.r - c.m1)} vs last month` : ""}</span></div>`
         : `<div><span class="fig">${c.w != null ? "$" + fmtNum(Math.round(c.w)) : "–"}</span><span class="lab">weekly wage · ${esc(fmtQuarter(cty.quarter))}</span></div>
         <div><span class="fig ${c.real != null ? (c.real >= 0 ? "up" : "down") : ""}">${c.real != null ? signed(c.real) : "–"}</span><span class="lab">real growth${c.wy != null ? ` · ${fmtSignedPct(c.wy / 100)} nominal` : ""}</span></div>`}
       </div><div class="muted" style="margin-top:8px">Click for the ${msa ? "metro" : "state"} profile</div>`;
@@ -357,6 +373,7 @@
     zoomLayer.attr("transform", t);
     const s = Math.pow(k, -0.62);
     glyphs.attr("transform", (m) => `translate(${geo[m.id].a}) scale(${s})`);
+    glyphLabels.attr("transform", (m) => `translate(${geo[m.id].a}) scale(${s})`);
     udots.attr("transform", (m) => `translate(${geo[m.id].a}) scale(${s})`);
     const ls = Math.pow(k, -0.5);
     stateLabels.attr("transform", (d) => `translate(${d.labelX},${d.labelY}) scale(${ls})`)
@@ -365,7 +382,7 @@
   }
   function layoutLabels(t, s) {
     const placed = [];
-    glyphs.select(".glyph-label").style("display", (m) => {
+    glyphLabels.style("display", (m) => {
       const R = glyphR(m);
       if (R * Math.pow(k, 0.6) < 3) return "none";
       const [ax, ay] = geo[m.id].a;
@@ -415,7 +432,7 @@
   function renderLens() {
     const lens = app.lens, ind = lens === "industry", typ = lens === "types", markers = ind || typ;
     statePaths.style("fill", (d) => ind ? null
-      : typ ? (typeOf("state", d.id) != null ? d3.interpolateRgb("#fbfaf6", typeColor(typeOf("state", d.id)))(0.42) : null)
+      : typ ? null
       : lens === "unemployment" ? (rateOfState(d.id) != null ? rampColor(rateOfState(d.id)) : "#e6e4dc")
       : realColor(realOfState(d.id)));
     footG.style("display", markers ? null : "none").classed("is-choropleth", typ);
@@ -457,7 +474,7 @@
     if (!TYPO) return `<p class="legend-title">Industry types</p><p class="legend-note">Types arrive with the next data refresh (run the "Update BLS data" workflow).</p>`;
     return `<p class="legend-title">Industry types · ${esc(fmtMonth(rose.month))}</p>
       <div class="type-list">${TYPO.types.map((t) => `<div class="type-row"><i style="background:${typeColor(t.id)}"></i><b>${esc(t.name)}</b><span class="n">${t.n}</span></div>`).join("")}</div>
-      <p class="legend-note" style="margin-top:8px">Each metropolitan area's county footprint is filled with its type: metros grouped by the shape of their industry mix (location quotients of ten sectors${TYPO_WINDOW ? `, averaged over the ${TYPO_WINDOW}` : ""}; k-means, k = ${TYPO.k} chosen by mean silhouette over ${TYPO && TYPO.silhouette_by_k ? "2" : "3"} to 8). States take the nearest type, shaded lightly; grey footprints have too few industry series to be typed. Recomputed with every release.</p>
+      <p class="legend-note" style="margin-top:8px">Each metropolitan area's county footprint is filled with its type: metros grouped by the shape of their industry mix (location quotients of ten sectors${TYPO_WINDOW ? `, averaged over the ${TYPO_WINDOW}` : ""}; k-means; ${TYPO.diagnostics && TYPO.diagnostics.k_rule ? `k = ${TYPO.k} by the stability rule in the profile` : `k = ${TYPO.k} chosen by mean silhouette over ${TYPO.silhouette_by_k ? "2" : "3"} to 8`}). States are not filled, because only metropolitan areas are clustered (a state's profile names its nearest type); grey footprints have too few industry series to be typed. Recomputed with every release.</p>
       ${TYPO_BRIEF ? `<p class="legend-note">${esc(TYPO_BRIEF)}. Open any area for how these are measured.</p>` : ""}`;
   }
   function industryLegend() {
@@ -558,6 +575,7 @@
       .classed("is-dim", (m) => level === "state" && !(m.states || []).includes(id));
     glyphs.classed("is-selected", (m) => level === "metro" && m.id === id)
       .classed("is-dim", (m) => level === "state" && !(m.states || []).includes(id));
+    glyphLabels.classed("is-dim", (m) => level === "state" && !(m.states || []).includes(id));
     udots.classed("is-selected", (m) => level === "metro" && m.id === id);
     ctyPaths.classed("is-selected", (d) => d.id === app.county);
     if (level) {
@@ -611,7 +629,7 @@
     const rateTile = ["Unemployment rate", now ? `${now.value.toFixed(1)}<small>%</small>` : "–", now ? `${src} · ${fmtMonth(now.date)}` : "",
         (m1 ? `<span class="kpi-delta">${deltaHtml(now, m1, "vs " + fmtMonth(m1.date))}</span>` : "") +
         (y1 ? `<span class="kpi-delta">${deltaHtml(now, y1, "vs " + fmtMonth(y1.date))}</span>` : "")];
-    const countDelta = (a, b, unit = "") => a && b ? `<span class="kpi-delta"><b class="${a.value >= b.value ? "up" : "down"}">${a.value >= b.value ? "+" : "−"}${fmtNum(Math.abs(Math.round((a.value - b.value) * persons)))}${unit}</b> vs ${esc(fmtMonth(b.date))}</span>` : "";
+    const countDelta = (a, b, unit = "") => a && b ? `<span class="kpi-delta"><b>${a.value >= b.value ? "+" : "−"}${fmtNum(Math.abs(Math.round((a.value - b.value) * persons)))}${unit}</b> vs ${esc(fmtMonth(b.date))}</span>` : "";
     const prof = profileOf(level, id), gov = prof.find((d) => d.code === "90000000");
     const usNow = last(national.unemp_rate);
     const r12 = (series.unemp_rate || []).slice(-12).map((d) => d.value);
@@ -624,7 +642,7 @@
         level === "nation"
           ? ["Past 12 months", r12.length ? `${d3.min(r12).toFixed(1)}–${d3.max(r12).toFixed(1)}<small>%</small>` : "–", "lowest and highest monthly rate", ""]
           : ["United States", usNow ? `${usNow.value.toFixed(1)}<small>%</small>` : "–", usNow ? `national rate · ${fmtMonth(usNow.date)}` : "",
-             now && usNow ? `<span class="kpi-delta"><b class="${now.value <= usNow.value ? "up" : "down"}">${now.value === usNow.value ? "equal to" : `${signed(now.value - usNow.value)} vs`} the U.S.</b></span>` : ""],
+             now && usNow ? `<span class="kpi-delta"><b>${now.value === usNow.value ? "equal to" : `${signed(now.value - usNow.value)} vs`} the U.S.</b></span>` : ""],
       ];
     } else if (!prof.length && !pj) {
       tiles = [];
@@ -641,7 +659,7 @@
       <div class="county-head"><span class="county-label">County you clicked</span><b>${esc(cc.n)}</b></div>
       <div class="county-figs">${lens === "unemployment"
         ? `<div><span class="fig">${cc.r.toFixed(1)}<small>%</small></span><span class="lab">unemployment · ${esc(fmtMonth(cty.month))}</span></div>
-           <div><span class="fig ${cc.y1 != null ? (cc.r > cc.y1 ? "down" : cc.r < cc.y1 ? "up" : "") : ""}">${cc.y1 != null ? signed(cc.r - cc.y1) : "–"}</span><span class="lab">vs a year ago${cc.m1 != null ? ` · ${signed(cc.r - cc.m1)} vs last month` : ""}</span></div>
+           <div><span class="fig">${cc.y1 != null ? signed(cc.r - cc.y1) : "–"}</span><span class="lab">vs a year ago${cc.m1 != null ? ` · ${signed(cc.r - cc.m1)} vs last month` : ""}</span></div>
            <div><span class="fig">${fmtNum(cc.un)}</span><span class="lab">unemployed</span></div>`
         : `<div><span class="fig">${cc.w != null ? "$" + fmtNum(Math.round(cc.w)) : "–"}</span><span class="lab">weekly wage · ${esc(fmtQuarter(cty.quarter))}</span></div>
            <div><span class="fig">${cc.wy != null ? fmtSignedPct(cc.wy / 100) : "–"}</span><span class="lab">vs a year ago</span></div>
@@ -851,7 +869,7 @@
       standing = `<div class="standing"><p class="dom-label">Where it stands · ${esc(fmtMonth(now.date))}</p>
         <div class="rank-strip"><i style="left:${pos.toFixed(1)}%"></i></div>
         <div class="rank-labels"><span>lowest ${lo.toFixed(1)}%</span><span>highest ${hi.toFixed(1)}%</span></div>
-        <p><b>${rank}${rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th"} lowest</b> unemployment rate of the ${n} ${level === "metro" ? "metropolitan areas on this map" : "states"}${usr ? `, ${now.value === usr.value ? "equal to" : now.value < usr.value ? `${(usr.value - now.value).toFixed(1)} pt below` : `${(now.value - usr.value).toFixed(1)} pt above`} the U.S. rate of ${usr.value.toFixed(1)}%` : ""}.</p>
+        <p><b>${ordinal(rank)} lowest</b> unemployment rate of the ${n} ${level === "metro" ? "areas on this map" : "states"}${usr ? `, ${now.value === usr.value ? "equal to" : now.value < usr.value ? `${(usr.value - now.value).toFixed(1)} pt below` : `${(now.value - usr.value).toFixed(1)} pt above`} the U.S. rate of ${usr.value.toFixed(1)}%` : ""}.</p>
         ${y1 ? `<p>A year ago, in ${esc(fmtMonth(y1.date))}, the rate was <b>${y1.value.toFixed(1)}%</b>${r12.length ? `; over the past twelve months it ranged from <b>${d3.min(r12).toFixed(1)}%</b> to <b>${d3.max(r12).toFixed(1)}%</b>` : ""}.</p>` : ""}
       </div>`;
     }
@@ -966,7 +984,7 @@
   // tick = U.S. average for that industry
   function renderEarningsBurst(inds, total, cpiYoy, usInds) {
     const host = d3.select("#burst-host").html("");
-    const order = SECTORS.filter(([code]) => code !== "90000000");
+    const order = AHE_SECTORS;
     const byCode = new Map(inds.map((d) => [d.code, d]));
     const usBy = new Map((usInds || []).map((d) => [d.code, d.ahe]));
     const SW = 560, SH = 470, R = 140, cx = SW / 2, cy = SH / 2 + 6, n = order.length;
