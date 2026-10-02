@@ -52,8 +52,18 @@ SUPERSECTORS = AREAS["supersectors"]
 
 LAUS_MEASURES = {"03": "unemp_rate", "04": "unemployed", "05": "employed", "06": "labor_force"}
 
-# CES average hourly earnings (data type 03): total private plus the private supersectors
-EARN_INDUSTRIES = {"05000000": "Total private", **{k: v for k, v in SUPERSECTORS.items() if k != "90000000"}}
+# BLS publishes construction (20000000) and mining and logging (10000000) separately for
+# large areas, and for most metros only their sum, the "mining, logging and construction"
+# supersector (15000000). The pipeline uses the combined sector everywhere and builds it
+# from the parts where only the parts are published (combine_sector).
+COMBINED = "15000000"
+PARTS = ("10000000", "20000000")
+CES_CODES = list(SUPERSECTORS) + [c for c in PARTS if c not in SUPERSECTORS]
+
+# CES average hourly earnings (data type 03): total private plus the private supersectors;
+# earnings are published for construction proper, not for the combined sector
+EARN_INDUSTRIES = {"05000000": "Total private", "20000000": "Construction",
+                   **{k: v for k, v in SUPERSECTORS.items() if k not in ("90000000", COMBINED)}}
 # CPI-U all items, not seasonally adjusted, for the nation and the four census regions
 CPI_SERIES = {"US": "CUUR0000SA0", "0100": "CUUR0100SA0", "0200": "CUUR0200SA0", "0300": "CUUR0300SA0", "0400": "CUUR0400SA0"}
 REGION_OF_STATE = {
@@ -91,7 +101,7 @@ def build_catalog() -> dict[str, dict]:
         for m, field in LAUS_MEASURES.items():
             cat[laus_state(fips, m)] = {"kind": "state_laus", "area": fips, "field": field}
         cat[ces(fips, "00000", "00000000")] = {"kind": "state_ces", "area": fips, "field": "total"}
-        for ind in SUPERSECTORS:
+        for ind in CES_CODES:
             cat[ces(fips, "00000", ind)] = {"kind": "state_ces", "area": fips, "field": ind}
         for ind in EARN_INDUSTRIES:
             cat[ahe(fips, "00000", ind)] = {"kind": "state_ahe", "area": fips, "field": ind}
@@ -101,7 +111,7 @@ def build_catalog() -> dict[str, dict]:
         if m["ces"]:
             cat[ces(m["state_fips"], m["cbsa"], "00000000")] = {
                 "kind": "metro_ces", "area": m["cbsa"], "field": "total"}
-            for ind in SUPERSECTORS:
+            for ind in CES_CODES:
                 cat[ces(m["state_fips"], m["cbsa"], ind)] = {
                     "kind": "metro_ces", "area": m["cbsa"], "field": ind}
             # BLS publishes metro hourly earnings for total private only
@@ -115,9 +125,29 @@ def build_catalog() -> dict[str, dict]:
         cat[sid] = {"kind": "national", "area": "US", "field": field}  # CPS, SA, levels in thousands
     cat["CES0000000001"] = {"kind": "national", "area": "US", "field": "payrolls_sa"}
     cat[ces_national("00000000")] = {"kind": "national_ces", "area": "US", "field": "total"}
-    for ind in SUPERSECTORS:
+    for ind in CES_CODES:
         cat[ces_national(ind)] = {"kind": "national_ces", "area": "US", "field": ind}
     return cat
+
+
+def combine_sector(area_ces: dict) -> str:
+    """Fill the combined mining, logging and construction series (15000000) from its parts
+    where BLS publishes only the parts, then drop the parts. Returns how the series was
+    obtained: 'published', 'summed', 'construction only', 'mining only' or 'none'."""
+    how = "published" if area_ces.get(COMBINED) else "none"
+    if how == "none":
+        mining, constr = area_ces.get(PARTS[0]) or [], area_ces.get(PARTS[1]) or []
+        if mining and constr:
+            by = {r["date"]: r["value"] for r in mining}
+            area_ces[COMBINED] = [{"date": r["date"], "value": round(r["value"] + by[r["date"]], 1)}
+                                  for r in constr if r["date"] in by]
+            how = "summed"
+        elif constr or mining:
+            area_ces[COMBINED] = constr or mining
+            how = "construction only" if constr else "mining only"
+    for part in PARTS:
+        area_ces.pop(part, None)
+    return how
 
 # ----------------------------------------------------------------- fetching
 
@@ -237,20 +267,48 @@ def window_profile(area_ces: dict, us_ces: dict, end: str) -> list[dict]:
     return out
 
 
+K_TOL = 0.01  # a k whose mean silhouette is within this of the best is a candidate
+
+
+def choose_k(windows: dict[str, dict], end: str) -> tuple[dict, list[dict], dict]:
+    """The number of types by a stated rule. Among k from 2 to 8 whose mean silhouette on
+    the current window is within K_TOL of the best, take the k whose grouping is most
+    stable: the highest median adjusted Rand index between the current grouping and the
+    groupings of the twelve earlier windows clustered with the same k; on a tie, the
+    larger k. Returns the chosen typology, its stability history, and the rule's record."""
+    current = build_typology(windows[end])
+    by_k = current["silhouette_by_k"]
+    best = max(by_k.values())
+    candidates = sorted(k for k, s in by_k.items() if s >= best - K_TOL)
+    past_ends = [e for e in windows if e != end]
+    record, fixed, histories = {}, {}, {}
+    for k in candidates:
+        fixed[k] = current if k == current["k"] else build_typology(windows[end], k_range=[k])
+        rows = []
+        for e in past_ends:
+            past = build_typology(windows[e], k_range=[k])
+            rows.append({"end": e, "k": k, "silhouette": past["silhouette"],
+                         "ari": adjusted_rand(fixed[k]["assignments"], past["assignments"])})
+        aris = sorted(r["ari"] for r in rows if r["ari"] is not None)
+        median = aris[len(aris) // 2] if len(aris) % 2 else round((aris[len(aris) // 2 - 1] + aris[len(aris) // 2]) / 2, 3)
+        record[k] = {"silhouette": by_k[k], "median_ari": median}
+        histories[k] = rows
+    chosen = max(candidates, key=lambda k: (record[k]["median_ari"] if record[k]["median_ari"] is not None else -1, k))
+    rule = {"tolerance": K_TOL, "candidates": record, "chosen": chosen,
+            "rule": "among k with mean silhouette within the tolerance of the best, the highest median "
+                    "adjusted Rand index against the twelve earlier windows at the same k; larger k on a tie"}
+    return fixed[chosen], histories[chosen], rule
+
+
 def typology_with_checks(metro_ces: dict, state_ces: dict, us_ces: dict, end: str) -> dict:
     """The typology on twelve-month features, with the checks a reader needs to judge it:
-    silhouette by k, stability against the groupings of each of the previous twelve
-    releases, sensitivity to the treatment of missing sectors, and which areas are left out."""
-    profiles = {cbsa: window_profile(ces, us_ces, end) for cbsa, ces in metro_ces.items()}
-    typ = build_typology(profiles)
-
-    # stability: same method on the windows ending 1..12 months earlier
-    history = []
-    for back in range(1, 13):
-        e = month_shift(end, -back)
-        past = build_typology({c: window_profile(ces, us_ces, e) for c, ces in metro_ces.items()})
-        history.append({"end": e, "k": past["k"], "silhouette": past["silhouette"],
-                        "ari": adjusted_rand(typ["assignments"], past["assignments"])})
+    silhouette by k and the rule that chose k, stability against the groupings of each of
+    the previous twelve windows, sensitivity to the treatment of missing sectors, and
+    which areas are left out."""
+    windows = {month_shift(end, -back): {c: window_profile(ces, us_ces, month_shift(end, -back)) for c, ces in metro_ces.items()}
+               for back in range(0, 13)}
+    profiles = windows[end]
+    typ, history, k_rule = choose_k(windows, end)
 
     # sensitivity: cluster only areas with all ten sectors, compare on those areas
     complete = {c: p for c, p in profiles.items() if len(p) == len(SECTORS)}
@@ -276,6 +334,7 @@ def typology_with_checks(metro_ces: dict, state_ces: dict, us_ces: dict, end: st
         "profiles": {"metros": {c: {r["code"]: r["lq"] for r in p} for c, p in profiles.items() if p},
                      "states": {f: {r["code"]: r["lq"] for r in p} for f, p in states.items() if p}},
         "diagnostics": {
+            "k_rule": k_rule,
             "stability": history,
             "complete_case": {"n": len(complete), "k": cc["k"], "ari_vs_main": adjusted_rand(shared, cc["assignments"])},
             "coverage": {"metros": len(METROS), "typed": len(typed), "no_ces": len(no_ces),
@@ -319,6 +378,15 @@ def main() -> None:
     state_rates = sum(bool(buckets.get("state_laus", {}).get(f, {}).get("unemp_rate")) for f in STATES)
     if state_rates < len(STATES) - 2:
         sys.exit(f"only {state_rates}/{len(STATES)} states returned unemployment data; not writing")
+
+    # the combined mining, logging and construction sector at every level
+    sector_source: dict[str, int] = {}
+    for kind in ("state_ces", "metro_ces", "national_ces"):
+        for area in buckets.get(kind, {}).values():
+            how = combine_sector(area)
+            if kind == "metro_ces":
+                sector_source[how] = sector_source.get(how, 0) + 1
+    print("mining, logging and construction for metros: " + ", ".join(f"{k} {v}" for k, v in sorted(sector_source.items())))
 
     us_ces = buckets.get("national_ces", {}).get("US", {})
     us_profile, us_month = industry_profile(us_ces, us_ces)
@@ -414,6 +482,7 @@ def main() -> None:
         "latest_county_month": county_month,
         "latest_qcew_quarter": county_quarter,
         "county_status": county_status,
+        "construction_sector_source": sector_source,
         "source": "bls_api",
         "series_requested": len(catalog),
         "series_empty": sum(empty.values()),

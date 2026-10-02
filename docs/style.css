@@ -1,6 +1,6 @@
 /* Workforce Monitor — a full-screen atlas with floating glass instruments.
    One system: paper surfaces, ink text, a green<->pink diverging pair for
-   "percentage of jobs vs the U.S." and a cream-mustard-olive-green ramp for unemployment. */
+   "percentage of jobs vs the U.S." and a single-hue cream-to-olive-brown ramp for unemployment. */
 
 :root {
   color-scheme: light;
@@ -70,7 +70,7 @@ button { font: inherit; color: inherit; }
 .glyph .halo { fill: none; stroke: var(--ink); stroke-width: 0.9; opacity: 0; }
 .glyph .hit { fill: transparent; }
 .glyph.is-selected .halo, .glyph:focus-visible .halo, .glyph:hover .halo { opacity: 0.85; }
-.glyph.is-dim { opacity: 0.22; }
+.glyph.is-dim, .glyph-label.is-dim { opacity: 0.22; }
 .glyph.no-industry .ring { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
 .glyph-label { font-family: var(--sans); font-size: 8.5px; font-weight: 500; fill: var(--ink-2); text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: var(--land); stroke-width: 2.5px; stroke-linejoin: round; }
 
@@ -279,7 +279,7 @@ button { font: inherit; color: inherit; }
 .standing .dom-label { color: var(--ink-2); }
 .standing p { font-size: 12.5px; color: var(--ink-2); margin-top: 6px; }
 .standing p b { color: var(--ink); font-weight: 600; }
-.rank-strip { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px; background: linear-gradient(to right, #FBF3D9, #D4C361, #8FA468, #3C9C62); }
+.rank-strip { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px; background: linear-gradient(to right, #FBF3D9, #D4C361, #9E8C3E, #5E5226); }
 .rank-strip i { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; background: var(--ink); border-radius: 2px; }
 .rank-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); }
 .burst-spoke { stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }

@@ -7511,7 +7511,7 @@
   }
  ],
  "supersectors": {
-  "20000000": "Construction",
+  "15000000": "Mining, Logging & Construction",
   "30000000": "Manufacturing",
   "40000000": "Trade, Transportation & Utilities",
   "50000000": "Information",
