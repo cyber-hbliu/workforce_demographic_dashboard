@@ -169,7 +169,7 @@ def fetch(series_ids: list[str]) -> list[dict]:
             if any("daily threshold" in str(m) for m in msgs):
                 # the key's 500 requests for the day are used up; retrying cannot help
                 sys.exit(f"BLS daily request limit reached after {i // 50} of {-(-len(series_ids) // 50)} requests; "
-                         "run again after the limit resets (midnight Eastern)")
+                         "the previous data files are kept. Run again later; a key allows 500 requests a day")
             print(f"retry {attempt + 1}: {msgs}", file=sys.stderr)
             time.sleep(5 * (attempt + 1))
         else:

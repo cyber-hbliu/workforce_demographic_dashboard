@@ -292,7 +292,7 @@ When a scheduled run fails: the next scheduled run retries on its own. A failure
 
 Secrets: `BLS_API_KEY` (required; free registration) and `BLS_CONTACT_EMAIL` (optional; sent in the User-Agent of download requests).
 
-Request budget: a registered key allows 500 requests a day and a refresh uses 168, so a key supports two refreshes a day with room for the scheduled retry, and a third manual run on the same day fails partway with the API's daily-threshold message (the fetch stops at once and says so; the previous data files are kept). The run of 2026-10-02 03:56 UTC failed this way after three refreshes on 2026-10-01.
+Request budget: a registered key allows 500 requests a day and a refresh uses 168, so a key supports two refreshes a day with room for the scheduled retry, and a third manual run on the same day fails partway with the API's daily-threshold message (the fetch stops at once and says so; the previous data files are kept). The runs of 2026-10-02 at 03:56 and 05:28 UTC failed this way after three refreshes on 2026-10-01; the second shows that the allowance had not been restored by 01:28 Eastern, so the day the API counts is not the Eastern calendar day, and a run that hits the limit should be repeated the following day rather than after midnight.
 
 After merging a change to the page: nothing to do; GitHub Pages redeploys on push. After merging a change to the pipeline: run "Update BLS data" by hand once so the data files reflect the new code before the next release day.
 
