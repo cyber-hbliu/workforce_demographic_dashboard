@@ -5,3 +5,4 @@ run_utc,event,outcome,data_updated,series_requested,series_empty,state_month,met
 2026-10-02T04:00:44Z,workflow_dispatch,failure,2026-10-01,7522,805,2026-08,2026-08,2026-08,2026Q1,
 2026-10-02T05:28:38Z,workflow_dispatch,failure,2026-10-01,7522,805,2026-08,2026-08,2026-08,2026Q1,
 2026-10-02T05:31:37Z,workflow_dispatch,failure,2026-10-01,7522,805,2026-08,2026-08,2026-08,2026Q1,
+2026-10-02T23:37:51Z,workflow_dispatch,success,2026-10-02,8400,1194,2026-08,2026-08,2026-08,2026Q1,refreshed
