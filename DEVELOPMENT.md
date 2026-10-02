@@ -64,6 +64,24 @@ Industry type: result on the current data. On the August 2026 window the method 
 
 Industry type: the number of types. Two groups means the typology on this data is close to a single split on manufacturing intensity. Whether to require at least three types is an open design decision at the time of writing. With k restricted to 3 to 8 the same features give k = 3 at silhouette 0.200: Manufacturing-led (123), Diversified, near the U.S. mix (110) and Government-led (91), which is the grouping the earlier single-month method had produced (121, 111, 91 at silhouette 0.197). The difference in silhouette between two and three groups (0.005) is small against the month-to-month variation of the statistic, so the choice is one of usefulness to the reader rather than of fit, and whichever is adopted should be stated as a rule in this section and in the page's legend.
 
+### 1.4 Provenance and limits of each source
+
+A reader of any figure should be able to answer what it measures, who collected it and why, when and how, and what is missing (Chapple, Urban Data Storytelling). The table collects those answers for the five programs the page draws on; the page itself carries the parts that matter at the point of reading (month, geography, program, adjustment).
+
+| Program | What it measures and the unit | How it is collected | Census or sample | Frequency, lag, revisions | Adjustment | What is missing |
+|---|---|---|---|---|---|---|
+| LAUS | Labor force, employment, unemployment and the rate for states, metros and counties; people, by place of residence | Model-based estimates that combine the CPS household survey, the CES payroll survey and unemployment insurance claims; county figures are built by a disaggregation method and summed to the state | Estimate | Monthly; states about three weeks after the month, metros and counties about five; revised in the following month and each spring for the previous year | States seasonally adjusted; metros and counties not | Error widens as areas get smaller; no demographic breakdown at these geographies |
+| CES | Nonfarm jobs by industry and average hourly earnings for states, metros and the nation; jobs, by place of work | Monthly survey of employer payrolls | Sample | Monthly; revised in the two following months and benchmarked each year to QCEW | Industry series used here are not seasonally adjusted; the masthead headline is | Self-employed, farm workers, private household workers and unpaid family workers; a person with two jobs counts twice; small metros lack many industries |
+| CPS | National labor force, employment, unemployment; people | Monthly household survey | Sample | Monthly, usually the first Friday after the month; seasonal factors revised each year | Seasonally adjusted | Used only at the national level here |
+| QCEW | Average weekly wage of covered employment for counties, metros, states and the nation; jobs | Quarterly reports that employers file under unemployment insurance law | Near census (BLS states coverage above 95% of jobs) | Quarterly, about five months after the quarter; revised with the next quarter | None | Self-employed and other uncovered workers; the average moves with the mix of jobs, not only with pay |
+| CPI-U | All-items price index for the nation and four census regions; prices faced by urban consumers | Price collection from retail outlets, service providers and rental units | Sample | Monthly; regional indexes not seasonally adjusted here | Not seasonally adjusted | Metropolitan indexes exist for fewer than 25 areas, so metros take their region's index |
+
+Levels of measurement. Rates and changes are ratio data and are shown to one decimal place, as BLS publishes them; location quotients are ratios shown to two decimals; the industry type is a nominal category produced by the project, not by BLS, and is labeled as such. The page adds no decimal places beyond the source, because the model-based county and metro figures do not support them.
+
+Aggregation. An MSA figure is an aggregate over its counties and a county figure over its residents or its employers; neither describes every town, block or person inside the boundary, and inferring individual conditions from them is the ecological fallacy. The county layer exists so that variation within an area is shown rather than assumed, and the profile states the unit at the top of every panel. The page draws no conclusion about individuals and offers no breakdown that the source does not publish.
+
+Boundaries. The areas are administrative. The Office of Management and Budget redraws core-based statistical areas after each census and between censuses; the 2023 delineation differs from the 2020 one, and Connecticut's county equivalents changed altogether. An area's figures change when its boundary does (Hartford's area moved from three legacy counties to two planning regions, and Bridgeport's from one county to two regions), so the vintage is named in this document and the member counties are listed on the page. A reader who knows a place may draw its boundary differently from OMB, and the county layer lets them read the part they mean.
+
 ## 2. System structure
 
 The system has three layers with one direction of dependency: configuration and build produce geography; the pipeline produces data; the page consumes both. Nothing runs on a server. The page is static files on GitHub Pages; the pipeline is a GitHub Actions workflow; the only external services at run time are the BLS public API, three BLS download sites and the Census Bureau's TIGERweb service, all public.
@@ -214,6 +232,18 @@ The page uses one palette so that the four lenses read as one piece. Surfaces: s
 
 One typeface (Source Code Pro) so figures align; black text on light panels; a dark surround so the country is the subject; every color scale has an on-screen legend; a color is never the only carrier of a value (the number is always present in the profile or the hover); charts have a table or a hover readout; text is set with an escaping helper. Marks follow fixed specs: 2 px lines, hairline grids, a 2 px surface gap between adjacent fills, white county strokes at 0.35 px that stay constant under zoom.
 
+### 5.5 Rules for shared ground
+
+Four rules, drawn from the data-storytelling practice described by Chapple and colleagues at the School of Cities, shape how the page speaks.
+
+Credentials on every view. The what, who, when and how of each figure travel with it: the hover card and every tile name the figure, its geography, its month and its program; the legend names the adjustment; the footnote of each profile names the source and its limits. A cropped screenshot of any part of the page still identifies its data.
+
+Assets before deficits. The first lens is the industry mix, and the profile opens with how many jobs a place has, its largest sector and its specialty, before any measure of what it lacks. Types group places by the shape of their economy and are not ranked. Where a measure has two directions, both are drawn on the same scale with the neutral point visible (pay ahead of or behind prices; a rate above or below the nation), so no place is shown only as a shortfall.
+
+Precision that the data supports. Rates to one decimal, ratios to two, no more. The weak separation of the industry types is stated beside them in the legend and the profile, with the silhouette value, rather than implied away by crisp colors.
+
+Trends, not forecasts. The ten-year trend and the earnings-vs-prices index show what happened; the page projects nothing and draws no trend line into the future, so a reader is left with the record and their own agency rather than an implied inevitability.
+
 ## 6. Evaluation hooks
 
 The system records what is needed to evaluate it without instrumenting users.
@@ -235,6 +265,8 @@ Data. All inputs are public: the BLS public API (registration key, 500 requests 
 Infrastructure. GitHub Actions runs the pipeline on a free tier; GitHub Pages serves the site; a CNAME record points `workforce.usllab.org` at it. There is no database and no server-side code, so a copy can be run by forking the repository and adding one secret.
 
 Reuse. The area list is a configuration file; a user can restrict the map to one state's metros or extend it by editing it and running the rebuild workflow. The typology module is independent of the rest and can be run on any set of LQ profiles. The page reads the documented schema of section 3, so another front end can consume the same files, and the data files can be read directly by anyone who wants the figures without the page.
+
+Ethics. Every figure is an aggregate published by BLS under its own disclosure rules; the page handles no record about any person or employer and cannot be used to identify one. The page collects nothing about its readers: no analytics, cookies or accounts, and no request leaves the browser except for the page's own files and its fonts. Every number is auditable to a named series or table and a month (section 6), the code is open, and every data refresh is a commit, so a figure quoted from the page can be checked by anyone against the source and against the page as it stood on that day.
 
 Presentation elsewhere. The Urban Spatial Lab site links to the dashboard as a project page with screenshots and two diagrams (`press/`); the dashboard is not embedded in an iframe because it is a full-viewport application. Deep links let a project page or an article open the map at a specific area and lens.
 
@@ -259,6 +291,8 @@ After merging a change to the page: nothing to do; GitHub Pages redeploys on pus
 Clone the repository; set the `BLS_API_KEY` secret; run the "Update BLS data" workflow once. To rebuild geography locally: `pip install requests openpyxl xlrd`, `npm install --no-save topojson-server topojson-simplify`, `node scripts/patch_counties.js`, `python scripts/build_areas.py`, `node scripts/build_geo.js`. To refresh data locally: `BLS_API_KEY=... python scripts/fetch_bls.py` (set `COUNTY_CACHE` to a directory to reuse downloaded county files). To regenerate the schedule after editing the release calendar: `python scripts/make_schedule.py`. To run the typology on the stored twelve-month features: `python -c "import json, sys; sys.path.insert(0, 'scripts'); from typology import build_typology; p = json.load(open('docs/data/rose.json'))['typology']['profiles']['metros']; print(build_typology({c: [{'code': k, 'lq': v} for k, v in d.items()] for c, d in p.items()})['types'])"`. To work on the page without data: `python scripts/make_sample_data.py` and serve `docs/` with any static server. Every data refresh is a commit, so any past state of the site can be checked out by date.
 
 ## References
+
+Chapple, K. and Zhang, M. Urban Data Storytelling: Data literacy; Creating shared ground through data storytelling; Data ethics and equity; Communicating data in presentations. School of Cities, University of Toronto. https://schoolofcities.github.io/urban-data-storytelling/.
 
 Hubert, L. and Arabie, P. (1985). Comparing partitions. Journal of Classification, 2(1), 193–218.
 

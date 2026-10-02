@@ -20,7 +20,7 @@ How is my area doing right now, and is it getting better or worse? Which industr
 
 ## Assumptions and ideas
 
-We started from four positions.
+We started from five positions.
 
 The map should be the interface. Labor-market data is spatial; the first thing a reader wants to do is find their own place. A full-screen map with a search box beats a table with a dropdown.
 
@@ -29,6 +29,8 @@ One page, four lenses. Employment structure, unemployment, earnings and industry
 Compare, don't just report. A 4.2% unemployment rate means little on its own. It means something next to the national rate, the state's other metros, and the same month a year earlier. Every figure on the page is shown with at least one comparison.
 
 Be honest about geography. Most published metro statistics describe a metropolitan statistical area (MSA), a group of counties defined by the federal Office of Management and Budget, not a city. "Urban Honolulu, HI" is Honolulu County. The dashboard says this on every profile and lists the counties, because conflating the two is the most common misreading of this data.
+
+Show what a place has, not only what it lacks. Labor-market pages tend to lead with the unemployment rate, which frames every place by a deficit. Here the first lens is the industry mix: the profile opens with how many jobs a place has, which sector is largest and what the place is known for compared with the rest of the country, and the industry types group places by the shape of their economy, with no type ranked above another. Where a figure can go either way, the page shows both directions on the same scale (pay ahead of prices or behind them, a rate above the nation or below it) rather than a score.
 
 ## Methods
 
@@ -52,6 +54,24 @@ Geography is built from reference files, not typed by hand. A script resolves ea
 
 The update job is scheduled only on BLS release days, at 16:00 and 20:00 UTC after the 10:00 ET release, with one retry the following day. Before fetching, it compares the time of the last successful refresh with the most recent release, so a run that finds the data already current does nothing and a failed run is retried at the next scheduled time. The same run downloads the LAUS county table and the latest QCEW quarter and writes the county file. If that download fails, the previous county file is kept, the run page shows a warning, `meta.json` records the failure, and the page says which month the county layer shows. Each run is recorded in `docs/data/run_log.csv`, including the county month, the QCEW quarter and whether the county file was refreshed. Nothing has to be done by hand between releases.
 
+## What the data can and cannot say
+
+Every figure on the page comes from a federal statistical program with its own purpose, method and gaps. The page carries the answers to the questions a careful reader should ask of any dataset, and this section collects them.
+
+What the data says. An unemployment rate is the share of the labor force that had no job, looked for one in the past four weeks and was available to work; people who stopped looking are not in it. Nonfarm jobs count positions on payrolls, not people, so a person with two jobs is counted twice and the self-employed are not counted. Average hourly earnings cover private employees only; the QCEW weekly wage covers nearly all employers but is an average over every job in the area, so it moves when the mix of jobs changes as well as when pay does.
+
+Who collected it and why. All of it is from the Bureau of Labor Statistics, a federal statistical agency, collected to measure the national and local labor market and, in the case of the local unemployment figures, to allocate federal workforce funds. None of it was collected to answer the questions on this page, and the page does not pretend otherwise: it combines four programs and says which one each figure comes from.
+
+When. Monthly figures appear about three weeks (states) to five weeks (metros and counties) after the month they describe, and the county wage figures about five months after the quarter. BLS revises recent months in later releases and all of the previous year each spring, so a figure read today can differ slightly from the same figure read next year. The page shows the month of every figure and the date the data were pulled.
+
+How. The unemployment figures for states, metros and counties are model-based estimates that combine a household survey, a payroll survey and unemployment insurance claims; the smaller the area, the wider the error around them. The jobs and earnings figures come from a sample survey of employers. The county wages come from administrative records that cover nearly every employer, which is why they lag. Metro and county rates are not seasonally adjusted; state and national rates are. The page states each of these where the figure appears.
+
+What is missing. People outside the labor force, the self-employed, farm workers and informal work are absent from most of these series. BLS publishes no industry employment or hourly earnings below the metropolitan level, no earnings by industry for metros, and no breakdown by age, sex, race or education at the geographies shown here, so the page cannot show who holds the jobs or who is unemployed, only how many. Metro consumer prices exist for fewer than 25 areas, so the price comparison uses the census region.
+
+Aggregation and boundaries. A metropolitan figure is an average over its counties, and a county figure over its residents; neither describes every town or every person inside the line, and the page draws counties so that a reader can see the variation inside an area rather than infer it. The lines themselves are administrative: the Office of Management and Budget redraws metropolitan areas every few years, and the figures for an area change when its counties change, which is why the page names the vintage it uses and lists the counties.
+
+Precision. Rates are shown to one decimal place, as BLS publishes them, and no further; location quotients to two. The industry types are a description with a stated and weak separation between groups, not a classification with sharp edges, and the page says so beside them.
+
 ## Design
 
 The page is one full-screen map with a small set of floating panels, so the data never scrolls away from the geography it describes.
@@ -64,7 +84,7 @@ Hover: a card with the official name and the figures of the current lens. In the
 
 The profile: clicking a place slides out a panel whose content depends on the lens. The industry lens shows nonfarm jobs, their change over the year and the private-sector percentage, then a rose chart in which each of ten industries is a petal sized by its percentage of jobs, colored green where the area has proportionally fewer of those jobs than the nation and pink where it has more, with a black outline showing the national mix. Two cards below name the largest sector and the specialty, the industry most concentrated relative to the U.S. among those with a meaningful share of local jobs. The unemployment lens shows only unemployment figures: the rate with its monthly and annual change, the number unemployed, the national rate for comparison, a ten-year trend against the nation, where the area ranks among its peers, and the rate of every county in the area. The earnings lens shows hourly earnings, regional price change and real growth, the QCEW weekly wage with its real change, a burst chart of earnings by industry against the U.S. average for each, and an index chart of earnings against prices since 2016. The types lens shows the type card, the distance from the area to every type, and the other metropolitan areas of the same type; a state sees its metros with the type of each. When a county was clicked, its own figures sit at the top of the panel. A state profile also lists the metros inside it.
 
-Typography and color were chosen for reading numbers: a monospaced face so figures align, black text on light panels, and a dark surround so the country reads as the subject. Every color scale has a legend on screen.
+Typography and color were chosen for reading numbers: a monospaced face so figures align, black text on light panels, and a dark surround so the country reads as the subject. Every color scale has a legend on screen. Every view carries its credentials: the figure, its geography, its month, its source program and its adjustment are on the same card, so a screenshot of any part of the page can stand on its own.
 
 ## Results
 
@@ -74,7 +94,7 @@ Because the pipeline is automatic, the page is refreshed on the day of each rele
 
 ## Testing and verification
 
-Series identifiers are validated against the BLS area lists before any request is made, and the fetch refuses to overwrite good data if a run returns empty results for most states. The figures shown on the site were checked against the BLS data tables for several areas (Philadelphia employment, Texas unemployment, Colorado hourly earnings among them) and against the seasonally adjusted national figures in the monthly Employment Situation release. The page was rendered in a headless browser across desktop and mobile sizes at each stage of development, and every chart has a hover readout so a reader can verify any value by pointing at it.
+Series identifiers are validated against the BLS area lists before any request is made, and the fetch refuses to overwrite good data if a run returns empty results for most states. The figures shown on the site were checked against the BLS data tables for several areas (Philadelphia employment, Texas unemployment, Colorado hourly earnings among them) and against the seasonally adjusted national figures in the monthly Employment Situation release. The page was rendered in a headless browser across desktop and mobile sizes at each stage of development, and every chart has a hover readout so a reader can verify any value by pointing at it. The page collects nothing about its readers: no analytics, no cookies, no accounts, and no request leaves the browser other than for the page's own files and its fonts.
 
 The county file was checked for completeness after the first run: 3,143 counties and county equivalents, every one of which has a shape on the map after the county topology was brought up to the current Connecticut planning regions and Alaska census areas. Known limits are stated on the page itself: metro and county rates are not seasonally adjusted, and county rates are model-based estimates that are less precise for small counties; county wages come from a quarterly census that is published about five months after the quarter ends, and a change in the average weekly wage can reflect a change in the mix of jobs as well as in pay; the six micropolitan capitals have no industry series; metro earnings are published only as a private-sector total; regional CPI is used for metros because BLS publishes metro CPIs for fewer than 25 areas; the industry types depend on the clustering settings and on the data window, the separation between types is weak (mean silhouette about 0.2), and an area near the boundary between two types can move between releases. Each workflow run appends a line to `docs/data/run_log.csv` (time, trigger, outcome, data months, county month, QCEW quarter, county status), which is the record used to evaluate the pipeline.
 
