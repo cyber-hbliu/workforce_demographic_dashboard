@@ -59,11 +59,13 @@
   const REGION_NAME = { US: "United States", "0100": "Northeast", "0200": "Midwest", "0300": "South", "0400": "West" };
 
   const GREEN = "#148f62", PINK = "#d4417f", NEUTRAL = "#b5b3ab";
-  const toGreen = d3.interpolateRgb(NEUTRAL, GREEN), toPink = d3.interpolateRgb(NEUTRAL, PINK);
+  // location quotient on a one-sided ramp: warm grey up to the U.S. percentage, deepening
+  // to pink at 2x or more. Below-U.S. petals need no hue of their own, because the black
+  // outline of the national mix already shows which petals fall short of it.
+  const toPink = d3.interpolateRgb(NEUTRAL, PINK);
   const lqColor = (lq) => {
     if (lq == null || !isFinite(lq)) return NEUTRAL;
-    const t = Math.max(-1, Math.min(1, Math.log2(lq)));
-    return t < 0 ? toGreen(-t) : toPink(t);
+    return toPink(Math.max(0, Math.min(1, Math.log2(lq))));
   };
   // real earnings growth in percentage points, drawn on a diverging ramp:
   // salmon (trailing prices) through a warm neutral to watermelon green (ahead of prices), ±3 pt
@@ -491,8 +493,8 @@
       <p class="legend-note"><b>Size</b> = total nonfarm jobs · <b>diamond</b> = the area holds a state capital ·
       <b>hollow ring</b> = BLS publishes unemployment but no industry series · <b>grey outline</b> = the MSA's county footprint.
       Click a marker to open its industry rose.</p>
-      <div class="legend-ramp" style="background:linear-gradient(to right,${GREEN},${NEUTRAL},${PINK})"></div>
-      <div class="legend-ramp-labels"><span>rose: ½× the U.S. %</span><span>same</span><span>2× or more</span></div>`;
+      <div class="legend-ramp" style="background:linear-gradient(to right,${NEUTRAL},${NEUTRAL} 50%,${PINK})"></div>
+      <div class="legend-ramp-labels"><span>rose: at or below the U.S. %</span><span>same</span><span>2× or more</span></div>`;
   }
   function unemploymentLegend() {
     if (COUNTY) {
@@ -806,7 +808,7 @@
       t.append("tspan").attr("class", "rose-value").attr("x", x).attr("y", y0 + lines.length * lh).text(`${fmtPct(d.share)}${d.lq != null ? ` · ${d.lq.toFixed(2)}×` : ""}`);
     });
     host.append("div").attr("class", "rose-legend").html(
-      `<span><i></i>the U.S. mix</span><span><span style="color:${GREEN}">■</span> below the U.S. %</span><span><span style="color:${PINK}">■</span> above the U.S. %</span><span>× = local % ÷ U.S. %</span>`);
+      `<span><i></i>the U.S. mix</span><span><span style="color:${NEUTRAL}">■</span> at or below the U.S. %</span><span><span style="color:${PINK}">■</span> above the U.S. %, deeper with the ratio</span><span>× = local % ÷ U.S. %</span>`);
   }
   function petalTip(d) {
     return `<b>${esc(d.industry)}</b>
