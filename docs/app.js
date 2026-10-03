@@ -96,9 +96,10 @@
   const parse = d3.timeParse("%Y-%m");
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const signed = (v) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(1)} pt`;
-  // a change in the unemployment rate is shown in plain ink: a lower rate is not "good"
-  // for everyone it describes, and the page does not colour it as a verdict
-  const deltaHtml = (now, prev, label) => now && prev ? `<b>${signed(now.value - prev.value)}</b> ${label}` : "";
+  // every change on the page is coloured by direction, a rise in teal and a fall in
+  // orange-red, whatever the measure; the colour marks direction, not a verdict
+  const dirClass = (d) => (d > 0 ? "up" : d < 0 ? "down" : "");
+  const deltaHtml = (now, prev, label) => now && prev ? `<b class="${dirClass(now.value - prev.value)}">${signed(now.value - prev.value)}</b> ${label}` : "";
   const ordinal = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
 
   /* ------------------------------------------------------------ app state */
@@ -315,7 +316,7 @@
       const now = last(s.unemp_rate), m1 = back(s.unemp_rate, 1), y1 = back(s.unemp_rate, 12), un = last(s.unemployed);
       return `<div class="tip-figs">
       <div><span class="fig">${now ? now.value.toFixed(1) + "<small>%</small>" : "–"}</span><span class="lab">unemployment rate${now ? ` · ${esc(fmtMonth(now.date))}` : ""}</span></div>
-      <div><span class="fig">${now && y1 ? signed(now.value - y1.value) : "–"}</span><span class="lab">vs a year ago${now && m1 ? ` · ${signed(now.value - m1.value)} vs last month` : ""}</span></div>
+      <div><span class="fig ${now && y1 ? dirClass(now.value - y1.value) : ""}">${now && y1 ? signed(now.value - y1.value) : "–"}</span><span class="lab">vs a year ago${now && m1 ? ` · ${signed(now.value - m1.value)} vs last month` : ""}</span></div>
       <div><span class="fig">${un ? fmtNum(Math.round(un.value)) : "–"}</span><span class="lab">unemployed</span></div>
     </div>`;
     }
@@ -344,7 +345,7 @@
     return `<b>${esc(c.n)}</b><div class="muted">County · ${msa ? `in ${esc(msa)} MSA` : "outside any metropolitan area"}</div>
       <div class="tip-figs">
         ${un ? `<div><span class="fig">${c.r.toFixed(1)}<small>%</small></span><span class="lab">unemployment rate · ${esc(fmtMonth(cty.month))}</span></div>
-        <div><span class="fig">${c.y1 != null ? signed(c.r - c.y1) : "–"}</span><span class="lab">vs a year ago${c.m1 != null ? ` · ${signed(c.r - c.m1)} vs last month` : ""}</span></div>`
+        <div><span class="fig ${c.y1 != null ? dirClass(c.r - c.y1) : ""}">${c.y1 != null ? signed(c.r - c.y1) : "–"}</span><span class="lab">vs a year ago${c.m1 != null ? ` · ${signed(c.r - c.m1)} vs last month` : ""}</span></div>`
         : `<div><span class="fig">${c.w != null ? "$" + fmtNum(Math.round(c.w)) : "–"}</span><span class="lab">weekly wage · ${esc(fmtQuarter(cty.quarter))}</span></div>
         <div><span class="fig ${c.real != null ? (c.real >= 0 ? "up" : "down") : ""}">${c.real != null ? signed(c.real) : "–"}</span><span class="lab">real growth${c.wy != null ? ` · ${fmtSignedPct(c.wy / 100)} nominal` : ""}</span></div>`}
       </div><div class="muted" style="margin-top:8px">Click for the ${msa ? "metro" : "state"} profile</div>`;
@@ -630,7 +631,7 @@
     const rateTile = ["Unemployment rate", now ? `${now.value.toFixed(1)}<small>%</small>` : "–", now ? `${src} · ${fmtMonth(now.date)}` : "",
         (m1 ? `<span class="kpi-delta">${deltaHtml(now, m1, "vs " + fmtMonth(m1.date))}</span>` : "") +
         (y1 ? `<span class="kpi-delta">${deltaHtml(now, y1, "vs " + fmtMonth(y1.date))}</span>` : "")];
-    const countDelta = (a, b, unit = "") => a && b ? `<span class="kpi-delta"><b>${a.value >= b.value ? "+" : "−"}${fmtNum(Math.abs(Math.round((a.value - b.value) * persons)))}${unit}</b> vs ${esc(fmtMonth(b.date))}</span>` : "";
+    const countDelta = (a, b, unit = "") => a && b ? `<span class="kpi-delta"><b class="${dirClass(a.value - b.value)}">${a.value >= b.value ? "+" : "−"}${fmtNum(Math.abs(Math.round((a.value - b.value) * persons)))}${unit}</b> vs ${esc(fmtMonth(b.date))}</span>` : "";
     const prof = profileOf(level, id), gov = prof.find((d) => d.code === "90000000");
     const usNow = last(national.unemp_rate);
     const r12 = (series.unemp_rate || []).slice(-12).map((d) => d.value);
@@ -660,7 +661,7 @@
       <div class="county-head"><span class="county-label">County you clicked</span><b>${esc(cc.n)}</b></div>
       <div class="county-figs">${lens === "unemployment"
         ? `<div><span class="fig">${cc.r.toFixed(1)}<small>%</small></span><span class="lab">unemployment · ${esc(fmtMonth(cty.month))}</span></div>
-           <div><span class="fig">${cc.y1 != null ? signed(cc.r - cc.y1) : "–"}</span><span class="lab">vs a year ago${cc.m1 != null ? ` · ${signed(cc.r - cc.m1)} vs last month` : ""}</span></div>
+           <div><span class="fig ${cc.y1 != null ? dirClass(cc.r - cc.y1) : ""}">${cc.y1 != null ? signed(cc.r - cc.y1) : "–"}</span><span class="lab">vs a year ago${cc.m1 != null ? ` · ${signed(cc.r - cc.m1)} vs last month` : ""}</span></div>
            <div><span class="fig">${fmtNum(cc.un)}</span><span class="lab">unemployed</span></div>`
         : `<div><span class="fig">${cc.w != null ? "$" + fmtNum(Math.round(cc.w)) : "–"}</span><span class="lab">weekly wage · ${esc(fmtQuarter(cty.quarter))}</span></div>
            <div><span class="fig">${cc.wy != null ? fmtSignedPct(cc.wy / 100) : "–"}</span><span class="lab">vs a year ago</span></div>
