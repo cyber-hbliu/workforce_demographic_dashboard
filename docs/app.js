@@ -58,7 +58,7 @@
   const STATE_NAME = (fips) => states[fips]?.name || fips;
   const REGION_NAME = { US: "United States", "0100": "Northeast", "0200": "Midwest", "0300": "South", "0400": "West" };
 
-  const GREEN = "#148f62", PINK = "#d4417f", NEUTRAL = "#b5b3ab";
+  const PINK = "#d4417f", NEUTRAL = "#b5b3ab";
   // location quotient on a one-sided ramp: warm grey up to the U.S. percentage, deepening
   // to pink at 2x or more. Below-U.S. petals need no hue of their own, because the black
   // outline of the national mix already shows which petals fall short of it.
@@ -68,13 +68,13 @@
     return toPink(Math.max(0, Math.min(1, Math.log2(lq))));
   };
   // real earnings growth in percentage points, drawn on a diverging ramp:
-  // salmon (trailing prices) through a warm neutral to watermelon green (ahead of prices), ±3 pt
-  const REAL_RAMP = ["#EE7657", "#F7C3AE", "#e8e0c8", "#A9CF7A", "#3C9C62"];
+  // lavender (trailing prices) through near-white to mint green (ahead of prices), ±3 pt
+  const REAL_RAMP = ["#9686C2", "#C9C0E0", "#F6F5F1", "#ABD9B9", "#4FA376"];
   const realScale = d3.scaleLinear().domain([-3, -1.5, 0, 1.5, 3]).range(REAL_RAMP).interpolate(d3.interpolateRgb).clamp(true);
   const realColor = (pt) => (pt == null || !isFinite(pt) ? "#e6e4dc" : realScale(pt));
-  // unemployment rate on a single-hue sequential ramp, cream through mustard to olive
-  // brown; green is kept for the earnings lens, where it means pay ahead of prices
-  const RATE_RAMP = ["#FBF3D9", "#EDE0A4", "#D4C361", "#BBA94E", "#9E8C3E", "#7F6F31", "#5E5226"];
+  // unemployment rate on a yellow-green sequential ramp, lemon through watermelon to olive,
+  // lightness falling at every step; hue kept apart from the mint of the earnings ramp
+  const RATE_RAMP = ["#F3F6C8", "#E0EC8F", "#B8D96B", "#86C05A", "#5A9C47", "#4C7A33", "#45592A"];
   const rampColor = d3.scaleLinear().range(RATE_RAMP).interpolate(d3.interpolateRgb);
 
   const fmtNum = d3.format(",");
@@ -153,8 +153,8 @@
 
   // industry-structure typology (rose.typology), computed with each release
   const TYPO = rose.typology && rose.typology.k ? rose.typology : null;
-  // fixed categorical order from the site palette: green, coral, mustard, pink, sage, light green, peach, wine
-  const TYPE_COLORS = ["#3E8340", "#F69680", "#D4C361", "#EF99B7", "#8A9671", "#BADD7F", "#F7C3AE", "#a92a60"];
+  // fixed categorical order: salmon, brown-green, ochre, pink, sage, peach, wine, lavender
+  const TYPE_COLORS = ["#F28C74", "#6B6A33", "#D4B85A", "#EF99B7", "#A7B48A", "#F7C3AE", "#a92a60", "#9686C2"];
   const typeOf = (level, id) => (!TYPO ? null : level === "metro" ? TYPO.metros[id] : level === "state" ? TYPO.states[id] : null) ?? null;
   const typeColor = (t) => (t == null ? "#e6e4dc" : TYPE_COLORS[t % TYPE_COLORS.length]);
   const typeInfo = (t) => (TYPO && t != null ? TYPO.types[t] : null);
@@ -1033,7 +1033,7 @@
     });
     g.append("circle").attr("r", 3).attr("fill", "#0b0b0b");
     host.append("div").attr("class", "rose-legend").html(
-      `<span><b>spoke</b> = hourly earnings</span><span><span style="color:${GREEN}">●</span> rising faster than prices</span><span><span style="color:${PINK}">●</span> trailing prices</span><span><i></i>area private average</span><span>┼ U.S. average for that industry</span>`);
+      `<span><b>spoke</b> = hourly earnings</span><span><span style="color:${REAL_RAMP[4]}">●</span> rising faster than prices</span><span><span style="color:${REAL_RAMP[0]}">●</span> trailing prices</span><span><i></i>area private average</span><span>┼ U.S. average for that industry</span>`);
   }
 
   /* ------------------------------------------------------------------- go */
