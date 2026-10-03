@@ -169,8 +169,7 @@
     const d = TYPO && TYPO.diagnostics;
     if (!d) return "";
     const st = d.stability || [], yr = st[st.length - 1], cov = d.coverage || {};
-    return [TYPO.silhouette != null ? `silhouette ${TYPO.silhouette}${TYPO.silhouette < 0.25 ? " (weak separation)" : ""}` : null,
-      yr && yr.ari != null ? `agreement with a year earlier ${yr.ari}` : null,
+    return [TYPO.silhouette != null ? `Mean silhouette ${TYPO.silhouette.toFixed(2)}${TYPO.silhouette < 0.25 ? " (weak separation)" : ""}` : null,
       cov.typed != null ? `${cov.typed} of ${cov.metros} areas typed` : null].filter(Boolean).join(" · ");
   })();
   const TYPO_DIAG = (() => {
@@ -474,8 +473,8 @@
     if (!TYPO) return `<p class="legend-title">Industry types</p><p class="legend-note">Types arrive with the next data refresh (run the "Update BLS data" workflow).</p>`;
     return `<p class="legend-title">Industry types · ${esc(fmtMonth(rose.month))}</p>
       <div class="type-list">${TYPO.types.map((t) => `<div class="type-row"><i style="background:${typeColor(t.id)}"></i><b>${esc(t.name)}</b><span class="n">${t.n}</span></div>`).join("")}</div>
-      <p class="legend-note" style="margin-top:8px">Each metropolitan area's county footprint is filled with its type: metros grouped by the shape of their industry mix (location quotients of ten sectors${TYPO_WINDOW ? `, averaged over the ${TYPO_WINDOW}` : ""}; k-means; ${TYPO.diagnostics && TYPO.diagnostics.k_rule ? `k = ${TYPO.k} by the stability rule in the profile` : `k = ${TYPO.k} chosen by mean silhouette over ${TYPO.silhouette_by_k ? "2" : "3"} to 8`}). States are not filled, because only metropolitan areas are clustered (a state's profile names its nearest type); grey footprints have too few industry series to be typed. Recomputed with every release.</p>
-      ${TYPO_BRIEF ? `<p class="legend-note">${esc(TYPO_BRIEF)}. Open any area for how these are measured.</p>` : ""}`;
+      <p class="legend-note" style="margin-top:8px">Metropolitan areas grouped by the shape of their industry mix (location quotients of ten sectors${TYPO_WINDOW ? `, ${TYPO_WINDOW}` : ""}; k-means, k = ${TYPO.k}). Grey: too few industry series. States are not typed on the map.</p>
+      ${TYPO_BRIEF ? `<p class="legend-note">${esc(TYPO_BRIEF)}</p>` : ""}`;
   }
   function industryLegend() {
     const sizes = [100, 1000, 5000].map((j) => [j, rGlyph(j)]);

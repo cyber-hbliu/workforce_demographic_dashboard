@@ -165,7 +165,12 @@ def fetch(series_ids: list[str]) -> list[dict]:
                     print(f"  note: {msg}", file=sys.stderr)
                 out.extend(body["Results"]["series"])
                 break
-            print(f"retry {attempt + 1}: {body.get('message')}", file=sys.stderr)
+            msgs = body.get("message") or []
+            if any("daily threshold" in str(m) for m in msgs):
+                # the key's 500 requests for the day are used up; retrying cannot help
+                sys.exit(f"BLS daily request limit reached after {i // 50} of {-(-len(series_ids) // 50)} requests; "
+                         "the previous data files are kept. Run again later; a key allows 500 requests a day")
+            print(f"retry {attempt + 1}: {msgs}", file=sys.stderr)
             time.sleep(5 * (attempt + 1))
         else:
             raise RuntimeError(f"chunk starting {chunk[0]} failed")
